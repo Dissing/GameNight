@@ -1,0 +1,12 @@
+MaterialDef Block {
+    MaterialParameters {
+        Texture2D Atlas
+    }
+    Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        VertexShader GLSL110: Shaders/BlockShader.vert
+        FragmentShader GLSL110: Shaders/BlockShader.frag
+    }
+}
