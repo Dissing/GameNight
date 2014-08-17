@@ -6,14 +6,18 @@
 package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
+import com.jme3.network.serializing.Serializable;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-
-public class Chunk extends Mesh{
+@Serializable
+public class Chunk {
     
     private final transient static float BLOCK_SIZE = 1f;
     private final transient static int CHUNK_SIZE = 4;
@@ -24,6 +28,8 @@ public class Chunk extends Mesh{
     
     private transient FloatBuffer vertices = BufferUtils.createFloatBuffer(CHUNK_VOLUME * 6 * 2 * 3 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 3 floats 
     private transient IntBuffer blockInfo = BufferUtils.createIntBuffer(CHUNK_VOLUME * 6 * 2 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 1 int
+    
+    private transient Mesh mesh = new Mesh();
     
     public void create(boolean allStone)  {
         for (int i = 0; i < CHUNK_VOLUME; i++) {
@@ -101,9 +107,9 @@ public class Chunk extends Mesh{
         
         vertices.flip();
         blockInfo.flip();
-        setBuffer(VertexBuffer.Type.Position, 3, vertices);
-        //setBuffer(VertexBuffer.Type.Normal,1,blockInfo);
-        updateBound();
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, vertices);
+        mesh.setBuffer(VertexBuffer.Type.Normal,1,blockInfo);
+        mesh.updateBound();
     }
     
     public boolean isPopulated(int x, int y, int z) {
@@ -130,6 +136,25 @@ public class Chunk extends Mesh{
         vertices.put(v3.z);
         for (int i = 0; i < 3; i++) {
             blockInfo.put(2);
+        }
+    }
+    
+    public Mesh getMesh() {
+        return mesh;
+    }
+    
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        
+        for (int block : blocks) {
+            oos.writeInt(block);
+        }
+    }
+    
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        for (int i = 0; i < CHUNK_VOLUME; i++) {
+            blocks[i] = ois.readInt();
         }
     }
     

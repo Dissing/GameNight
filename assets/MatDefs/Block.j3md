@@ -6,7 +6,7 @@ MaterialDef Block {
         WorldParameters {
             WorldViewProjectionMatrix
         }
-        VertexShader GLSL110: Shaders/BlockShader.vert
-        FragmentShader GLSL110: Shaders/BlockShader.frag
+        VertexShader GLSL130: Shaders/BlockShader.vert
+        FragmentShader GLSL130: Shaders/BlockShader.frag
     }
 }
