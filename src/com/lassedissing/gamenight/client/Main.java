@@ -13,6 +13,7 @@ import com.jme3.input.controls.InputListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.system.AppSettings;
@@ -63,6 +64,8 @@ public class Main extends SimpleApplication {
         assetManager.registerLocator("lib/assets.jar", ClasspathLocator.class);
         inputManager.setCursorVisible(true);
         flyCam.setEnabled(true);
+        flyCam.setMoveSpeed(7);
+        cam.setLocation(new Vector3f(7f,8f,40f));
         inputManager.addMapping("Pause", new KeyTrigger(KeyInput.KEY_TAB));
         
         inputManager.addListener(new ActionListener() {

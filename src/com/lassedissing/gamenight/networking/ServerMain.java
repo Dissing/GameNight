@@ -60,7 +60,7 @@ public class ServerMain extends SimpleApplication{
 
             @Override
             public void connectionRemoved(Server server, HostedConnection conn) {
-                
+                connections.remove(conn);
             }
         });
         
