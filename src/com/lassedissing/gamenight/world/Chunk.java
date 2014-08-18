@@ -20,7 +20,7 @@ import java.nio.IntBuffer;
 public class Chunk {
     
     private final transient static float BLOCK_SIZE = 1f;
-    private final transient static int CHUNK_SIZE = 4;
+    private final transient static int CHUNK_SIZE = 16;
     private final transient static int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
     private final transient static int CHUNK_VOLUME = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
     
@@ -135,7 +135,7 @@ public class Chunk {
         vertices.put(v3.y);
         vertices.put(v3.z);
         for (int i = 0; i < 3; i++) {
-            blockInfo.put(2);
+            blockInfo.put( yface ? 0x0F000000 : 0);
         }
     }
     
