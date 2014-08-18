@@ -120,6 +120,7 @@ public class Main extends SimpleApplication {
                 chunk = chunkMsg.chunk;
                 chunk.buildMesh();
                 Geometry geom = new Geometry("Chunk",chunk.getMesh());
+                geom.scale(0.5f);
 
                 Material mat = new Material(assetManager, "MatDefs/Block.j3md");
                 mat.getAdditionalRenderState().setWireframe(false);
