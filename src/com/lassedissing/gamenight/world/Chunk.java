@@ -19,6 +19,8 @@ import java.nio.IntBuffer;
 @Serializable
 public class Chunk {
     
+    private final transient static int UP_NORMAL_BITMASK = 0x0F000000;
+    
     private final transient static float BLOCK_SIZE = 1f;
     private final transient static int CHUNK_SIZE = 16;
     private final transient static int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
@@ -34,7 +36,7 @@ public class Chunk {
     public void create(boolean allStone)  {
         for (int i = 0; i < CHUNK_VOLUME; i++) {
             //Set all blocks to either stone or empty depending on the parameter
-            blocks[i] = (Math.random() > 0.5) ? 1 : 0;
+            blocks[i] = (int)Math.floor(Math.random() * 5);
         }
     }
     
@@ -67,38 +69,38 @@ public class Chunk {
                      
                      //Front triangles
                      if (!isPopulated(x, y, z+1)) {
-                        addVertices(v[0],v[1],v[2],false);
-                        addVertices(v[0],v[2],v[3],false);
+                        addVertices(v[0],v[1],v[2],calcBlockMask(type, false));
+                        addVertices(v[0],v[2],v[3],calcBlockMask(type, false));
                      }
                      
                      //Back triangles
                      if (!isPopulated(x, y, z-1)) {
-                        addVertices(v[6],v[5],v[4],false);
-                        addVertices(v[7],v[6],v[4],false);
+                        addVertices(v[6],v[5],v[4],calcBlockMask(type, false));
+                        addVertices(v[7],v[6],v[4],calcBlockMask(type, false));
                      }
                      
                      //Left triangles
                      if (!isPopulated(x-1, y, z)) {
-                        addVertices(v[0],v[7],v[4],false);
-                        addVertices(v[0],v[3],v[7],false);
+                        addVertices(v[0],v[7],v[4],calcBlockMask(type, false));
+                        addVertices(v[0],v[3],v[7],calcBlockMask(type, false));
                      }
                      
                      //Right triangles
                      if (!isPopulated(x+1, y, z)) {
-                        addVertices(v[1],v[5],v[6],false);
-                        addVertices(v[1],v[6],v[2],false);
+                        addVertices(v[1],v[5],v[6],calcBlockMask(type, false));
+                        addVertices(v[1],v[6],v[2],calcBlockMask(type, false));
                      }
                      
                      //Top triangles
                      if (!isPopulated(x, y+1, z)) {
-                        addVertices(v[2],v[7],v[3],true);
-                        addVertices(v[2],v[6],v[7],true);
+                        addVertices(v[2],v[7],v[3],calcBlockMask(type, true));
+                        addVertices(v[2],v[6],v[7],calcBlockMask(type, true));
                      }
                      
                      //Bottom triangles
                      if (!isPopulated(x, y-1, z)) {
-                        addVertices(v[4],v[1],v[0],true);
-                        addVertices(v[4],v[5],v[1],true);
+                        addVertices(v[4],v[1],v[0],calcBlockMask(type, true));
+                        addVertices(v[4],v[5],v[1],calcBlockMask(type, true));
                      }
                     
                 }
@@ -124,7 +126,16 @@ public class Chunk {
         return res;
     }
     
-    public void addVertices(Vector3f v1, Vector3f v2, Vector3f v3, boolean yface) {
+    private int calcBlockMask(int blockType, boolean yFace) {
+        int res = blockType;
+        if (yFace) {
+            res = res | UP_NORMAL_BITMASK;
+        }
+        
+        return res;
+    }
+    
+    public void addVertices(Vector3f v1, Vector3f v2, Vector3f v3, int blockMask) {
         vertices.put(v1.x);
         vertices.put(v1.y);
         vertices.put(v1.z);
@@ -135,7 +146,7 @@ public class Chunk {
         vertices.put(v3.y);
         vertices.put(v3.z);
         for (int i = 0; i < 3; i++) {
-            blockInfo.put( yface ? 0x0F000000 : 0);
+            blockInfo.put(blockMask);
         }
     }
     
