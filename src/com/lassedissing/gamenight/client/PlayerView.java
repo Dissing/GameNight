@@ -14,13 +14,13 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 
 
-public class PlayerModel {
+public class PlayerView {
     
     private int id;
     private Geometry geo;
     
     
-    public PlayerModel(int id, Node parent, Main app) {
+    public PlayerView(int id, Node parent, Main app) {
         this.id = id;
         Box b = new Box(1,1,1);
         geo = new Geometry("Player: " + id, b);

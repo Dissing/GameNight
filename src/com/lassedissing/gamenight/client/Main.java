@@ -36,10 +36,10 @@ public class Main extends SimpleApplication {
     
     Client client;
     
-    Chunk chunk = new Chunk();
+    ChunkView chunk;
 
     private int playerId;
-    private Map<Integer,PlayerModel> players = new HashMap<>();
+    private Map<Integer,PlayerView> players = new HashMap<>();
     
     public String serverIp;
     
@@ -117,7 +117,7 @@ public class Main extends SimpleApplication {
     private void processMessage(Message m) {
         if (m instanceof ChunkMessage) {
                 ChunkMessage chunkMsg = (ChunkMessage) m;
-                chunk = chunkMsg.chunk;
+                chunk = new ChunkView(chunkMsg.chunk);
                 chunk.buildMesh();
                 Geometry geom = new Geometry("Chunk",chunk.getMesh());
                 geom.scale(0.5f);
@@ -135,7 +135,7 @@ public class Main extends SimpleApplication {
                 rootNode.attachChild(geom);
             } else if (m instanceof NewUserMessage) {
                 NewUserMessage newUserMsg = (NewUserMessage) m;
-                players.put(newUserMsg.playerId, new PlayerModel(newUserMsg.playerId, rootNode, this));
+                players.put(newUserMsg.playerId, new PlayerView(newUserMsg.playerId, rootNode, this));
             } else if (m instanceof PositionMessage) {
                 PositionMessage posMsg = (PositionMessage) m;
                 System.out.println("Player moved " + posMsg.playerId);
