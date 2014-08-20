@@ -36,7 +36,7 @@ public class Main extends SimpleApplication {
     
     Client client;
     
-    ChunkView chunk;
+    ChunkManager chunkManager = new ChunkManager();
 
     private int playerId;
     private Map<Integer,PlayerView> players = new HashMap<>();
@@ -66,6 +66,9 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(true);
         flyCam.setMoveSpeed(7);
         cam.setLocation(new Vector3f(7f,8f,40f));
+        
+        rootNode.attachChild(chunkManager.init(assetManager));
+        
         inputManager.addMapping("Pause", new KeyTrigger(KeyInput.KEY_TAB));
         
         inputManager.addListener(new ActionListener() {
@@ -117,22 +120,7 @@ public class Main extends SimpleApplication {
     private void processMessage(Message m) {
         if (m instanceof ChunkMessage) {
                 ChunkMessage chunkMsg = (ChunkMessage) m;
-                chunk = new ChunkView(chunkMsg.chunk);
-                chunk.buildMesh();
-                Geometry geom = new Geometry("Chunk",chunk.getMesh());
-                geom.scale(0.5f);
-
-                Material mat = new Material(assetManager, "MatDefs/Block.j3md");
-                mat.getAdditionalRenderState().setWireframe(false);
-
-                Texture texAtlas = assetManager.loadTexture("Textures/TextureAtlas.png");
-                mat.setTexture("Atlas", texAtlas);
-                texAtlas.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
-                texAtlas.setMagFilter(Texture.MagFilter.Nearest);
-
-                geom.setMaterial(mat);
-
-                rootNode.attachChild(geom);
+                chunkManager.addChunk(chunkMsg.chunk);
             } else if (m instanceof NewUserMessage) {
                 NewUserMessage newUserMsg = (NewUserMessage) m;
                 players.put(newUserMsg.playerId, new PlayerView(newUserMsg.playerId, rootNode, this));

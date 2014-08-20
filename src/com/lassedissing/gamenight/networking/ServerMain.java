@@ -20,7 +20,7 @@ public class ServerMain extends SimpleApplication{
 
     Server server;
     
-    Chunk chunk;
+    Chunk chunks[] = new Chunk[4];
     
     private Map<Integer,HostedConnection> connections = new HashMap<>();
     
@@ -40,8 +40,9 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
         
-        chunk = new Chunk();
-        chunk.create(true);
+        for (int i = 0; i < chunks.length; i++) {
+            chunks[i] = new Chunk(i / 2,0,i % 2);
+        }
         
         server.start();
         
@@ -53,7 +54,9 @@ public class ServerMain extends SimpleApplication{
                 for (int id : connections.keySet()) {
                     conn.send(new NewUserMessage(id));
                 }
-                conn.send(new ChunkMessage(chunk));
+                for (int i = 0; i < chunks.length; i++) {
+                    conn.send(new ChunkMessage(chunks[i]));
+                }
                 server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
                 connections.put(conn.getId(),conn);
             }

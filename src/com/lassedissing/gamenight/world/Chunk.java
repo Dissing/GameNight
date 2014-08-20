@@ -24,15 +24,38 @@ public class Chunk {
     public final transient static int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
     public final transient static int CHUNK_VOLUME = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
     
-    private int[] blocks = new int[CHUNK_VOLUME];
+    protected int[] blocks = new int[CHUNK_VOLUME];
+    protected Vector3f location = new Vector3f();
     
-
+    /**
+     * Only for serialization
+     */
+    public Chunk() {
+        
+    }
     
-    public void create(boolean allStone)  {
+    public Chunk(int x, int y, int z)  {
         for (int i = 0; i < CHUNK_VOLUME; i++) {
             //Set all blocks to either stone or empty depending on the parameter
-            blocks[i] = (int)Math.floor(Math.random() * 5);
+            blocks[i] = (int)Math.floor(Math.random() * 4) + 1;
         }
+        location.set(x, y, z);
+    }
+    
+    public Vector3f getLocation() {
+        return location;
+    }
+    
+    public int getX() {
+        return (int)location.getX();
+    }
+    
+    public int getY() {
+        return (int)location.getY();
+    }
+    
+    public int getZ() {
+        return (int)location.getZ();
     }
     
     public int getIdAt(int x, int y, int z) {
@@ -57,6 +80,7 @@ public class Chunk {
         for (int block : blocks) {
             oos.writeInt(block);
         }
+        oos.writeObject(location);
     }
     
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
@@ -64,6 +88,7 @@ public class Chunk {
         for (int i = 0; i < CHUNK_VOLUME; i++) {
             blocks[i] = ois.readInt();
         }
+        location = (Vector3f) ois.readObject();
     }
     
 }
