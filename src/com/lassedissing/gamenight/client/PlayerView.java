@@ -22,11 +22,12 @@ public class PlayerView {
     
     public PlayerView(int id, Node parent, Main app) {
         this.id = id;
-        Box b = new Box(1,1,1);
+        Box b = new Box(0.8f,1.8f,0.8f);
         geo = new Geometry("Player: " + id, b);
-         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         geo.setMaterial(mat);   
+        geo.setLocalTranslation(0.8f, 18f, 0.8f);
         parent.attachChild(geo);
     }
     
