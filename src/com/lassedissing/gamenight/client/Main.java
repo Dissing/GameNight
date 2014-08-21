@@ -66,6 +66,7 @@ public class Main extends SimpleApplication {
         
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1280, 720);
+        settings.setSamples(4);
         Main app = new Main();
         app.setSettings(settings);
         app.setShowSettings(false);

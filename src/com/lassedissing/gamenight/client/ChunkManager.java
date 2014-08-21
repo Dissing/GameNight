@@ -41,12 +41,23 @@ public class ChunkManager {
 
         Texture texAtlas = assetManager.loadTexture("Textures/TextureAtlas.png");
         blockMaterial.setTexture("Atlas", texAtlas);
-        texAtlas.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        texAtlas.setMinFilter(Texture.MinFilter.NearestLinearMipMap);
         texAtlas.setMagFilter(Texture.MagFilter.Nearest);
-        
+        texAtlas.setAnisotropicFilter(16);
         sceneNode = new Node();
         return sceneNode;
     }
+    
+    /*public boolean getCollision(Vector3f location, Vector3f width) {
+        int x = (int)location.x;
+        int y = (int)location.y;
+        int z = (int)location.z;
+        Chunk chunk = getChunk((int)location.x / CHUNK_SIZE, (int)location.y / CHUNK_SIZE).chunk.getIdAt(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE);
+    }
+    
+    public int getId(int x, int y, int z) {
+        getChunk(x / 16, z / 16).chunk.getIdAt(x % 16, y, z % 16);
+    }*/
     
     public void addChunk(Chunk chunk) {
         
