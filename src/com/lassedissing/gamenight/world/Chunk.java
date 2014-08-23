@@ -35,9 +35,16 @@ public class Chunk {
     }
     
     public Chunk(int x, int y, int z)  {
-        for (int i = 0; i < CHUNK_VOLUME; i++) {
-            //Set all blocks to either stone or empty depending on the parameter
-            blocks[i] = (int)Math.floor(Math.random() * 4) + 1;
+        for (int i = 0; i < CHUNK_SIZE; i++) {
+            for (int j = 0; j < CHUNK_SIZE; j++) {
+                for (int k = 0; k < CHUNK_SIZE; k++) {
+                    if (j == 0) {
+                        setIdAt(1,i,j,k);
+                    } else if (i % 3 == 0 && k % 3 == 0 && (i/2) > j) {
+                        setIdAt(1,i,j,k);
+                    }
+                }
+            }
         }
         location.set(x, y, z);
     }
@@ -60,6 +67,10 @@ public class Chunk {
     
     public int getIdAt(int x, int y, int z) {
         return blocks[x*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+z];
+    }
+    
+    public void setIdAt(int value, int x, int y, int z) {
+        blocks[x*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+z] = value;
     }
  
     public boolean isPopulated(int x, int y, int z) {

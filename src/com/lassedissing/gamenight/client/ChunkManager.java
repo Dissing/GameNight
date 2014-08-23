@@ -48,16 +48,14 @@ public class ChunkManager {
         return sceneNode;
     }
     
-    /*public boolean getCollision(Vector3f location, Vector3f width) {
-        int x = (int)location.x;
-        int y = (int)location.y;
-        int z = (int)location.z;
-        Chunk chunk = getChunk((int)location.x / CHUNK_SIZE, (int)location.y / CHUNK_SIZE).chunk.getIdAt(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE);
-    }
-    
     public int getId(int x, int y, int z) {
-        getChunk(x / 16, z / 16).chunk.getIdAt(x % 16, y, z % 16);
-    }*/
+        if (x < 0 || y < 0 || z < 0 || y > 15) return 0;
+        ChunkView view = getChunk(x / 16, z / 16);
+        if (view == null) {
+            return 0;
+        } 
+        return view.chunk.getIdAt(x % 16, y, z % 16);
+    }
     
     public void addChunk(Chunk chunk) {
         

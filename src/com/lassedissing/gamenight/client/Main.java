@@ -85,8 +85,9 @@ public class Main extends SimpleApplication {
         initInput();
         initNetwork();
         
-        player.setLocation(new Vector3f(32,16,32));
-        
+        player.setLocation(new Vector3f(17,1,16));
+        cam.setFrustumNear(0.4f);
+        cam.setFrustumPerspective(60f, 1.6f, 0.1f, 20f);
     }
     
     private void initNetwork() {
@@ -236,15 +237,12 @@ public class Main extends SimpleApplication {
             walkDirection.addLocal(cam.getDirection().setY(0).negate());
         }
         
-        player.move(walkDirection);
-        
-        
         if (leftAction || rightAction || forwardAction || backAction) {
             client.send(new PositionMessage(-1,cam.getLocation()));
         }
         
         
-        player.tick(cam);
+        player.tick(cam,walkDirection,chunkManager);
         
     }
 
