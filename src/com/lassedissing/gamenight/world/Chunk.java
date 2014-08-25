@@ -40,7 +40,7 @@ public class Chunk {
                 for (int k = 0; k < CHUNK_SIZE; k++) {
                     if (j == 0) {
                         setIdAt(1,i,j,k);
-                    } else if (i % 3 == 0 && k % 3 == 0 && (i/2) > j) {
+                    } else if (i % 2 == 0 && k % 2 == 0 && (i/2) > j) {
                         setIdAt(1,i,j,k);
                     }
                 }
