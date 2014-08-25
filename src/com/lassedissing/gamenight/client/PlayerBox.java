@@ -14,12 +14,10 @@ public class PlayerBox {
     private Vector3f location = new Vector3f();
     private Vector3f velocityXZ = new Vector3f();
     private Vector3f velocityY = new Vector3f();
-    private Vector3f prevLocation = new Vector3f();
-    private Vector3f moveDirection = new Vector3f();
-    private Vector3f eye = new Vector3f(0.45f,1.6f,0.45f);
-    private Vector3f width = new Vector3f(0.9f,1.8f,0.9f);
-    private Vector3f center = new Vector3f(0.45f,0, 0.45f);
-    private float walkSpeed = 0.2f;
+    private Vector3f eye = new Vector3f(0.4f,1.6f,0.4f);
+    private Vector3f width = new Vector3f(0.8f,1.8f,0.8f);
+    private Vector3f center = new Vector3f(0.4f,0, 0.4f);
+    private float walkSpeed = 0.15f;
     private float friction = 0.3f;
     private boolean isOnGround = true;
     private Vector3f gravity = new Vector3f(0,-0.01f,0);
@@ -79,65 +77,74 @@ public class PlayerBox {
         location.addLocal(velocityY);
         newPos.set(location);
         
+        desiredDirection.y = 0;
+        desiredDirection.normalizeLocal();
+        desiredDirection.multLocal(walkSpeed);
+        Vector3f velDiff = new Vector3f(desiredDirection);
+        velDiff.subtractLocal(velocityXZ);
+        
         if (isOnGround) {
-            
-            desiredDirection.y = 0;
-            desiredDirection.normalizeLocal();
-            desiredDirection.multLocal(walkSpeed);
-            
-            Vector3f velDiff = new Vector3f(desiredDirection);
-            velDiff.subtractLocal(velocityXZ);
             velDiff.multLocal(friction);
-            
             velocityXZ.x += velDiff.x;
             velocityXZ.z += velDiff.z;
             
-            //Step X
-            newPos.x += velocityXZ.x;
-            int side = velocityXZ.x > 0 ? 1 : -1;
-            
-            int x1 = manager.getId(cenX+side, cenY, cenZ+1);
-            int x2 = manager.getId(cenX+side, cenY, cenZ);
-            int x3 = manager.getId(cenX+side, cenY, cenZ-1);
-            
-            boolean colX = 
-                    ((x1 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ+1)) ||
-                     (x2 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ)) ||
-                     (x3 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ-1)));
-            
-            //Step Z
-            newPos.z += velocityXZ.z;
-            side = velocityXZ.z > 0 ? 1 : -1;
-            
-            int z1 = manager.getId(cenX+1, cenY, cenZ+side);
-            int z2 = manager.getId(cenX, cenY, cenZ+side);
-            int z3 = manager.getId(cenX-1, cenY, cenZ+side);
-            
-            boolean colZ = 
-                    ((z1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+side)) ||
-                     (z2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+side)) ||
-                     (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+side)));
-            
-            if (colX && colZ) {
-                if (Math.abs(cam.getDirection().getX()) > Math.abs(cam.getDirection().getZ())) {
-                    colZ = false;
-                } else {
-                    colX = false;
-                }
-            }
-            
-            if (colX) {
-                Vector3f collidingNormal = new Vector3f(-side,0,0);
-                collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
-                velocityXZ.subtractLocal(collidingNormal);
-            } 
-            if (colZ) {
-                Vector3f collidingNormal = new Vector3f(0,0,-side);
-                collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
-                velocityXZ.subtractLocal(collidingNormal);
-            } 
-            
+        } else if (desiredDirection.length() != 0) {
+            velDiff.multLocal(friction/8f);
+            velocityXZ.x += velDiff.x;
+            velocityXZ.z += velDiff.z;
         }
+        
+
+        //Step X
+        newPos.x += velocityXZ.x;
+        int side = velocityXZ.x > 0 ? 1 : -1;
+
+        int x1 = manager.getId(cenX+side, cenY, cenZ+1);
+        int x2 = manager.getId(cenX+side, cenY, cenZ);
+        int x3 = manager.getId(cenX+side, cenY, cenZ-1);
+
+        boolean colX = 
+                ((x1 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ+1)) ||
+                 (x2 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ)) ||
+                 (x3 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ-1)));
+
+        //Step Z
+        newPos.set(location);
+        newPos.z += velocityXZ.z;
+        side = velocityXZ.z > 0 ? 1 : -1;
+
+        int z1 = manager.getId(cenX+1, cenY, cenZ+side);
+        int z2 = manager.getId(cenX, cenY, cenZ+side);
+        int z3 = manager.getId(cenX-1, cenY, cenZ+side);
+
+        boolean colZ = 
+                ((z1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+side)) ||
+                 (z2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+side)) ||
+                 (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+side)));
+
+        if (colX && colZ) {
+            if (Math.abs(cam.getDirection().getX()) > 0.97f && Math.abs(desiredDirection.x) > Math.abs(desiredDirection.z)) {
+                System.out.println("Double X!");
+                colZ = false;
+            } else if (Math.abs(cam.getDirection().getZ()) > 0.97f && Math.abs(desiredDirection.z) > Math.abs(desiredDirection.x)) {
+                System.out.println("Double Z!");
+                colX = false;
+            } else {
+                System.out.println("False double");
+            }
+        }
+
+        if (colX) {
+            Vector3f collidingNormal = new Vector3f(-side,0,0);
+            collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
+            velocityXZ.subtractLocal(collidingNormal);
+        } 
+        if (colZ) {
+            Vector3f collidingNormal = new Vector3f(0,0,-side);
+            collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
+            velocityXZ.subtractLocal(collidingNormal);
+        } 
+            
         
         location.addLocal(velocityXZ);
         cam.setLocation(location.add(eye));
