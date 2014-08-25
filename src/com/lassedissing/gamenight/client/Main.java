@@ -129,6 +129,7 @@ public class Main extends SimpleApplication {
         INPUT_STRAFE_RIGHT,
         INPUT_MOVE_FORWARD,
         INPUT_MOVE_BACKWARD,
+        INPUT_JUMP,
         INPUT_TAB
     };
     
@@ -237,7 +238,11 @@ public class Main extends SimpleApplication {
             walkDirection.addLocal(cam.getDirection().setY(0).negate());
         }
         
-        if (leftAction || rightAction || forwardAction || backAction) {
+        if (jumpAction) {
+            player.jump();
+        }
+        
+        if (leftAction || rightAction || forwardAction || backAction || jumpAction) {
             client.send(new PositionMessage(-1,cam.getLocation()));
         }
         
