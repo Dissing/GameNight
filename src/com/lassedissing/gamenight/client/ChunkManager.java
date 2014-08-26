@@ -86,6 +86,10 @@ public class ChunkManager {
         } 
         view.chunk.setIdAt(type, x % 16, y, z % 16);
         rebuildChunk(x / 16, z / 16);
+        if (x % 16 == 0)  rebuildChunk(x / 16 - 1, z / 16);
+        if (x % 16 == 15) rebuildChunk(x / 16 + 1, z / 16);
+        if (z % 16 == 0)  rebuildChunk(x / 16, z / 16 - 1);
+        if (z % 16 == 15) rebuildChunk(x / 16, z / 16 + 1);
     }
     
     public void addChunk(Chunk chunk) {
@@ -243,11 +247,11 @@ public class ChunkManager {
             return false;
         }
         if (x >= CHUNK_SIZE) {
-            return isPopulated(getChunk(view.chunk.getX()+1, view.chunk.getZ()),1,y,z);
+            return isPopulated(getChunk(view.chunk.getX()+1, view.chunk.getZ()),0,y,z);
         }
         
         if (z >= CHUNK_SIZE) {
-            return isPopulated(getChunk(view.chunk.getX(), view.chunk.getZ()+1),x,y,1);
+            return isPopulated(getChunk(view.chunk.getX(), view.chunk.getZ()+1),x,y,0);
         }
         
         if (x < 0) {
