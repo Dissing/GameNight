@@ -71,7 +71,7 @@ public class ChunkManager {
     }
     
     public int getId(int x, int y, int z) {
-        if (y < 0 || y > 15) return 0;
+        if (y < 0 || y > 15 || x < 0 || z < 0) return 0;
         ChunkView view = getChunk(x / 16, z / 16);
         if (view == null) {
             return 0;
