@@ -41,9 +41,15 @@ public class ChunkManager {
 
         Texture texAtlas = assetManager.loadTexture("Textures/TextureAtlas.png");
         blockMaterial.setTexture("Atlas", texAtlas);
-        texAtlas.setMinFilter(Texture.MinFilter.NearestLinearMipMap);
+        if (Main.MIPMAP) {
+            texAtlas.setMinFilter(Texture.MinFilter.NearestLinearMipMap);
+        } else {
+            texAtlas.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        }
         texAtlas.setMagFilter(Texture.MagFilter.Nearest);
-        texAtlas.setAnisotropicFilter(16);
+        if (Main.ANISOTROPIC != 0) {
+            texAtlas.setAnisotropicFilter(Main.ANISOTROPIC);
+        }
         sceneNode = new Node();
         return sceneNode;
     }

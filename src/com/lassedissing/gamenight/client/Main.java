@@ -48,6 +48,9 @@ public class Main extends SimpleApplication {
     
     public String serverIp;
     
+    public static boolean MIPMAP = false;
+    public static int ANISOTROPIC = 0;
+    
     private boolean leftAction = false;
     private boolean rightAction = false;
     private boolean forwardAction = false;
@@ -87,7 +90,7 @@ public class Main extends SimpleApplication {
         
         player.setLocation(new Vector3f(17,1,16));
         cam.setFrustumNear(0.4f);
-        cam.setFrustumPerspective(60f, 1.6f, 0.1f, 20f);
+        cam.setFrustumPerspective(60f, 1.6f, 0.1f, 50f);
     }
     
     private void initNetwork() {
