@@ -7,14 +7,9 @@ package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 @Serializable
 public class Chunk {
