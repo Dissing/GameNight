@@ -62,15 +62,21 @@ public class PlayerBox {
         velocityY.addLocal(gravity);
         newPos.addLocal(velocityY);
         
-        int y5 = manager.getId(cenX, (int)newPos.y, cenZ);
+        int y1 = manager.getId(cenX, (int)newPos.y, cenZ);
+        int y2 = manager.getId(cenX, (int)newPos.y+2, cenZ);
         
-        boolean colY = 
-                     ((y5 != 0 && isColliding(newPos, width, cenX, cenY, cenZ)));
+        boolean colGround = 
+                     (y1 != 0 && isColliding(newPos, width, cenX, cenY, cenZ));
+                  
+        boolean colRoof = 
+                (y2 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ));
         
-        if (colY) {
+        if (colGround) {
             isOnGround = true;
             velocityY.set(0, 0, 0);
             location.y = (float)Math.ceil(newPos.y);
+        } else if (colRoof) {
+            velocityY.set(0, 0, 0);
         } else {
             isOnGround = false;
         }
@@ -102,11 +108,17 @@ public class PlayerBox {
         int x1 = manager.getId(cenX+side, cenY, cenZ+1);
         int x2 = manager.getId(cenX+side, cenY, cenZ);
         int x3 = manager.getId(cenX+side, cenY, cenZ-1);
+        int x4 = manager.getId(cenX+side, cenY+1, cenZ+1);
+        int x5 = manager.getId(cenX+side, cenY+1, cenZ);
+        int x6 = manager.getId(cenX+side, cenY+1, cenZ-1);
 
         boolean colX = 
                 ((x1 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ+1)) ||
                  (x2 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ)) ||
-                 (x3 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ-1)));
+                 (x3 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ-1)) ||
+                 (x4 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ+1)) ||
+                 (x5 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ)) ||
+                 (x6 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ-1)) );
 
         //Step Z
         newPos.set(location);
@@ -116,11 +128,17 @@ public class PlayerBox {
         int z1 = manager.getId(cenX+1, cenY, cenZ+side);
         int z2 = manager.getId(cenX, cenY, cenZ+side);
         int z3 = manager.getId(cenX-1, cenY, cenZ+side);
+        int z4 = manager.getId(cenX+1, cenY+1, cenZ+side);
+        int z5 = manager.getId(cenX, cenY+1, cenZ+side);
+        int z6 = manager.getId(cenX-1, cenY+1, cenZ+side);
 
         boolean colZ = 
                 ((z1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+side)) ||
                  (z2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+side)) ||
-                 (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+side)));
+                 (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+side)) ||
+                 (z4 != 0 && isColliding(newPos, width, cenX+1, cenY+1, cenZ+side)) ||
+                 (z5 != 0 && isColliding(newPos, width, cenX, cenY+1, cenZ+side)) ||
+                 (z6 != 0 && isColliding(newPos, width, cenX-1, cenY+1, cenZ+side)));
 
         if (colX && colZ) {
             if (Math.abs(cam.getDirection().getX()) > 0.97f && Math.abs(desiredDirection.x) > Math.abs(desiredDirection.z)) {
