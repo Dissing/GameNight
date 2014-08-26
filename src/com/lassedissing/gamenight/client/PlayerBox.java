@@ -142,13 +142,10 @@ public class PlayerBox {
 
         if (colX && colZ) {
             if (Math.abs(cam.getDirection().getX()) > 0.97f && Math.abs(desiredDirection.x) > Math.abs(desiredDirection.z)) {
-                System.out.println("Double X!");
                 colZ = false;
             } else if (Math.abs(cam.getDirection().getZ()) > 0.97f && Math.abs(desiredDirection.z) > Math.abs(desiredDirection.x)) {
-                System.out.println("Double Z!");
                 colX = false;
             } else {
-                System.out.println("False double");
             }
         }
 
