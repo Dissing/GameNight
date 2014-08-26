@@ -39,6 +39,7 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
+        Serializer.registerClass(BlockChangeMessage.class);
         
         for (int i = 0; i < chunks.length; i++) {
             chunks[i] = new Chunk(i / 2,0,i % 2);
@@ -95,6 +96,8 @@ public class ServerMain extends SimpleApplication{
             if (m instanceof PositionMessage) {
                 PositionMessage posMsg = (PositionMessage) m;
                 server.broadcast(Filters.notEqualTo( source ),new PositionMessage(source.getId(), posMsg.playerPos));
+            } else if (m instanceof BlockChangeMessage) {
+                server.broadcast(m);
             }
         }
         

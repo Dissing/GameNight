@@ -7,11 +7,16 @@ package com.lassedissing.gamenight.client;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.debug.WireBox;
+import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 import com.lassedissing.gamenight.world.Chunk;
@@ -31,6 +36,7 @@ public class ChunkManager {
     
     private Material blockMaterial;
     private Node sceneNode;
+    private Geometry selectBlock;
     
     public ChunkManager() {
     }
@@ -50,17 +56,39 @@ public class ChunkManager {
         if (Main.ANISOTROPIC != 0) {
             texAtlas.setAnisotropicFilter(Main.ANISOTROPIC);
         }
+        Mesh wireBox = new WireBox(0.5f, 0.5f, 0.5f);
+        wireBox.setLineWidth(3f);
+        selectBlock = new Geometry("Select box", wireBox);
+        Material wireMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        wireMaterial.getAdditionalRenderState().setWireframe(true);
+        wireMaterial.setColor("Color", ColorRGBA.Black);
+        selectBlock.setMaterial(wireMaterial);
+        selectBlock.setCullHint(Spatial.CullHint.Always);
         sceneNode = new Node();
+        sceneNode.attachChild(selectBlock);
         return sceneNode;
     }
     
+    public int getId(Vector3f vec) {
+        return getId((int)vec.x,(int)vec.y,(int)vec.z);
+    }
+    
     public int getId(int x, int y, int z) {
-        if (x < 0 || y < 0 || z < 0 || y > 15) return 0;
+        if (y < 0 || y > 15) return 0;
         ChunkView view = getChunk(x / 16, z / 16);
         if (view == null) {
             return 0;
         } 
         return view.chunk.getIdAt(x % 16, y, z % 16);
+    }
+    
+    public void setBlockType(int type, int x, int y, int z) {
+        ChunkView view = getChunk(x / 16, z / 16);
+        if (view == null) {
+            return;
+        } 
+        view.chunk.setIdAt(type, x % 16, y, z % 16);
+        rebuildChunk(x / 16, z / 16);
     }
     
     public void addChunk(Chunk chunk) {
@@ -82,6 +110,34 @@ public class ChunkManager {
         rebuildChunk(x,  z-1);
         rebuildChunk(x+1,z);
         rebuildChunk(x,  z+1);
+    }
+    
+    public void showSelectBlock(int x, int y, int z) {
+        selectBlock.setLocalTranslation(x+0.5f, y+0.5f, z+0.5f);
+        selectBlock.setCullHint(Spatial.CullHint.Dynamic);
+    }
+    
+    public void hideSelectBlock() {
+        selectBlock.setCullHint(Spatial.CullHint.Always);
+    }
+    
+    public Vector3f getPickedBlock(Vector3f origin, Vector3f direction, float range, boolean faceBlock) {
+        direction.normalizeLocal();
+        Vector3f currentPoint = new Vector3f(direction);
+        Vector3f boxLocation = new Vector3f();
+        for (float i = 0; i < range; i += 0.1f) {
+            direction.mult(i, currentPoint);
+            boxLocation.set(origin);
+            boxLocation.addLocal(currentPoint);
+            boxLocation.x = (int)boxLocation.x;
+            boxLocation.y = (int)boxLocation.y;
+            boxLocation.z = (int)boxLocation.z;
+            if (getId(boxLocation) != 0) {
+                return boxLocation;
+            }
+        }
+        selectBlock.setCullHint(Spatial.CullHint.Always);
+        return null;
     }
     
     private ChunkView getChunk(int x, int z) {

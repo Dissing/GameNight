@@ -8,12 +8,14 @@ package com.lassedissing.gamenight.client;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.InputListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -26,6 +28,7 @@ import com.jme3.texture.Texture;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.renderer.lwjgl.LwjglRenderer;
+import com.lassedissing.gamenight.networking.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.networking.ChunkMessage;
 import com.lassedissing.gamenight.networking.NewUserMessage;
@@ -56,6 +59,8 @@ public class Main extends SimpleApplication {
     private boolean forwardAction = false;
     private boolean backAction = false;
     private boolean jumpAction = false;
+    private boolean leftClick = false;
+    private boolean rightClick = false;
     
     private boolean mouseTrapped = false;
     
@@ -91,6 +96,7 @@ public class Main extends SimpleApplication {
         player.setLocation(new Vector3f(17,1,16));
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(60f, 1.6f, 0.1f, 50f);
+        initCrosshair();
     }
     
     private void initNetwork() {
@@ -106,10 +112,21 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
+        Serializer.registerClass(BlockChangeMessage.class);
 
         client.addMessageListener(new ClientListener(this));
         
         client.start();
+    }
+    
+    private void initCrosshair() {
+        BitmapText crosshair = new BitmapText(guiFont, false);
+        crosshair.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+        crosshair.setText("+");
+        crosshair.setLocalTranslation(
+                settings.getWidth() / 2 - crosshair.getLineWidth()/2, 
+                settings.getHeight() / 2 + crosshair.getLineHeight()/2, 0);
+        guiNode.attachChild(crosshair);
     }
     
     private final static String INPUT_CAM_LEFT = "CamLeft";
@@ -122,6 +139,8 @@ public class Main extends SimpleApplication {
     private final static String INPUT_MOVE_BACKWARD = "MoveBackward";
     private final static String INPUT_JUMP = "Jump";
     private final static String INPUT_TAB = "Tab";
+    private final static String INPUT_LEFT_CLICK = "LeftClick";
+    private final static String INPUT_RIGHT_CLICK = "RightClick";
     
     private static String[] keyMappings = new String[]{
         INPUT_CAM_LEFT,
@@ -133,7 +152,9 @@ public class Main extends SimpleApplication {
         INPUT_MOVE_FORWARD,
         INPUT_MOVE_BACKWARD,
         INPUT_JUMP,
-        INPUT_TAB
+        INPUT_TAB,
+        INPUT_LEFT_CLICK,
+        INPUT_RIGHT_CLICK
     };
     
     private void initInput() {
@@ -149,6 +170,9 @@ public class Main extends SimpleApplication {
         inputManager.addMapping(INPUT_CAM_RIGHT, new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping(INPUT_CAM_UP, new MouseAxisTrigger(mouseInput.AXIS_Y, false), new KeyTrigger(KeyInput.KEY_UP));
         inputManager.addMapping(INPUT_CAM_DOWN, new MouseAxisTrigger(mouseInput.AXIS_Y, true), new KeyTrigger(KeyInput.KEY_DOWN));
+        inputManager.addMapping(INPUT_LEFT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
+        inputManager.addMapping(INPUT_RIGHT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_RIGHT));
+
         
         inputManager.addListener(inputListener, keyMappings);
     }
@@ -199,6 +223,10 @@ public class Main extends SimpleApplication {
                 jumpAction = isPressed;
             } else if (name.equalsIgnoreCase(INPUT_TAB) && isPressed) {
                 mouseTrapped = !mouseTrapped;
+            } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK)) {
+                leftClick = isPressed;
+            } else if (name.equalsIgnoreCase(INPUT_RIGHT_CLICK)) {
+                rightClick = isPressed;
             }
         }
 
@@ -251,6 +279,14 @@ public class Main extends SimpleApplication {
         
         
         player.tick(cam,walkDirection,chunkManager);
+        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
+        if (selectedBlock != null) {
+            chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
+            if (leftClick) {
+                client.send(new BlockChangeMessage(0, selectedBlock));
+                leftClick = false;
+            }
+        }
         
     }
 
@@ -274,8 +310,10 @@ public class Main extends SimpleApplication {
                 players.put(newUserMsg.playerId, new PlayerView(newUserMsg.playerId, rootNode, this));
             } else if (m instanceof PositionMessage) {
                 PositionMessage posMsg = (PositionMessage) m;
-                System.out.println("Player moved " + posMsg.playerId);
                 players.get(posMsg.playerId).setPosition(posMsg.playerPos);
+            } else if (m instanceof BlockChangeMessage) {
+                BlockChangeMessage blcMsg = (BlockChangeMessage) m;
+                chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
             }
     }
 
