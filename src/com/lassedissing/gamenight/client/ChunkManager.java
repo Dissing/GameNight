@@ -134,7 +134,35 @@ public class ChunkManager {
             boxLocation.y = (int)boxLocation.y;
             boxLocation.z = (int)boxLocation.z;
             if (getId(boxLocation) != 0) {
-                return boxLocation;
+                if (faceBlock) {
+                    
+                    float tx0 = (boxLocation.x - origin.x) / direction.x;
+                    float tx1 = ((boxLocation.x+1) - origin.x) / direction.x;
+                    if (tx0 > tx1) {float temp = tx0; tx0 = tx1; tx1 = temp;}
+                    
+                    float ty0 = (boxLocation.y - origin.y) / direction.y;
+                    float ty1 = ((boxLocation.y+1) - origin.y) / direction.y;
+                    if (ty0 > ty1) {float temp = ty0; ty0 = ty1; ty1 = temp;}
+                    
+                    float tz0 = (boxLocation.z - origin.z) / direction.z;
+                    float tz1 = ((boxLocation.z+1) - origin.z) / direction.z;
+                    if (tz0 > tz1) {float temp = tz0; tz0 = tz1; tz1 = temp;}
+                    
+                    if (tx0 > tz0 && tx0 > ty0) {
+                        return new Vector3f(boxLocation.x-(direction.x > 0 ? 1 : -1),boxLocation.y,boxLocation.z);
+                    }
+                    if (ty0 > tz0 && ty0 > tx0) {
+                        return new Vector3f(boxLocation.x,boxLocation.y-(direction.y > 0 ? 1 : -1),boxLocation.z);
+                    }
+                    if (tz0 > tx0 && tz0 > ty0) {
+                        return new Vector3f(boxLocation.x,boxLocation.y,boxLocation.z-(direction.z > 0 ? 1 : -1));
+                    }
+                    
+                    return boxLocation;
+                    
+                } else {
+                    return boxLocation;
+                }
             }
         }
         selectBlock.setCullHint(Spatial.CullHint.Always);

@@ -280,6 +280,11 @@ public class Main extends SimpleApplication {
                 client.send(new BlockChangeMessage(0, selectedBlock));
                 leftClick = false;
             }
+            if (rightClick) {
+                selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
+                client.send(new BlockChangeMessage(1, selectedBlock));
+                rightClick = false;
+            }
         }
         
     }
