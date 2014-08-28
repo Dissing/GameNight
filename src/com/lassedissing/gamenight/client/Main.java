@@ -58,7 +58,7 @@ public class Main extends SimpleApplication {
     
     private boolean mouseTrapped = false;
     
-    private PlayerBox player = new PlayerBox();
+    private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
     
     public static void main(String[] args) {

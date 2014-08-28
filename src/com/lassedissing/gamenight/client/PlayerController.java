@@ -9,7 +9,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
 
-public class PlayerBox {
+public class PlayerController {
     
     private Vector3f location = new Vector3f();
     private Vector3f velocityXZ = new Vector3f();
@@ -24,7 +24,7 @@ public class PlayerBox {
     private Vector3f gravity = new Vector3f(0,-36f,0);
     
     
-    public PlayerBox() {
+    public PlayerController() {
         
     }
 
