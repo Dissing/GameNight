@@ -17,10 +17,11 @@ public class PlayerBox {
     private Vector3f eye = new Vector3f(0.4f,1.6f,0.4f);
     private Vector3f width = new Vector3f(0.8f,1.8f,0.8f);
     private Vector3f center = new Vector3f(0.4f,0, 0.4f);
-    private float walkSpeed = 0.15f;
-    private float friction = 0.3f;
+    private float walkSpeed = 9f;
+    private float friction = 18f;
+    private float jumpVelocity = 12f;
     private boolean isOnGround = true;
-    private Vector3f gravity = new Vector3f(0,-0.01f,0);
+    private Vector3f gravity = new Vector3f(0,-36f,0);
     
     
     public PlayerBox() {
@@ -43,11 +44,11 @@ public class PlayerBox {
     public void jump() {
         if (isOnGround) {
             isOnGround = false;
-            velocityY.y = 0.2f;
+            velocityY.y = jumpVelocity;
         }
     }
     
-    public void tick(Camera cam, Vector3f desiredDirection, ChunkManager manager) {
+    public void tick(Camera cam, Vector3f desiredDirection, ChunkManager manager, float tpf) {
         
         //Step XZ
         
@@ -59,8 +60,8 @@ public class PlayerBox {
         
         //Step Y
         
-        velocityY.addLocal(gravity);
-        newPos.addLocal(velocityY);
+        velocityY.addLocal(gravity.mult(tpf));
+        newPos.addLocal(velocityY.mult(tpf));
         
         int y1 = manager.getId(cenX, (int)newPos.y, cenZ);
         int y2 = manager.getId(cenX, (int)newPos.y+2, cenZ);
@@ -80,8 +81,7 @@ public class PlayerBox {
         } else {
             isOnGround = false;
         }
-        location.addLocal(velocityY);
-        newPos.set(location);
+        location.addLocal(velocityY.mult(tpf));
         
         desiredDirection.y = 0;
         desiredDirection.normalizeLocal();
@@ -90,19 +90,20 @@ public class PlayerBox {
         velDiff.subtractLocal(velocityXZ);
         
         if (isOnGround) {
-            velDiff.multLocal(friction);
+            velDiff.multLocal(friction*tpf);
             velocityXZ.x += velDiff.x;
             velocityXZ.z += velDiff.z;
             
         } else if (desiredDirection.length() != 0) {
-            velDiff.multLocal(friction/8f);
+            velDiff.multLocal(friction*tpf/8f);
             velocityXZ.x += velDiff.x;
             velocityXZ.z += velDiff.z;
         }
         
 
         //Step X
-        newPos.x += velocityXZ.x;
+        newPos.set(location);
+        newPos.x += velocityXZ.x * tpf;
         int side = velocityXZ.x > 0 ? 1 : -1;
 
         int x1 = manager.getId(cenX+side, cenY, cenZ+1);
@@ -122,7 +123,7 @@ public class PlayerBox {
 
         //Step Z
         newPos.set(location);
-        newPos.z += velocityXZ.z;
+        newPos.z += velocityXZ.z * tpf;
         side = velocityXZ.z > 0 ? 1 : -1;
 
         int z1 = manager.getId(cenX+1, cenY, cenZ+side);
@@ -161,7 +162,7 @@ public class PlayerBox {
         } 
             
         
-        location.addLocal(velocityXZ);
+        location.addLocal(velocityXZ.mult(tpf));
         cam.setLocation(location.add(eye));
     }
     

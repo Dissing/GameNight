@@ -272,7 +272,8 @@ public class Main extends SimpleApplication {
         }
         
         
-        player.tick(cam,walkDirection,chunkManager);
+        player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
+
         Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
         if (selectedBlock != null) {
             chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
