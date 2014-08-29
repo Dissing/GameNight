@@ -61,7 +61,7 @@ public class Chunk {
     }
     
     public int getIdAt(int x, int y, int z) {
-        return blocks[x*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+z];
+        return blocks[(x & 0xF)*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+(z & 0xF)];
     }
     
     public Block getBlockAt(int x, int y, int z) {
@@ -69,7 +69,7 @@ public class Chunk {
     }
     
     public void setIdAt(int value, int x, int y, int z) {
-        blocks[x*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+z] = value;
+        blocks[(x & 0xF)*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+(z & 0xF)] = value;
     }
  
     public boolean isPopulated(int x, int y, int z) {
