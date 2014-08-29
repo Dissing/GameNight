@@ -87,10 +87,12 @@ public class Main extends SimpleApplication {
         initInput();
         initNetwork();
         
-        player.setLocation(new Vector3f(17,1,16));
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(60f, 1.6f, 0.1f, 50f);
         initCrosshair();
+
+        player.setLocation(new Vector3f(17,1,16));
+        client.send(new PositionMessage(-1,cam.getLocation()));
     }
     
     private void initNetwork() {

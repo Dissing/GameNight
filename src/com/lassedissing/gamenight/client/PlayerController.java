@@ -18,7 +18,7 @@ public class PlayerController {
     private Vector3f width = new Vector3f(0.8f,1.8f,0.8f);
     private Vector3f center = new Vector3f(0.4f,0, 0.4f);
     private float walkSpeed = 9f;
-    private float friction = 18f;
+    private float friction = 10f;
     private float jumpVelocity = 12f;
     private boolean isOnGround = true;
     private Vector3f gravity = new Vector3f(0,-36f,0);
