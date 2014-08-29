@@ -6,6 +6,7 @@ import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.world.Chunk;
+import com.lassedissing.gamenight.world.World;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class ServerMain extends SimpleApplication{
 
     Server server;
     
-    Chunk chunks[] = new Chunk[4];
+    World world;
     
     private Map<Integer,HostedConnection> connections = new HashMap<>();
     
@@ -41,9 +42,8 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
         
-        for (int i = 0; i < chunks.length; i++) {
-            chunks[i] = new Chunk(i / 2,0,i % 2);
-        }
+        world = new World();
+        world.generate(4, 12);
         
         server.start();
         
@@ -55,8 +55,8 @@ public class ServerMain extends SimpleApplication{
                 for (int id : connections.keySet()) {
                     conn.send(new NewUserMessage(id));
                 }
-                for (int i = 0; i < chunks.length; i++) {
-                    conn.send(new ChunkMessage(chunks[i]));
+                for (Chunk chunk : world.getAllChunks()) {
+                    conn.send(new ChunkMessage(chunk));
                 }
                 server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
                 connections.put(conn.getId(),conn);

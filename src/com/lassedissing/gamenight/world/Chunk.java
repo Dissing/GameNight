@@ -29,7 +29,7 @@ public class Chunk {
         
     }
     
-    public Chunk(int x, int y, int z)  {
+    public Chunk(int x, int z)  {
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 for (int k = 0; k < CHUNK_SIZE; k++) {
@@ -45,7 +45,7 @@ public class Chunk {
                 }
             }
         }
-        location.set(x, y, z);
+        location.set(x, 0, z);
     }
     
     public Vector3f getLocation() {
@@ -56,16 +56,16 @@ public class Chunk {
         return (int)location.getX();
     }
     
-    public int getY() {
-        return (int)location.getY();
-    }
-    
     public int getZ() {
         return (int)location.getZ();
     }
     
     public int getIdAt(int x, int y, int z) {
         return blocks[x*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+z];
+    }
+    
+    public Block getBlockAt(int x, int y, int z) {
+        return new Block(this,(getX() << 4) + (x & 0xF), y & 0xFF , (getZ() << 4) + (z & 0xF));
     }
     
     public void setIdAt(int value, int x, int y, int z) {

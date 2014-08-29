@@ -95,11 +95,7 @@ public class ChunkManager {
     public void addChunk(Chunk chunk) {
         
         int x = chunk.getX();
-        int y = chunk.getY();
         int z = chunk.getZ();
-        
-        System.out.println("New chunk with location: " + x + " " + y + " " + z);
-        
         
         ChunkView view = new ChunkView(chunk);
         long pos = x;
