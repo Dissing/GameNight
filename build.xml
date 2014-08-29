@@ -72,5 +72,14 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <target name="package" depends="clean,jar">
+        <jar jarfile="dist/lib/assets.jar" basedir="assets" compress="true"/>
+        <copy file="client.sh" todir="dist"/>
+        <copy file="client.bat" todir="dist"/>
+        <copy file="server.sh" todir="dist"/>
+        <copy file="server.bat" todir="dist"/>
+        <zip destfile="GameNight.zip" basedir="dist" update="true" />
+    </target>
     
 </project>
