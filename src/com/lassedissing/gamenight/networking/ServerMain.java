@@ -97,6 +97,8 @@ public class ServerMain extends SimpleApplication{
                 PositionMessage posMsg = (PositionMessage) m;
                 server.broadcast(Filters.notEqualTo( source ),new PositionMessage(source.getId(), posMsg.playerPos));
             } else if (m instanceof BlockChangeMessage) {
+                BlockChangeMessage msg = (BlockChangeMessage) m;
+                world.getBlockAt(msg.location).setType(msg.blockType);
                 server.broadcast(m);
             }
         }
