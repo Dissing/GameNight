@@ -5,11 +5,15 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
+import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.World;
+import java.io.Console;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /* Copyright 2014 Lasse Dissing
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -20,38 +24,54 @@ import java.util.Map;
 public class ServerMain extends SimpleApplication{
 
     Server server;
-    
+
     World world;
-    
+
+    Console console;
+
     private Map<Integer,HostedConnection> connections = new HashMap<>();
-    
+    private int port = 1337;
+
     @Override
     public void simpleInitApp() {
-        
+
+        console = System.console();
+        Log.setConsole(console);
+        Log.INFO("Starting server");
+
+        initNetwork();
+
+        Log.INFO("Loading world..");
+        world = new World();
+        world.generate(4, 12);
+
+
+
+    }
+
+    public void initNetwork() {
+
         try {
-            server = Network.createServer(1337);
+            server = Network.createServer(port);
         } catch (IOException e) {
             e.printStackTrace();
             stop();
             return;
         }
-        
+
         Serializer.registerClass(PositionMessage.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
-        
-        world = new World();
-        world.generate(4, 12);
-        
+
         server.start();
-        
+
         server.addConnectionListener(new ConnectionListener() {
 
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
-                System.out.println("Connection!");
+                Log.INFO("Player name@%d conncted from %s", conn.getId(), conn.getAddress() );
                 for (int id : connections.keySet()) {
                     conn.send(new NewUserMessage(id));
                 }
@@ -67,28 +87,37 @@ public class ServerMain extends SimpleApplication{
                 connections.remove(conn);
             }
         });
-        
+
         server.addMessageListener(new ServerListener());
-        
-        
+
+        Log.INFO("Server initialised on %d");
     }
-    
+
     public static void main(String[] args) {
         ServerMain app = new ServerMain();
+        Logger.getLogger("").setLevel(Level.SEVERE);
         app.start(JmeContext.Type.Headless);
     }
-    
+
     @Override
     public void simpleUpdate(float tpf) {
-        
+        try {
+            if(console.reader().ready()) {
+                String input = console.readLine();
+                System.out.println(input);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
-    
+
     @Override
     public void destroy() {
+        super.destroy();
         server.close();
-        super.destroy(); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     public class ServerListener implements MessageListener<HostedConnection> {
 
         @Override
@@ -102,7 +131,7 @@ public class ServerMain extends SimpleApplication{
                 server.broadcast(m);
             }
         }
-        
+
     }
 
 }
