@@ -11,42 +11,41 @@ import java.util.Calendar;
 
 
 public class Log {
-    
+
     private static Console console;
     private static Calendar calendar;
     private static SimpleDateFormat sdf;
-    
+
     public enum Level {
         DEBUG,
         INFO,
         WARNING,
         ERROR
     }
-    
+
     public static void setConsole(Console console) {
         Log.console = console;
         calendar = Calendar.getInstance();
         sdf = new SimpleDateFormat("HH:mm:ss");
     }
-    
+
     public static void DEBUG(String format, Object... arguments) {
         print(format,Level.DEBUG,arguments);
     }
-    
+
     public static void INFO(String format, Object... arguments) {
         print(format,Level.INFO,arguments);
     }
-            
+
     public static void WARNING(String format, Object... arguments) {
         print(format,Level.WARNING,arguments);
     }
-    
+
     public static void ERROR(String format, Object... arguments) {
         print(format,Level.ERROR,arguments);
     }
-    
-    private static void print(String format, Level level, Object arguments) {
-        format = format.replaceAll("%d", "%s");
+
+    private static void print(String format, Level level, Object... arguments) {
         String fullClassName = Thread.currentThread().getStackTrace()[3].getClassName();
         String className = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
         int lineNumber = Thread.currentThread().getStackTrace()[3].getLineNumber();
