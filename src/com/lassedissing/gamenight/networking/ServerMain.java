@@ -42,7 +42,7 @@ public class ServerMain extends SimpleApplication{
         initNetwork();
 
         Log.INFO("Loading world..");
-        world = new World();
+        world = new World("Test");
         world.generate(4, 12);
 
 
@@ -71,13 +71,11 @@ public class ServerMain extends SimpleApplication{
 
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
-                Log.INFO("Player name@%d conncted from %s", conn.getId(), conn.getAddress() );
+                Log.INFO("Player name %d conncted from %s", conn.getId(), conn.getAddress());
                 for (int id : connections.keySet()) {
                     conn.send(new NewUserMessage(id));
                 }
-                for (Chunk chunk : world.getAllChunks()) {
-                    conn.send(new ChunkMessage(chunk));
-                }
+                sendWorldToConn(conn);
                 server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
                 connections.put(conn.getId(),conn);
             }
@@ -90,7 +88,7 @@ public class ServerMain extends SimpleApplication{
 
         server.addMessageListener(new ServerListener());
 
-        Log.INFO("Server initialised on %d");
+        Log.INFO("Server initialised on %d",port);
     }
 
     public static void main(String[] args) {
@@ -99,12 +97,60 @@ public class ServerMain extends SimpleApplication{
         app.start(JmeContext.Type.Headless);
     }
 
+    private void sendWorldToConn(HostedConnection conn) {
+        for (Chunk chunk : world.getAllChunks()) {
+            conn.send(new ChunkMessage(chunk));
+        }
+    }
+
+    private void processConsoleInput(String line) {
+        String[] parts = line.split(" ");
+
+        if (parts[0].equalsIgnoreCase("load")) {
+
+            if (parts.length == 2) {
+                world = World.load(parts[1]);
+                for (HostedConnection conn : connections.values()) {
+                    sendWorldToConn(conn);
+                }
+                Log.INFO("Loaded world %s", parts[1]);
+            } else {
+                Log.ERROR("Invalid amount of arguments: load map");
+            }
+
+        } else if (parts[0].equalsIgnoreCase("save")) {
+
+            if (parts.length == 1) {
+                world.save();
+            } else if (parts.length == 2) {
+                world.save(parts[1]);
+            } else {
+                Log.ERROR("Invalid amount of arguments: save [map]");
+            }
+            Log.INFO("Saved world %s", world.getName());
+
+        } else if (parts[0].equalsIgnoreCase("new")) {
+
+            if (parts.length == 4) {
+                world = new World(parts[1]);
+                world.generate(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+                for (HostedConnection conn : connections.values()) {
+                    sendWorldToConn(conn);
+                }
+                Log.INFO("Generated new world with size: %d x %d", parts[2], parts[3]);
+            } else {
+                Log.ERROR("Invalid amount of arguments: new map width length");
+            }
+
+        }
+    }
+
     @Override
     public void simpleUpdate(float tpf) {
         try {
             if(console.reader().ready()) {
                 String input = console.readLine();
-                System.out.println(input);
+                processConsoleInput(input);
             }
         } catch (IOException e) {
             e.printStackTrace();
