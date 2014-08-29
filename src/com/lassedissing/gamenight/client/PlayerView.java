@@ -22,10 +22,10 @@ public class PlayerView {
     public PlayerView(int id, Node parent, Main app) {
         this.id = id;
 
-        Box headBox = new Box(0.15f,0.15f,0.15f);
-        Box torsoBox = new Box(0.2f,0.39f,0.15f);
-        Box armBox = new Box(0.03f,0.3f,0.03f);
-        Box legBox = new Box(0.036f,0.36f,0.036f);
+        Box headBox = new Box(0.19f,0.19f,0.19f);
+        Box torsoBox = new Box(0.29f,0.38f,0.19f);
+        Box armBox = new Box(0.1f,0.29f,0.1f);
+        Box legBox = new Box(0.1f,0.33f,0.1f);
 
         Geometry headGeo = new Geometry("Player" + id + "head", headBox);
         Geometry torsoGeo = new Geometry("Player" + id + "torso", torsoBox);
@@ -53,11 +53,11 @@ public class PlayerView {
         torsoGeo.setMaterial(torsoMat);
 
         node.attachChild(arm1Geo);
-        arm1Geo.setLocalTranslation(-0.3f, armBox.yExtent + legBox.yExtent*2, 0);
+        arm1Geo.setLocalTranslation(-0.3f, 0.1f + armBox.yExtent + legBox.yExtent*2, 0);
         arm1Geo.setMaterial(armMat);
 
         node.attachChild(arm2Geo);
-        arm2Geo.setLocalTranslation(0.3f, armBox.yExtent + legBox.yExtent*2, 0);
+        arm2Geo.setLocalTranslation(0.3f, 0.1f + armBox.yExtent + legBox.yExtent*2, 0);
         arm2Geo.setMaterial(armMat);
 
         node.attachChild(leg1Geo);
