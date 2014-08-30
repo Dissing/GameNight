@@ -11,7 +11,8 @@ import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
-import com.lassedissing.gamenight.networking.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.events.PlayerMovedEvent;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
@@ -35,6 +36,8 @@ public class ServerMain extends SimpleApplication{
 
     Console console;
 
+    EventManager eventManager;
+
     private Map<Integer,HostedConnection> connections = new HashMap<>();
     private int port = 1337;
 
@@ -44,6 +47,9 @@ public class ServerMain extends SimpleApplication{
         console = System.console();
         Log.setConsole(console);
         Log.INFO("Starting server");
+
+        eventManager = new EventManager();
+        eventManager.registerListener(new MovementListener());
 
         initNetwork();
 
@@ -66,6 +72,7 @@ public class ServerMain extends SimpleApplication{
         }
 
         Serializer.registerClass(PlayerMovementMessage.class);
+        Serializer.registerClass(PlayerMovedEvent.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
@@ -177,6 +184,7 @@ public class ServerMain extends SimpleApplication{
             if (m instanceof PlayerMovementMessage) {
                 PlayerMovementMessage msg = (PlayerMovementMessage) m;
                 for (PlayerMovedEvent event : msg.events) {
+                    eventManager.sendEvent(event);
                     server.broadcast(Filters.notEqualTo( source ),new PlayerMovementMessage(new PlayerMovedEvent(source.getId(), event.position, event.rotation)));
                 }
             } else if (m instanceof BlockChangeMessage) {

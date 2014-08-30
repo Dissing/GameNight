@@ -22,7 +22,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
-import com.lassedissing.gamenight.networking.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.PlayerMovedEvent;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.networking.messages.ChunkMessage;
@@ -107,6 +107,7 @@ public class Main extends SimpleApplication {
         }
 
         Serializer.registerClass(PlayerMovementMessage.class);
+        Serializer.registerClass(PlayerMovedEvent.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
