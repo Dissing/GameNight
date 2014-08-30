@@ -22,11 +22,12 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
-import com.lassedissing.gamenight.networking.BlockChangeMessage;
+import com.lassedissing.gamenight.networking.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
-import com.lassedissing.gamenight.networking.ChunkMessage;
-import com.lassedissing.gamenight.networking.NewUserMessage;
-import com.lassedissing.gamenight.networking.PositionMessage;
+import com.lassedissing.gamenight.networking.messages.ChunkMessage;
+import com.lassedissing.gamenight.networking.messages.NewUserMessage;
+import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,19 +36,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main extends SimpleApplication {
-    
+
     Client client;
-    
+
     ChunkManager chunkManager = new ChunkManager();
 
     private int playerId;
     private Map<Integer,PlayerView> players = new HashMap<>();
-    
+
     public String serverIp;
-    
+
     public static boolean MIPMAP = false;
     public static int ANISOTROPIC = 0;
-    
+
     private boolean leftAction = false;
     private boolean rightAction = false;
     private boolean forwardAction = false;
@@ -55,17 +56,18 @@ public class Main extends SimpleApplication {
     private boolean jumpAction = false;
     private boolean leftClick = false;
     private boolean rightClick = false;
-    
+
     private boolean mouseTrapped = false;
-    
+
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
-    
+    private Vector3f prevLocation = new Vector3f();
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("You must specify IP");
         }
-        
+
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1280, 720);
         settings.setSamples(4);
@@ -79,22 +81,22 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        
+
         assetManager.registerLocator("lib/assets.jar", ClasspathLocator.class);
-        
+
         rootNode.attachChild(chunkManager.init(assetManager));
-        
+
         initInput();
         initNetwork();
-        
+
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(60f, 1.6f, 0.1f, 200f);
         initCrosshair();
 
         player.setLocation(new Vector3f(17,1,16));
-        client.send(new PositionMessage(-1,cam.getLocation()));
+        client.send(new PlayerMovementMessage(new PlayerMovedEvent(-1,cam.getLocation(),cam.getDirection())));
     }
-    
+
     private void initNetwork() {
         try {
             client = Network.connectToServer(serverIp, 1337);
@@ -103,28 +105,28 @@ public class Main extends SimpleApplication {
             stop();
             return;
         }
-        
-        Serializer.registerClass(PositionMessage.class);
+
+        Serializer.registerClass(PlayerMovementMessage.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
 
         client.addMessageListener(new ClientListener(this));
-        
+
         client.start();
     }
-    
+
     private void initCrosshair() {
         BitmapText crosshair = new BitmapText(guiFont, false);
         crosshair.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         crosshair.setText("+");
         crosshair.setLocalTranslation(
-                settings.getWidth() / 2 - crosshair.getLineWidth()/2, 
+                settings.getWidth() / 2 - crosshair.getLineWidth()/2,
                 settings.getHeight() / 2 + crosshair.getLineHeight()/2, 0);
         guiNode.attachChild(crosshair);
     }
-    
+
     private final static String INPUT_CAM_LEFT = "CamLeft";
     private final static String INPUT_CAM_RIGHT = "CamRight";
     private final static String INPUT_CAM_UP = "CamUp";
@@ -137,7 +139,7 @@ public class Main extends SimpleApplication {
     private final static String INPUT_TAB = "Tab";
     private final static String INPUT_LEFT_CLICK = "LeftClick";
     private final static String INPUT_RIGHT_CLICK = "RightClick";
-    
+
     private static String[] keyMappings = new String[]{
         INPUT_CAM_LEFT,
         INPUT_CAM_RIGHT,
@@ -152,9 +154,9 @@ public class Main extends SimpleApplication {
         INPUT_LEFT_CLICK,
         INPUT_RIGHT_CLICK
     };
-    
+
     private void initInput() {
-        
+
         flyCam.setEnabled(false);
         inputManager.addMapping(INPUT_TAB, new KeyTrigger(KeyInput.KEY_TAB));
         inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_S));
@@ -169,38 +171,38 @@ public class Main extends SimpleApplication {
         inputManager.addMapping(INPUT_LEFT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping(INPUT_RIGHT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_RIGHT));
 
-        
+
         inputManager.addListener(inputListener, keyMappings);
     }
-    
+
     private void rotateCamera(float value, Vector3f axis) {
-        
+
         Matrix3f mat = new Matrix3f();
         mat.fromAngleNormalAxis(value, axis);
-        
+
         Vector3f up = cam.getUp();
         Vector3f left = cam.getLeft();
         Vector3f dir = cam.getDirection();
-        
+
         mat.mult(up,up);
-        
+
         if (up.y < 0)
             return;
-        
+
         mat.mult(left,left);
         mat.mult(dir,dir);
-        
+
         Quaternion quaternion = new Quaternion();
         quaternion.fromAxes(left, up, dir);
         quaternion.normalizeLocal();
-        
+
         cam.setAxes(quaternion);
     }
-    
+
     private InputListener inputListener = new InputListener();
-    
+
     private class InputListener implements AnalogListener, ActionListener {
-        
+
         private final Vector3f CameraUp = new Vector3f(0.0f,1.0f,0.0f);
 
         @Override
@@ -239,42 +241,43 @@ public class Main extends SimpleApplication {
                 rotateCamera(value, cam.getLeft());
             }
         }
-            
+
     };
 
     @Override
     public void simpleUpdate(float tpf) {
-        
+
+        prevLocation.set(cam.getLocation());
+
         inputManager.setCursorVisible(mouseTrapped);
-        
+
         walkDirection.zero();
-        
+
         if (leftAction) {
             walkDirection.addLocal(cam.getLeft());
         }
-        
+
         if (rightAction) {
             walkDirection.addLocal(cam.getLeft().negate());
         }
-        
+
         if (forwardAction) {
             walkDirection.addLocal(cam.getDirection().setY(0));
         }
-        
+
         if (backAction) {
             walkDirection.addLocal(cam.getDirection().setY(0).negate());
         }
-        
+
         if (jumpAction) {
             player.jump();
         }
-        
-        if (leftAction || rightAction || forwardAction || backAction || jumpAction) {
-            client.send(new PositionMessage(-1,cam.getLocation()));
-        }
-        
-        
+
         player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
+
+        if (!prevLocation.equals(cam.getLocation())) {
+            client.send(new PlayerMovementMessage( new PlayerMovedEvent(-1, cam.getLocation(), cam.getDirection()) ));
+        }
 
         Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
         if (selectedBlock != null) {
@@ -289,20 +292,20 @@ public class Main extends SimpleApplication {
                 rightClick = false;
             }
         }
-        
+
     }
 
     @Override
     public void simpleRender(RenderManager rm) {
         viewPort.setBackgroundColor(new ColorRGBA(0.4f, 0.6f, 0.9f, 1.0f));
     }
-    
+
     @Override
     public void destroy() {
         client.close();
         super.destroy();
     }
-    
+
     private void processMessage(Message m) {
         if (m instanceof ChunkMessage) {
                 ChunkMessage chunkMsg = (ChunkMessage) m;
@@ -310,9 +313,13 @@ public class Main extends SimpleApplication {
             } else if (m instanceof NewUserMessage) {
                 NewUserMessage newUserMsg = (NewUserMessage) m;
                 players.put(newUserMsg.playerId, new PlayerView(newUserMsg.playerId, rootNode, this));
-            } else if (m instanceof PositionMessage) {
-                PositionMessage posMsg = (PositionMessage) m;
-                players.get(posMsg.playerId).setPosition(posMsg.playerPos);
+            } else if (m instanceof PlayerMovementMessage) {
+                PlayerMovementMessage msg = (PlayerMovementMessage) m;
+                for (PlayerMovedEvent event : msg.events) {
+                    PlayerView player = players.get(event.playerId);
+                    player.setPosition(event.position);
+                    player.setRotation(event.rotation);
+                }
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage blcMsg = (BlockChangeMessage) m;
                 chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
@@ -322,11 +329,11 @@ public class Main extends SimpleApplication {
     public class ClientListener implements MessageListener<Client> {
 
         Main app;
-        
+
         public ClientListener(Main main) {
             app = main;
         }
-        
+
         @Override
         public void messageReceived(Client source, final Message m) {
             app.enqueue(new Callable<Void>() {
@@ -338,7 +345,7 @@ public class Main extends SimpleApplication {
                 }
             });
         }
-        
+
     }
-    
+
 }

@@ -15,10 +15,11 @@ import com.jme3.scene.shape.Box;
 
 
 public class PlayerView {
-    
+
     private int id;
     private Node node = new Node();;
-    
+    private Vector3f up = new Vector3f(0,1.0f,0);
+
     public PlayerView(int id, Node parent, Main app) {
         this.id = id;
 
@@ -71,9 +72,13 @@ public class PlayerView {
 
         parent.attachChild(node);
     }
-    
+
     public void setPosition(Vector3f pos) {
         node.setLocalTranslation(pos.subtractLocal(0, 1.6f, 0));
     }
-    
+
+    public void setRotation(Vector3f rot) {
+        node.lookAt(rot, up);
+    }
+
 }

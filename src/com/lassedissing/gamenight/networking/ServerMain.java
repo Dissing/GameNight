@@ -1,11 +1,17 @@
 package com.lassedissing.gamenight.networking;
 
 
+import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
+import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
+import com.lassedissing.gamenight.networking.messages.NewUserMessage;
+import com.lassedissing.gamenight.networking.messages.ChunkMessage;
 import com.jme3.app.SimpleApplication;
+import com.jme3.math.Vector3f;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
+import com.lassedissing.gamenight.networking.events.PlayerMovedEvent;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
@@ -59,7 +65,7 @@ public class ServerMain extends SimpleApplication{
             return;
         }
 
-        Serializer.registerClass(PositionMessage.class);
+        Serializer.registerClass(PlayerMovementMessage.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
@@ -168,9 +174,11 @@ public class ServerMain extends SimpleApplication{
 
         @Override
         public void messageReceived(HostedConnection source, Message m) {
-            if (m instanceof PositionMessage) {
-                PositionMessage posMsg = (PositionMessage) m;
-                server.broadcast(Filters.notEqualTo( source ),new PositionMessage(source.getId(), posMsg.playerPos));
+            if (m instanceof PlayerMovementMessage) {
+                PlayerMovementMessage msg = (PlayerMovementMessage) m;
+                for (PlayerMovedEvent event : msg.events) {
+                    server.broadcast(Filters.notEqualTo( source ),new PlayerMovementMessage(new PlayerMovedEvent(source.getId(), event.position, event.rotation)));
+                }
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage msg = (BlockChangeMessage) m;
                 world.getBlockAt(msg.location).setType(msg.blockType);

@@ -3,25 +3,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package com.lassedissing.gamenight.networking;
+package com.lassedissing.gamenight.networking.messages;
 
 import com.jme3.math.Vector3f;
 import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 
 @Serializable
-public class PositionMessage extends AbstractMessage {
+public class BlockChangeMessage extends AbstractMessage {
     
-    public int playerId;
-    public Vector3f playerPos;
+    public int blockType;
+    public Vector3f location;
     
-    public PositionMessage() {
+    public BlockChangeMessage(int blockType, Vector3f location) {
+        this.blockType = blockType;
+        this.location = location;
+    }
+    
+    public BlockChangeMessage() {
         
     }
     
-    public PositionMessage(int playerId, Vector3f playerPos) {
-        this.playerId = playerId;
-        this.playerPos = playerPos;
-    }
-
 }
