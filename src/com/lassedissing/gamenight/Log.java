@@ -13,7 +13,6 @@ import java.util.Calendar;
 public class Log {
 
     private static Console console;
-    private static Calendar calendar;
     private static SimpleDateFormat sdf;
 
     public enum Level {
@@ -25,7 +24,6 @@ public class Log {
 
     public static void setConsole(Console console) {
         Log.console = console;
-        calendar = Calendar.getInstance();
         sdf = new SimpleDateFormat("HH:mm:ss");
     }
 
@@ -49,7 +47,13 @@ public class Log {
         String fullClassName = Thread.currentThread().getStackTrace()[3].getClassName();
         String className = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
         int lineNumber = Thread.currentThread().getStackTrace()[3].getLineNumber();
-        String prefix = String.format("[%s] [%s:%d/%s]:", sdf.format(calendar.getTime()).toString(), className, lineNumber, level.name());
+
+        String prefix = String.format("[%s] [%s:%d/%s]:",
+                sdf.format(Calendar.getInstance().getTime()).toString(),
+                className,
+                lineNumber,
+                level.name());
+        
         console.printf(prefix + format +'\n', arguments);
     }
 
