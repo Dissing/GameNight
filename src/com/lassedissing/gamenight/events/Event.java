@@ -6,18 +6,20 @@
 package com.lassedissing.gamenight.events;
 
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public abstract class Event {
+public class Event {
 
-    private static EventClosure listeners[] = new EventClosure[3];
-
+    private static List<EventClosure> closures = new ArrayList<>();
 
     public String getEventName() {
         return this.getClass().getSimpleName();
     }
 
-    public static EventClosure[] getListeners() {
-        return listeners;
+    public List<EventClosure> getClosures() {
+        return closures;
     }
+
 }

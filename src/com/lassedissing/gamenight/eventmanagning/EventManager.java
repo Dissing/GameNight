@@ -7,11 +7,12 @@ package com.lassedissing.gamenight.eventmanagning;
 
 import com.lassedissing.gamenight.events.Event;
 import java.lang.reflect.*;
+import java.util.List;
 
 public class EventManager {
 
     public void sendEvent(Event event) {
-        for (EventClosure closure : Event.getListeners()) {
+        for (EventClosure closure : event.getClosures()) {
             if (closure != null) {
                 closure.fireEvent(event);
             }
@@ -21,10 +22,19 @@ public class EventManager {
     public void registerListener(final EventListener listener) {
         for (final Method method : listener.getClass().getMethods()) {
             if (method.isAnnotationPresent(EventHandler.class)) {
-                Class[] event = method.getParameterTypes();
-                if (event.length == 1 && Event.class.isAssignableFrom(event[0])) {
+                Class[] parameters = method.getParameterTypes();
+                if (parameters.length == 1 && Event.class.isAssignableFrom(parameters[0])) {
 
-                    Event.getListeners()[0] = new EventClosure() {
+                    Class<? extends Object> type = parameters[0];
+
+                    List<EventClosure> list = null;
+                    try {
+                        list = (List<EventClosure>) type.getDeclaredMethod("getClosures").invoke(type.newInstance());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    list.add( new EventClosure() {
 
                         @Override
                         public void fireEvent(Event event) {
@@ -34,12 +44,13 @@ public class EventManager {
                                 e.printStackTrace();
                             }
                         }
-                    };
+                    });
 
                 }
             }
         }
 
     }
+
 
 }
