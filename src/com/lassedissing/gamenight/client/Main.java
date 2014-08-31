@@ -26,6 +26,7 @@ import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
+import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
@@ -126,6 +127,7 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(EntityUpdateMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
+        Serializer.registerClass(EntitySpawnedEvent.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -347,12 +349,11 @@ public class Main extends SimpleApplication {
                 chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
             } else if (m instanceof EntityUpdateMessage) {
                 EntityUpdateMessage msg = (EntityUpdateMessage) m;
+                for (EntitySpawnedEvent event : msg.spawnedEvents) {
+                    bullets.put(event.getId(), new BulletView(event.getId(),event.getLocation(),rootNode,this));
+                }
                 for (EntityMovedEvent event : msg.movedEvents) {
-                    if (bullets.containsKey(event.getId())) {
-                        bullets.get(event.getId()).setLocation(event.getLocation());
-                    } else {
-                        bullets.put(event.getId(), new BulletView(event.getId(), event.getLocation(), rootNode, this));
-                    }
+                    bullets.get(event.getId()).setLocation(event.getLocation());
                 }
                 for (EntityDiedEvent event : msg.diedEvents) {
                     bullets.get(event.getId()).destroy();

@@ -21,11 +21,15 @@ public class EntitySpawnedEvent extends EntityEvent {
         this.location = location;
     }
 
+    public Vector3f getLocation(){
+        return location;
+    }
+
     /**
      * Serialization
      */
     public EntitySpawnedEvent() {
-        
+
     }
 
     //ClosureHolder section

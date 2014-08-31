@@ -16,6 +16,7 @@ import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
+import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
 import com.lassedissing.gamenight.world.Bullet;
@@ -96,6 +97,7 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(EntityUpdateMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
+        Serializer.registerClass(EntitySpawnedEvent.class);
 
         server.start();
 
@@ -222,7 +224,9 @@ public class ServerMain extends SimpleApplication{
                 server.broadcast(m);
             } else if (m instanceof ActivateWeaponMessage) {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
-                bullets.add(new Bullet(nextId++,msg.location,msg.direction.normalize(),15f));
+                Bullet newBullet = new Bullet(nextId++,msg.location,msg.direction.normalize(),15f);
+                bullets.add(newBullet);
+                eventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
             }
         }
 
