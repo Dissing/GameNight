@@ -59,7 +59,6 @@ public class ServerMain extends SimpleApplication{
         Log.INFO("Starting server");
 
         eventManager = new EventManager();
-        eventManager.registerListener(new MovementListener());
 
         initNetwork();
 
