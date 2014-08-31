@@ -13,11 +13,17 @@ import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
+import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
+import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,8 +44,12 @@ public class ServerMain extends SimpleApplication{
 
     EventManager eventManager;
 
+    private int nextId = 0;
+
     private Map<Integer,HostedConnection> connections = new HashMap<>();
     private int port = 1337;
+
+    private List<Bullet> bullets = new LinkedList<>();
 
     @Override
     public void simpleInitApp() {
@@ -77,6 +87,9 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
+        Serializer.registerClass(ActivateWeaponMessage.class);
+        Serializer.registerClass(EntityUpdateMessage.class);
+        Serializer.registerClass(Bullet.class);
 
         server.start();
 
@@ -169,6 +182,16 @@ public class ServerMain extends SimpleApplication{
             e.printStackTrace();
         }
 
+        Iterator<Bullet> iter = bullets.iterator();
+        while (iter.hasNext()) {
+            Bullet bullet = iter.next();
+            if (bullet.isDying()) {
+                iter.remove();
+            } else {
+                bullet.tick(world, tpf);
+            }
+        }
+        server.broadcast(new EntityUpdateMessage(bullets));
     }
 
     @Override
@@ -191,6 +214,9 @@ public class ServerMain extends SimpleApplication{
                 BlockChangeMessage msg = (BlockChangeMessage) m;
                 world.getBlockAt(msg.location).setType(msg.blockType);
                 server.broadcast(m);
+            } else if (m instanceof ActivateWeaponMessage) {
+                ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
+                bullets.add(new Bullet(nextId++,msg.location,msg.direction.normalize(),15f));
             }
         }
 

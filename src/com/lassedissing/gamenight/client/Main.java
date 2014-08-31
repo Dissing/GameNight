@@ -22,12 +22,16 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
+import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.networking.messages.ChunkMessage;
+import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
 import com.lassedissing.gamenight.networking.messages.NewUserMessage;
 import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
+import com.lassedissing.gamenight.world.Bullet;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +48,8 @@ public class Main extends SimpleApplication {
     private int playerId;
     private Map<Integer,PlayerView> players = new HashMap<>();
 
+    private Map<Integer,BulletView> bullets = new HashMap<>();
+
     public String serverIp;
 
     public static boolean MIPMAP = false;
@@ -58,6 +64,8 @@ public class Main extends SimpleApplication {
     private boolean rightClick = false;
 
     private boolean mouseTrapped = false;
+
+    private boolean buildMode = false;
 
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
@@ -112,6 +120,9 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(Chunk.class);
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
+        Serializer.registerClass(ActivateWeaponMessage.class);
+        Serializer.registerClass(EntityUpdateMessage.class);
+        Serializer.registerClass(Bullet.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -280,17 +291,24 @@ public class Main extends SimpleApplication {
             client.send(new PlayerMovementMessage( new PlayerMovedEvent(-1, cam.getLocation(), cam.getDirection()) ));
         }
 
-        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
-        if (selectedBlock != null) {
-            chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
-            if (leftClick) {
-                client.send(new BlockChangeMessage(0, selectedBlock));
-                leftClick = false;
+        if (buildMode) {
+            Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
+            if (selectedBlock != null) {
+                chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
+                if (leftClick) {
+                    client.send(new BlockChangeMessage(0, selectedBlock));
+                    leftClick = false;
+                }
+                if (rightClick) {
+                    selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
+                    client.send(new BlockChangeMessage(1, selectedBlock));
+                    rightClick = false;
+                }
             }
-            if (rightClick) {
-                selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
-                client.send(new BlockChangeMessage(1, selectedBlock));
-                rightClick = false;
+        } else {
+            if (leftClick) {
+                client.send(new ActivateWeaponMessage(cam.getLocation(), cam.getDirection()));
+                leftClick = false;
             }
         }
 
@@ -324,6 +342,15 @@ public class Main extends SimpleApplication {
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage blcMsg = (BlockChangeMessage) m;
                 chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
+            } else if (m instanceof EntityUpdateMessage) {
+                EntityUpdateMessage msg = (EntityUpdateMessage) m;
+                for (Bullet bullet : msg.bullets) {
+                    if (bullets.containsKey(bullet.getId())) {
+                        bullets.get(bullet.getId()).setLocation(bullet.getLocation());
+                    } else {
+                        bullets.put(bullet.getId(), new BulletView(bullet.getId(), bullet.getLocation(), rootNode, this));
+                    }
+                }
             }
     }
 

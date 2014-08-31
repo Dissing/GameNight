@@ -18,7 +18,6 @@ public class PlayerView {
 
     private int id;
     private Node node = new Node();;
-    private Vector3f up = new Vector3f(0,1.0f,0);
 
     public PlayerView(int id, Node parent, Main app) {
         this.id = id;
@@ -78,7 +77,7 @@ public class PlayerView {
     }
 
     public void setRotation(Vector3f rot) {
-        node.lookAt(rot, up);
+        node.lookAt(rot, Vector3f.UNIT_Y);
     }
 
 }

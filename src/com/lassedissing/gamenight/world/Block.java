@@ -7,7 +7,7 @@ package com.lassedissing.gamenight.world;
 
 
 public class Block {
-    
+
     private final Chunk chunk;
     private final int x;
     private final int y;
@@ -22,6 +22,10 @@ public class Block {
 
     public int getType() {
         return chunk.getIdAt(x, y, z);
+    }
+
+    public boolean isBulletCollidable() {
+        return getType() != 0;
     }
 
     public void setType(int type) {
