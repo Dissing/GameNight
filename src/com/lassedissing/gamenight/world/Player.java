@@ -13,6 +13,7 @@ public class Player {
     private int id;
     private Vector3f location;
     private Vector3f width = new Vector3f(0.4f,0.9f,0.4f);
+    private float eyeOffset = 0.8f;
     private int health = 10;
 
 
@@ -27,7 +28,7 @@ public class Player {
 
     public boolean collideWithPoint(Vector3f point) {
         if (point.x > location.x+width.x || point.x < location.x-width.x) return false;
-        if (point.y > location.y+width.y || point.y < location.y-width.y) return false;
+        if (point.y > location.y+width.y-eyeOffset || point.y < location.y-width.y-eyeOffset) return false;
         if (point.z > location.z+width.z || point.z < location.z-width.z) return false;
         return true;
     }
