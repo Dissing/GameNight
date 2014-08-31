@@ -15,18 +15,23 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 public class World implements Serializable {
 
     private String name;
     private HashMap<Long,Chunk> chunks = new HashMap<>();
+    private int width;
+    private int length;
+    private int height;
 
     public World(String name) {
         this.name = name;
     }
 
     public void generate(int width, int length) {
+        this.width = width * 16;
+        this.length = length * 16;
+        this.height = 16;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++) {
                 long pos = i;
@@ -84,6 +89,18 @@ public class World implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getLength() {
+        return length;
     }
 
     public boolean save(String name) {

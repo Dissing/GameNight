@@ -28,6 +28,14 @@ public class Bullet {
     public void tick(World world, float tpf) {
         location.addLocal(velocity.mult(tpf));
 
+        if (location.x < 0 || location.x > world.getWidth() ||
+                location.y < 0 || location.y > world.getHeight() ||
+                location.z < 0 || location.z > world.getLength()) {
+
+            dying = true;
+            return;
+        }
+
         if (world.getBlockAt(location).isBulletCollidable()) {
             dying = true;
         }
