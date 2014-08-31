@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Serializable
-public class PlayerMovedEvent extends PlayerEvent implements ClosureHolder {
+public class PlayerMovedEvent extends PlayerEvent {
 
 
     public Vector3f position;

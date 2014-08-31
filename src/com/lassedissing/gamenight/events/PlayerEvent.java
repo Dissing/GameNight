@@ -5,7 +5,6 @@
 
 package com.lassedissing.gamenight.events;
 
-import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.ClosureHolder;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import java.util.ArrayList;
