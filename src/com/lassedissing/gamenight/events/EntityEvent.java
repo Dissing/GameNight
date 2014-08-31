@@ -5,32 +5,13 @@
 
 package com.lassedissing.gamenight.events;
 
-import com.jme3.math.Vector3f;
-import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.ClosureHolder;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import java.util.ArrayList;
 import java.util.List;
 
-@Serializable
-public class PlayerMovedEvent extends PlayerEvent implements ClosureHolder {
 
-
-    public Vector3f position;
-    public Vector3f rotation;
-
-    /**
-     * Only for serialization
-     */
-    public PlayerMovedEvent() {
-
-    }
-
-    public PlayerMovedEvent(int playerId, Vector3f position, Vector3f rotation) {
-        this.playerId = playerId;
-        this.position = position;
-        this.rotation = rotation;
-    }
+public class EntityEvent extends Event implements ClosureHolder {
 
     //ClosureHolder section
 
@@ -38,16 +19,16 @@ public class PlayerMovedEvent extends PlayerEvent implements ClosureHolder {
 
     @Override
     public int getClosureLevel() {
-        return 2;
+        return 1;
     }
 
     @Override
     public List<EventClosure> getClosures(int level) {
         switch (level) {
-            case 0:
-            case 1:     return super.getClosures(level);
-            case 2:     return closures;
+            case 0:     return super.getClosures(level);
+            case 1:     return closures;
             default:    throw new UnsupportedOperationException("Level " + level + " is not supported by " + getEventName());
         }
     }
+
 }

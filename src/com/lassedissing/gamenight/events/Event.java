@@ -5,21 +5,33 @@
 
 package com.lassedissing.gamenight.events;
 
+import com.lassedissing.gamenight.eventmanagning.ClosureHolder;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Event {
-
-    private static List<EventClosure> closures = new ArrayList<>();
+public class Event implements ClosureHolder {
 
     public String getEventName() {
         return this.getClass().getSimpleName();
     }
 
-    public List<EventClosure> getClosures() {
-        return closures;
+    //ClosureHolder section
+
+    private static List<EventClosure> closures = new ArrayList<>();
+
+    @Override
+    public int getClosureLevel() {
+        return 0;
+    }
+
+    @Override
+    public List<EventClosure> getClosures(int level) {
+        switch (level) {
+            case 0:     return closures;
+            default:    throw new UnsupportedOperationException("Level " + level + " is not supported by " + getEventName());
+        }
     }
 
 }

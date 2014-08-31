@@ -12,9 +12,15 @@ import java.util.List;
 public class EventManager {
 
     public void sendEvent(Event event) {
-        for (EventClosure closure : event.getClosures()) {
-            if (closure != null) {
-                closure.fireEvent(event);
+
+        int level = event.getClosureLevel();
+
+        for (int i = level; i > 0; i--) {
+
+            for (EventClosure closure : event.getClosures(i)) {
+                if (closure != null) {
+                    closure.fireEvent(event);
+                }
             }
         }
     }
@@ -25,11 +31,12 @@ public class EventManager {
                 Class[] parameters = method.getParameterTypes();
                 if (parameters.length == 1 && Event.class.isAssignableFrom(parameters[0])) {
 
-                    Class<? extends Object> type = parameters[0];
+                    Class<? extends Event> type = parameters[0];
 
                     List<EventClosure> list = null;
                     try {
-                        list = (List<EventClosure>) type.getDeclaredMethod("getClosures").invoke(type.newInstance());
+                        Event instance = (Event) type.newInstance();
+                        list = (List<EventClosure>) type.getDeclaredMethod("getClosures", Integer.TYPE).invoke(instance,instance.getClosureLevel());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
