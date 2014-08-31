@@ -3,7 +3,6 @@ package com.lassedissing.gamenight.networking;
 
 import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
-import com.lassedissing.gamenight.networking.messages.NewUserMessage;
 import com.lassedissing.gamenight.networking.messages.ChunkMessage;
 import com.jme3.app.SimpleApplication;
 import com.jme3.math.Vector3f;
@@ -11,15 +10,19 @@ import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
+import com.lassedissing.gamenight.eventmanagning.EventHandler;
+import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.PlayerNewEvent;
 import com.lassedissing.gamenight.events.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.UpdateMessage;
+import com.lassedissing.gamenight.networking.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.Player;
@@ -40,7 +43,7 @@ import java.util.logging.Logger;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-public class ServerMain extends SimpleApplication{
+public class ServerMain extends SimpleApplication implements EventListener {
 
     Server server;
 
@@ -53,7 +56,6 @@ public class ServerMain extends SimpleApplication{
 
     private int nextId = 0;
 
-    private Map<Integer,HostedConnection> connections = new HashMap<>();
     private Map<Integer,Player> players = new HashMap<>();
     private int port = 1337;
 
@@ -69,6 +71,7 @@ public class ServerMain extends SimpleApplication{
         eventManager = new EventManager();
         eventStacker = new EventStacker();
         eventManager.registerListener(eventStacker);
+        eventManager.registerListener(this);
 
         initNetwork();
 
@@ -94,14 +97,15 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(PlayerMovedEvent.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
-        Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(UpdateMessage.class);
+        Serializer.registerClass(WelcomeMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
+        Serializer.registerClass(PlayerNewEvent.class);
 
         server.start();
 
@@ -109,19 +113,18 @@ public class ServerMain extends SimpleApplication{
 
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
-                Log.INFO("Player name %d conncted from %s", conn.getId(), conn.getAddress());
-                players.put(conn.getId(), new Player(conn.getId(), Vector3f.ZERO));
-                server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
-                for (int id : connections.keySet()) {
-                    conn.send(new NewUserMessage(id));
-                }
-                connections.put(conn.getId(),conn);
+                Log.INFO("Player name %d connected from %s", conn.getId(), conn.getAddress());
+                conn.send(new WelcomeMessage(conn.getId(), players.values()));
+                players.put(conn.getId(), new Player(conn.getId(), new Vector3f(17f,1f,16f)));
+
+                eventManager.sendEvent(new PlayerNewEvent(conn.getId()));
                 sendWorldToConn(conn);
             }
 
             @Override
             public void connectionRemoved(Server server, HostedConnection conn) {
-                connections.remove(conn);
+
+                players.remove(conn.getId());
             }
         });
 
@@ -149,7 +152,7 @@ public class ServerMain extends SimpleApplication{
 
             if (parts.length == 2) {
                 world = World.load(parts[1]);
-                for (HostedConnection conn : connections.values()) {
+                for (HostedConnection conn : server.getConnections()) {
                     sendWorldToConn(conn);
                 }
                 Log.INFO("Loaded world %s", parts[1]);
@@ -173,7 +176,7 @@ public class ServerMain extends SimpleApplication{
             if (parts.length == 4) {
                 world = new World(parts[1]);
                 world.generate(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-                for (HostedConnection conn : connections.values()) {
+                for (HostedConnection conn : server.getConnections()) {
                     sendWorldToConn(conn);
                 }
                 Log.INFO("Generated new world with size: %d x %d", parts[2], parts[3]);
@@ -214,6 +217,11 @@ public class ServerMain extends SimpleApplication{
         server.broadcast(eventStacker.bakeUpdateMessage());
     }
 
+    @EventHandler
+    public void onPlayerMovement(PlayerMovedEvent event) {
+        players.get(event.playerId).setLocation(event.position);
+    }
+
     @Override
     public void destroy() {
         super.destroy();
@@ -225,13 +233,7 @@ public class ServerMain extends SimpleApplication{
         @Override
         public void messageReceived(HostedConnection source, Message m) {
             if (m instanceof PlayerMovementMessage) {
-                PlayerMovementMessage msg = (PlayerMovementMessage) m;
-                for (PlayerMovedEvent event : msg.events) {
-                    eventManager.sendEvent(event);
-                    Player player = players.get(source.getId());
-                    player.setLocation(event.position);
-                    server.broadcast(Filters.notEqualTo( source ),new PlayerMovementMessage(new PlayerMovedEvent(source.getId(), event.position, event.rotation)));
-                }
+                eventManager.sendEvent(((PlayerMovementMessage) m).event);
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage msg = (BlockChangeMessage) m;
                 world.getBlockAt(msg.location).setType(msg.blockType);

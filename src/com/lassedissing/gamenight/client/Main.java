@@ -22,10 +22,10 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
-import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.PlayerEvent;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.PlayerNewEvent;
 import com.lassedissing.gamenight.events.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityEvent;
@@ -36,9 +36,9 @@ import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.networking.messages.ChunkMessage;
 import com.lassedissing.gamenight.networking.messages.UpdateMessage;
-import com.lassedissing.gamenight.networking.messages.NewUserMessage;
 import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
-import com.lassedissing.gamenight.world.Bullet;
+import com.lassedissing.gamenight.networking.messages.WelcomeMessage;
+import com.lassedissing.gamenight.world.Player;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class Main extends SimpleApplication {
 
     ChunkManager chunkManager = new ChunkManager();
 
-    private int playerId;
+    private int clientId = -1;
     private Map<Integer,PlayerView> players = new HashMap<>();
 
     private Map<Integer,BulletView> bullets = new HashMap<>();
@@ -109,7 +109,6 @@ public class Main extends SimpleApplication {
         initCrosshair();
 
         player.setLocation(new Vector3f(17,1,16));
-        client.send(new PlayerMovementMessage(new PlayerMovedEvent(-1,cam.getLocation(),cam.getDirection())));
     }
 
     private void initNetwork() {
@@ -125,14 +124,15 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(PlayerMovedEvent.class);
         Serializer.registerClass(ChunkMessage.class);
         Serializer.registerClass(Chunk.class);
-        Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(UpdateMessage.class);
+        Serializer.registerClass(WelcomeMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
+        Serializer.registerClass(PlayerNewEvent.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -297,8 +297,8 @@ public class Main extends SimpleApplication {
 
         player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
 
-        if (!prevLocation.equals(cam.getLocation())) {
-            client.send(new PlayerMovementMessage( new PlayerMovedEvent(-1, cam.getLocation(), cam.getDirection()) ));
+        if (!prevLocation.equals(cam.getLocation()) && clientId != -1) {
+            client.send(new PlayerMovementMessage( new PlayerMovedEvent(clientId, cam.getLocation(), cam.getDirection()) ));
         }
 
         if (buildMode) {
@@ -337,57 +337,78 @@ public class Main extends SimpleApplication {
 
     private void processMessage(Message m) {
         if (m instanceof ChunkMessage) {
-                ChunkMessage chunkMsg = (ChunkMessage) m;
-                chunkManager.addChunk(chunkMsg.chunk);
-            } else if (m instanceof NewUserMessage) {
-                NewUserMessage newUserMsg = (NewUserMessage) m;
-                players.put(newUserMsg.playerId, new PlayerView(newUserMsg.playerId, rootNode, this));
-            } else if (m instanceof PlayerMovementMessage) {
-                PlayerMovementMessage msg = (PlayerMovementMessage) m;
-                for (PlayerMovedEvent event : msg.events) {
-                    PlayerView player = players.get(event.playerId);
-                    player.setPosition(event.position);
-                    player.setRotation(event.rotation);
-                }
-            } else if (m instanceof BlockChangeMessage) {
-                BlockChangeMessage blcMsg = (BlockChangeMessage) m;
-                chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
-            } else if (m instanceof UpdateMessage) {
-                UpdateMessage msg = (UpdateMessage) m;
 
-                for (Event e : msg.events) {
+            ChunkMessage chunkMsg = (ChunkMessage) m;
+            chunkManager.addChunk(chunkMsg.chunk);
 
-                    if (e instanceof EntityEvent) {
+        } else if (m instanceof WelcomeMessage) {
 
-                        if (e instanceof EntitySpawnedEvent) {
+            WelcomeMessage msg = (WelcomeMessage) m;
+            clientId = msg.playerId;
 
-                            EntitySpawnedEvent spawnEvent = (EntitySpawnedEvent) e;
-                            bullets.put(spawnEvent.getId(), new BulletView(spawnEvent.getId(),spawnEvent.getLocation(),rootNode,this));
+            System.out.println("Joined server and got id: " + clientId);
+            for (PlayerNewEvent other : msg.otherPlayers) {
+                players.put(other.playerId, new PlayerView(other.playerId, rootNode, this));
+            }
 
-                        } else if (e instanceof EntityMovedEvent) {
+        } else if (m instanceof BlockChangeMessage) {
 
-                            EntityMovedEvent event = (EntityMovedEvent) e;
-                            bullets.get(event.getId()).setLocation(event.getLocation());
+            BlockChangeMessage blcMsg = (BlockChangeMessage) m;
+            chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
 
-                        } else if (e instanceof EntityDiedEvent) {
+        } else if (m instanceof UpdateMessage) {
 
-                            EntityDiedEvent event = (EntityDiedEvent) e;
-                            bullets.get(event.getId()).destroy();
-                            bullets.remove(event.getId());
+            for (Event e : ((UpdateMessage) m).events) {
 
+                if (e instanceof EntityEvent) {
+
+                    if (e instanceof EntityMovedEvent) {
+
+                        EntityMovedEvent event = (EntityMovedEvent) e;
+                        bullets.get(event.getId()).setLocation(event.getLocation());
+
+                    } else if (e instanceof EntitySpawnedEvent) {
+
+                        EntitySpawnedEvent spawnEvent = (EntitySpawnedEvent) e;
+                        bullets.put(spawnEvent.getId(), new BulletView(spawnEvent.getId(),spawnEvent.getLocation(),rootNode,this));
+
+                    }  else if (e instanceof EntityDiedEvent) {
+
+                        EntityDiedEvent event = (EntityDiedEvent) e;
+                        bullets.get(event.getId()).destroy();
+                        bullets.remove(event.getId());
+
+                    }
+
+                } else if (e instanceof PlayerEvent) {
+
+                    if (e instanceof PlayerMovedEvent) {
+
+                        PlayerMovedEvent event = (PlayerMovedEvent) e;
+                        if (event.playerId != clientId) {
+                            PlayerView playerView = players.get(event.playerId);
+                            playerView.setPosition(event.position);
+                            playerView.setRotation(event.rotation);
                         }
 
-                    } else if (e instanceof PlayerEvent) {
+                    } else if (e instanceof PlayerStatEvent) {
 
-                        if (e instanceof PlayerStatEvent) {
-
-                            PlayerStatEvent event = (PlayerStatEvent) e;
+                        PlayerStatEvent event = (PlayerStatEvent) e;
+                        if (event.playerId == clientId) {
                             System.out.println("Down to " + event.getHealth() + " health!");
-
                         }
+
+                    } else if (e instanceof PlayerNewEvent) {
+
+                        PlayerNewEvent event = (PlayerNewEvent) e;
+                        if (event.playerId != clientId) {
+                            players.put(event.playerId, new PlayerView(event.playerId, rootNode, this));
+                        }
+
                     }
                 }
             }
+        }
     }
 
     public class ClientListener implements MessageListener<Client> {

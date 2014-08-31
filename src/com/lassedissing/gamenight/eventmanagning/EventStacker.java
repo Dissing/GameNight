@@ -24,9 +24,7 @@ public class EventStacker implements EventListener {
 
     @EventHandler
     public void onPlayerEvent(PlayerEvent event) {
-        if (event instanceof PlayerStatEvent) {
-            events.add(event);
-        }
+        events.add(event);
     }
 
     public UpdateMessage bakeUpdateMessage() {
