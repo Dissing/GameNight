@@ -6,12 +6,10 @@
 package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
-import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 
-@Serializable
 public class Bullet {
 
     private Vector3f location;
@@ -19,13 +17,15 @@ public class Bullet {
     private float speed;
     private boolean dying;
     private int id;
+    private int ownerId;
 
 
-    public Bullet(int id, Vector3f source, Vector3f direction, float speed) {
+    public Bullet(int id, int ownerId, Vector3f source, Vector3f direction, float speed) {
         location = source;
         velocity = direction.mult(speed);
         dying = false;
         this.id = id;
+        this.ownerId = ownerId;
     }
 
     public void tick(World world, EventManager eventManager, float tpf) {
@@ -35,16 +35,18 @@ public class Bullet {
         if (location.x < 0 || location.x > world.getWidth() ||
                 location.y < 0 || location.y > world.getHeight() ||
                 location.z < 0 || location.z > world.getLength()) {
-
-            dying = true;
-            eventManager.sendEvent(new EntityDiedEvent(id));
+            kill(eventManager);
             return;
         }
 
         if (world.getBlockAt(location).isBulletCollidable()) {
-            dying = true;
-            eventManager.sendEvent(new EntityDiedEvent(id));
+            kill(eventManager);
         }
+    }
+
+    public void kill(EventManager eventManager) {
+        dying = true;
+        eventManager.sendEvent(new EntityDiedEvent(id));
     }
 
     public boolean isDying() {
@@ -53,6 +55,10 @@ public class Bullet {
 
     public int getId() {
         return id;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
     }
 
     public Vector3f getLocation() {

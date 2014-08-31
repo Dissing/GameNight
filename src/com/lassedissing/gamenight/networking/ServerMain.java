@@ -14,13 +14,15 @@ import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
-import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
+import com.lassedissing.gamenight.networking.messages.UpdateMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
+import com.lassedissing.gamenight.world.Player;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
 import java.io.IOException;
@@ -52,6 +54,7 @@ public class ServerMain extends SimpleApplication{
     private int nextId = 0;
 
     private Map<Integer,HostedConnection> connections = new HashMap<>();
+    private Map<Integer,Player> players = new HashMap<>();
     private int port = 1337;
 
     private List<Bullet> bullets = new LinkedList<>();
@@ -94,10 +97,11 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
-        Serializer.registerClass(EntityUpdateMessage.class);
+        Serializer.registerClass(UpdateMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
+        Serializer.registerClass(PlayerStatEvent.class);
 
         server.start();
 
@@ -106,12 +110,13 @@ public class ServerMain extends SimpleApplication{
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
                 Log.INFO("Player name %d conncted from %s", conn.getId(), conn.getAddress());
+                players.put(conn.getId(), new Player(conn.getId(), Vector3f.ZERO));
+                server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
                 for (int id : connections.keySet()) {
                     conn.send(new NewUserMessage(id));
                 }
-                sendWorldToConn(conn);
-                server.broadcast(Filters.notEqualTo(conn), new NewUserMessage(conn.getId()));
                 connections.put(conn.getId(),conn);
+                sendWorldToConn(conn);
             }
 
             @Override
@@ -197,9 +202,16 @@ public class ServerMain extends SimpleApplication{
                 iter.remove();
             } else {
                 bullet.tick(world, eventManager, tpf);
+                for (Player player : players.values()) {
+                    if (player.getId() != bullet.getOwnerId() && player.collideWithPoint(bullet.getLocation())) {
+                        bullet.kill(eventManager);
+                        player.damage(1);
+                        eventManager.sendEvent(new PlayerStatEvent(player.getId(), player.getHealth()));
+                    }
+                }
             }
         }
-        server.broadcast(eventStacker.bakeEntityMessage());
+        server.broadcast(eventStacker.bakeUpdateMessage());
     }
 
     @Override
@@ -216,6 +228,8 @@ public class ServerMain extends SimpleApplication{
                 PlayerMovementMessage msg = (PlayerMovementMessage) m;
                 for (PlayerMovedEvent event : msg.events) {
                     eventManager.sendEvent(event);
+                    Player player = players.get(source.getId());
+                    player.setLocation(event.position);
                     server.broadcast(Filters.notEqualTo( source ),new PlayerMovementMessage(new PlayerMovedEvent(source.getId(), event.position, event.rotation)));
                 }
             } else if (m instanceof BlockChangeMessage) {
@@ -224,7 +238,7 @@ public class ServerMain extends SimpleApplication{
                 server.broadcast(m);
             } else if (m instanceof ActivateWeaponMessage) {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
-                Bullet newBullet = new Bullet(nextId++,msg.location,msg.direction.normalize(),15f);
+                Bullet newBullet = new Bullet(nextId++,source.getId(),msg.location,msg.direction.normalize(),15f);
                 bullets.add(newBullet);
                 eventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
             }

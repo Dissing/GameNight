@@ -5,12 +5,9 @@
 
 package com.lassedissing.gamenight.eventmanagning;
 
-import com.jme3.network.AbstractMessage;
-import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
-import com.lassedissing.gamenight.events.entity.EntityEvent;
-import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
-import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
-import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
+import com.lassedissing.gamenight.events.*;
+import com.lassedissing.gamenight.events.entity.*;
+import com.lassedissing.gamenight.networking.messages.UpdateMessage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,26 +15,23 @@ import java.util.List;
 public class EventStacker implements EventListener {
 
 
-    private List<EntitySpawnedEvent> spawnedEvents = new ArrayList<>();
-    private List<EntityMovedEvent> movedEvents = new ArrayList<>();
-    private List<EntityDiedEvent> diedEvents = new ArrayList<>();
+    private List<Event> events = new ArrayList<>();
 
     @EventHandler
     public void onEntityEvent(EntityEvent event) {
-        if (event instanceof EntityMovedEvent) {
-            movedEvents.add((EntityMovedEvent)event);
-        } else if (event instanceof EntitySpawnedEvent) {
-            spawnedEvents.add((EntitySpawnedEvent)event);
-        } else if (event instanceof EntityDiedEvent) {
-            diedEvents.add((EntityDiedEvent)event);
+        events.add(event);
+    }
+
+    @EventHandler
+    public void onPlayerEvent(PlayerEvent event) {
+        if (event instanceof PlayerStatEvent) {
+            events.add(event);
         }
     }
 
-    public EntityUpdateMessage bakeEntityMessage() {
-        EntityUpdateMessage msg = new EntityUpdateMessage(movedEvents,spawnedEvents,diedEvents);
-        spawnedEvents.clear();
-        movedEvents.clear();
-        diedEvents.clear();
+    public UpdateMessage bakeUpdateMessage() {
+        UpdateMessage msg = new UpdateMessage(events);
+        events.clear();
         return msg;
     }
 }

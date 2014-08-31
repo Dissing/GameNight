@@ -23,15 +23,19 @@ import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.lassedissing.gamenight.Log;
+import com.lassedissing.gamenight.events.Event;
+import com.lassedissing.gamenight.events.PlayerEvent;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
+import com.lassedissing.gamenight.events.entity.EntityEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.networking.messages.ChunkMessage;
-import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
+import com.lassedissing.gamenight.networking.messages.UpdateMessage;
 import com.lassedissing.gamenight.networking.messages.NewUserMessage;
 import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.world.Bullet;
@@ -124,10 +128,11 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(NewUserMessage.class);
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
-        Serializer.registerClass(EntityUpdateMessage.class);
+        Serializer.registerClass(UpdateMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
+        Serializer.registerClass(PlayerStatEvent.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -347,17 +352,40 @@ public class Main extends SimpleApplication {
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage blcMsg = (BlockChangeMessage) m;
                 chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
-            } else if (m instanceof EntityUpdateMessage) {
-                EntityUpdateMessage msg = (EntityUpdateMessage) m;
-                for (EntitySpawnedEvent event : msg.spawnedEvents) {
-                    bullets.put(event.getId(), new BulletView(event.getId(),event.getLocation(),rootNode,this));
-                }
-                for (EntityMovedEvent event : msg.movedEvents) {
-                    bullets.get(event.getId()).setLocation(event.getLocation());
-                }
-                for (EntityDiedEvent event : msg.diedEvents) {
-                    bullets.get(event.getId()).destroy();
-                    bullets.remove(event.getId());
+            } else if (m instanceof UpdateMessage) {
+                UpdateMessage msg = (UpdateMessage) m;
+
+                for (Event e : msg.events) {
+
+                    if (e instanceof EntityEvent) {
+
+                        if (e instanceof EntitySpawnedEvent) {
+
+                            EntitySpawnedEvent spawnEvent = (EntitySpawnedEvent) e;
+                            bullets.put(spawnEvent.getId(), new BulletView(spawnEvent.getId(),spawnEvent.getLocation(),rootNode,this));
+
+                        } else if (e instanceof EntityMovedEvent) {
+
+                            EntityMovedEvent event = (EntityMovedEvent) e;
+                            bullets.get(event.getId()).setLocation(event.getLocation());
+
+                        } else if (e instanceof EntityDiedEvent) {
+
+                            EntityDiedEvent event = (EntityDiedEvent) e;
+                            bullets.get(event.getId()).destroy();
+                            bullets.remove(event.getId());
+
+                        }
+
+                    } else if (e instanceof PlayerEvent) {
+
+                        if (e instanceof PlayerStatEvent) {
+
+                            PlayerStatEvent event = (PlayerStatEvent) e;
+                            System.out.println("Down to " + event.getHealth() + " health!");
+
+                        }
+                    }
                 }
             }
     }
