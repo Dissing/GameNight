@@ -7,6 +7,9 @@ package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;
+import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
+import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 
 @Serializable
 public class Bullet {
@@ -25,19 +28,22 @@ public class Bullet {
         this.id = id;
     }
 
-    public void tick(World world, float tpf) {
+    public void tick(World world, EventManager eventManager, float tpf) {
         location.addLocal(velocity.mult(tpf));
+        eventManager.sendEvent(new EntityMovedEvent(id, location));
 
         if (location.x < 0 || location.x > world.getWidth() ||
                 location.y < 0 || location.y > world.getHeight() ||
                 location.z < 0 || location.z > world.getLength()) {
 
             dying = true;
+            eventManager.sendEvent(new EntityDiedEvent(id));
             return;
         }
 
         if (world.getBlockAt(location).isBulletCollidable()) {
             dying = true;
+            eventManager.sendEvent(new EntityDiedEvent(id));
         }
     }
 

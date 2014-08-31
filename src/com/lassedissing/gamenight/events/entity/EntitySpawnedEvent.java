@@ -5,18 +5,27 @@
 
 package com.lassedissing.gamenight.events.entity;
 
+import com.jme3.math.Vector3f;
+import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
-import com.lassedissing.gamenight.events.Event;
 import java.util.ArrayList;
 import java.util.List;
 
+@Serializable
+public class EntitySpawnedEvent extends EntityEvent {
 
-public class EntityEvent extends Event {
+    private Vector3f location;
 
-    protected int id;
+    public EntitySpawnedEvent(int id, Vector3f location) {
+        this.id = id;
+        this.location = location;
+    }
 
-    public int getId() {
-        return id;
+    /**
+     * Serialization
+     */
+    public EntitySpawnedEvent() {
+        
     }
 
     //ClosureHolder section
@@ -25,14 +34,15 @@ public class EntityEvent extends Event {
 
     @Override
     public int getClosureLevel() {
-        return 1;
+        return 2;
     }
 
     @Override
     public List<EventClosure> getClosures(int level) {
         switch (level) {
-            case 0:     return super.getClosures(level);
-            case 1:     return closures;
+            case 0:
+            case 1:     return super.getClosures(level);
+            case 2:     return closures;
             default:    throw new UnsupportedOperationException("Level " + level + " is not supported by " + getEventName());
         }
     }

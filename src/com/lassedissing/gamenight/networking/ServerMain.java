@@ -12,7 +12,10 @@ import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
+import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.EntityUpdateMessage;
 import com.lassedissing.gamenight.world.Bullet;
@@ -43,6 +46,7 @@ public class ServerMain extends SimpleApplication{
     Console console;
 
     EventManager eventManager;
+    EventStacker eventStacker;
 
     private int nextId = 0;
 
@@ -59,6 +63,8 @@ public class ServerMain extends SimpleApplication{
         Log.INFO("Starting server");
 
         eventManager = new EventManager();
+        eventStacker = new EventStacker();
+        eventManager.registerListener(eventStacker);
 
         initNetwork();
 
@@ -88,7 +94,8 @@ public class ServerMain extends SimpleApplication{
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(EntityUpdateMessage.class);
-        Serializer.registerClass(Bullet.class);
+        Serializer.registerClass(EntityMovedEvent.class);
+        Serializer.registerClass(EntityDiedEvent.class);
 
         server.start();
 
@@ -187,10 +194,10 @@ public class ServerMain extends SimpleApplication{
             if (bullet.isDying()) {
                 iter.remove();
             } else {
-                bullet.tick(world, tpf);
+                bullet.tick(world, eventManager, tpf);
             }
         }
-        server.broadcast(new EntityUpdateMessage(bullets));
+        server.broadcast(eventStacker.bakeEntityMessage());
     }
 
     @Override

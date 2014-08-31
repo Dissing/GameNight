@@ -7,16 +7,23 @@ package com.lassedissing.gamenight.networking.messages;
 
 import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
+import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
+import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
+import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.world.Bullet;
 import java.util.List;
 
 @Serializable
 public class EntityUpdateMessage extends AbstractMessage {
 
-    public Bullet[] bullets;
+    public EntityMovedEvent[] movedEvents;
+    public EntitySpawnedEvent[] spawnedEvents;
+    public EntityDiedEvent[] diedEvents;
 
-    public EntityUpdateMessage(List<Bullet> bullets) {
-        this.bullets = (Bullet[]) bullets.toArray(new Bullet[bullets.size()]);
+    public EntityUpdateMessage(List<EntityMovedEvent> movedEvents, List<EntitySpawnedEvent> spawnedEvents, List<EntityDiedEvent> diedEvents) {
+        this.movedEvents = (EntityMovedEvent[]) movedEvents.toArray(new EntityMovedEvent[movedEvents.size()]);
+        this.spawnedEvents = (EntitySpawnedEvent[]) spawnedEvents.toArray(new EntitySpawnedEvent[spawnedEvents.size()]);
+        this.diedEvents = (EntityDiedEvent[]) diedEvents.toArray(new EntityDiedEvent[diedEvents.size()]);
     }
 
     /**

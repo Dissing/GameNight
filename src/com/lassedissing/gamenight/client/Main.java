@@ -24,6 +24,8 @@ import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
+import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
@@ -122,7 +124,8 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(BlockChangeMessage.class);
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(EntityUpdateMessage.class);
-        Serializer.registerClass(Bullet.class);
+        Serializer.registerClass(EntityMovedEvent.class);
+        Serializer.registerClass(EntityDiedEvent.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -344,12 +347,16 @@ public class Main extends SimpleApplication {
                 chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
             } else if (m instanceof EntityUpdateMessage) {
                 EntityUpdateMessage msg = (EntityUpdateMessage) m;
-                for (Bullet bullet : msg.bullets) {
-                    if (bullets.containsKey(bullet.getId())) {
-                        bullets.get(bullet.getId()).setLocation(bullet.getLocation());
+                for (EntityMovedEvent event : msg.movedEvents) {
+                    if (bullets.containsKey(event.getId())) {
+                        bullets.get(event.getId()).setLocation(event.getLocation());
                     } else {
-                        bullets.put(bullet.getId(), new BulletView(bullet.getId(), bullet.getLocation(), rootNode, this));
+                        bullets.put(event.getId(), new BulletView(event.getId(), event.getLocation(), rootNode, this));
                     }
+                }
+                for (EntityDiedEvent event : msg.diedEvents) {
+                    bullets.get(event.getId()).destroy();
+                    bullets.remove(event.getId());
                 }
             }
     }

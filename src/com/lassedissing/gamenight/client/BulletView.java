@@ -28,7 +28,6 @@ public class BulletView {
         parent.attachChild(geo);
 
         geo.setLocalTranslation(location);
-        System.out.println("Spawning new bullet at " + location.toString());
     }
 
     public void setLocation(Vector3f location) {
@@ -37,6 +36,10 @@ public class BulletView {
 
     public int getId() {
         return id;
+    }
+
+    public void destroy() {
+        geo.removeFromParent();
     }
 
 }
