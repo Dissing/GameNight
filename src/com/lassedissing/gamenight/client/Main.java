@@ -71,6 +71,7 @@ public class Main extends SimpleApplication {
     private boolean rightClick = false;
 
     private boolean mouseTrapped = false;
+    private boolean esdf = false;
 
     private boolean buildMode = false;
 
@@ -190,10 +191,17 @@ public class Main extends SimpleApplication {
 
         flyCam.setEnabled(false);
         inputManager.addMapping(INPUT_TAB, new KeyTrigger(KeyInput.KEY_TAB));
-        inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_S));
-        inputManager.addMapping(INPUT_STRAFE_RIGHT, new KeyTrigger(KeyInput.KEY_F));
-        inputManager.addMapping(INPUT_MOVE_FORWARD, new KeyTrigger(KeyInput.KEY_E));
-        inputManager.addMapping(INPUT_MOVE_BACKWARD, new KeyTrigger(KeyInput.KEY_D));
+        if (esdf) {
+            inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_S));
+            inputManager.addMapping(INPUT_STRAFE_RIGHT, new KeyTrigger(KeyInput.KEY_F));
+            inputManager.addMapping(INPUT_MOVE_FORWARD, new KeyTrigger(KeyInput.KEY_E));
+            inputManager.addMapping(INPUT_MOVE_BACKWARD, new KeyTrigger(KeyInput.KEY_D));
+        } else {
+            inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_A));
+            inputManager.addMapping(INPUT_STRAFE_RIGHT, new KeyTrigger(KeyInput.KEY_D));
+            inputManager.addMapping(INPUT_MOVE_FORWARD, new KeyTrigger(KeyInput.KEY_W));
+            inputManager.addMapping(INPUT_MOVE_BACKWARD, new KeyTrigger(KeyInput.KEY_S));
+        }
         inputManager.addMapping(INPUT_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping(INPUT_CAM_LEFT, new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping(INPUT_CAM_RIGHT, new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
