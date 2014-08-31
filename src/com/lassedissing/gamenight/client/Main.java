@@ -78,6 +78,8 @@ public class Main extends SimpleApplication {
     private Vector3f walkDirection = new Vector3f();
     private Vector3f prevLocation = new Vector3f();
 
+    private BitmapText healthBar;
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("You must specify IP");
@@ -109,6 +111,13 @@ public class Main extends SimpleApplication {
         initCrosshair();
 
         player.setLocation(new Vector3f(17,1,16));
+
+        healthBar = new BitmapText(guiFont,false);
+        healthBar.setSize(guiFont.getCharSet().getRenderedSize());
+        healthBar.setColor(ColorRGBA.White);
+        healthBar.setLocalTranslation(10, 700, 0);
+        healthBar.setText("Health: 10");
+        guiNode.attachChild(healthBar);
     }
 
     private void initNetwork() {
@@ -395,7 +404,7 @@ public class Main extends SimpleApplication {
 
                         PlayerStatEvent event = (PlayerStatEvent) e;
                         if (event.playerId == clientId) {
-                            System.out.println("Down to " + event.getHealth() + " health!");
+                            healthBar.setText("Health: " + event.getHealth());
                         }
 
                     } else if (e instanceof PlayerNewEvent) {
