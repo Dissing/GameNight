@@ -12,19 +12,33 @@ import com.jme3.network.serializing.Serializable;
 @Serializable
 public class ActivateWeaponMessage extends AbstractMessage {
 
-    public Vector3f location;
-    public Vector3f direction;
+    private int sourceId;
+    private Vector3f location;
+    private Vector3f direction;
+
+    public ActivateWeaponMessage(int sourceId, Vector3f location, Vector3f direction) {
+        this.sourceId = sourceId;
+        this.location = location;
+        this.direction = direction;
+    }
+
+    public int getSourceId() {
+        return sourceId;
+    }
+
+    public Vector3f getLocation() {
+        return location;
+    }
+
+    public Vector3f getDirection() {
+        return direction;
+    }
 
     /**
      * Serialization
      */
     public ActivateWeaponMessage() {
 
-    }
-
-    public ActivateWeaponMessage(Vector3f location, Vector3f direction) {
-        this.location = location;
-        this.direction = direction;
     }
 
 }

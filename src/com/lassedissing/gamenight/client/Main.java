@@ -38,7 +38,6 @@ import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
-import com.lassedissing.gamenight.world.Player;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -335,7 +334,7 @@ public class Main extends SimpleApplication {
             }
         } else {
             if (leftClick) {
-                client.send(new ActivateWeaponMessage(cam.getLocation(), cam.getDirection()));
+                client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
                 leftClick = false;
             }
         }

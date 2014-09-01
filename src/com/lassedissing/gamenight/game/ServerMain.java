@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,23 +44,21 @@ import java.util.logging.Logger;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-public class ServerMain extends SimpleApplication implements EventListener {
+public class ServerMain extends SimpleApplication {
 
     Server server;
 
-    World world;
-
     Console console;
 
-    EventManager eventManager;
+    private ServerGameContainer gameContainer;
+
     EventStacker eventStacker;
 
-    private int nextId = 0;
 
-    private Map<Integer,Player> players = new HashMap<>();
     private int port = 1337;
 
-    private List<Bullet> bullets = new LinkedList<>();
+    private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
+
 
     @Override
     public void simpleInitApp() {
@@ -68,17 +67,13 @@ public class ServerMain extends SimpleApplication implements EventListener {
         Log.setConsole(console);
         Log.INFO("Starting server");
 
-        eventManager = new EventManager();
+        gameContainer = new ServerGameContainer();
+        gameContainer.init();
+
         eventStacker = new EventStacker();
-        eventManager.registerListener(eventStacker);
-        eventManager.registerListener(this);
+        gameContainer.getEventManager().registerListener(eventStacker);
 
         initNetwork();
-
-        Log.INFO("Loading world..");
-        world = new World("Test");
-        world.generate(2, 2);
-
 
 
     }
@@ -114,17 +109,14 @@ public class ServerMain extends SimpleApplication implements EventListener {
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
                 Log.INFO("Player name %d connected from %s", conn.getId(), conn.getAddress());
-                conn.send(new WelcomeMessage(conn.getId(), players.values()));
-                players.put(conn.getId(), new Player(conn.getId(), new Vector3f(17f,1f,16f)));
-
-                eventManager.sendEvent(new PlayerNewEvent(conn.getId()));
+                conn.send(new WelcomeMessage(conn.getId(), gameContainer.getPlayers()));
+                gameContainer.playerConnected(conn.getId());
                 sendWorldToConn(conn);
             }
 
             @Override
             public void connectionRemoved(Server server, HostedConnection conn) {
-
-                players.remove(conn.getId());
+                gameContainer.playerDisconnected(conn.getId());
             }
         });
 
@@ -140,18 +132,19 @@ public class ServerMain extends SimpleApplication implements EventListener {
     }
 
     private void sendWorldToConn(HostedConnection conn) {
-        for (Chunk chunk : world.getAllChunks()) {
+        for (Chunk chunk : gameContainer.getWorld().getAllChunks()) {
             conn.send(new ChunkMessage(chunk));
         }
     }
 
     private void processConsoleInput(String line) {
+
         String[] parts = line.split(" ");
 
         if (parts[0].equalsIgnoreCase("load")) {
 
             if (parts.length == 2) {
-                world = World.load(parts[1]);
+                gameContainer.replaceWorld(World.load(parts[1]));
                 for (HostedConnection conn : server.getConnections()) {
                     sendWorldToConn(conn);
                 }
@@ -163,19 +156,19 @@ public class ServerMain extends SimpleApplication implements EventListener {
         } else if (parts[0].equalsIgnoreCase("save")) {
 
             if (parts.length == 1) {
-                world.save();
+                gameContainer.getWorld().save();
             } else if (parts.length == 2) {
-                world.save(parts[1]);
+                gameContainer.getWorld().save(parts[1]);
             } else {
                 Log.ERROR("Invalid amount of arguments: save [map]");
             }
-            Log.INFO("Saved world %s", world.getName());
+            Log.INFO("Saved world %s", gameContainer.getWorld().getName());
 
         } else if (parts[0].equalsIgnoreCase("new")) {
 
             if (parts.length == 4) {
-                world = new World(parts[1]);
-                world.generate(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+                gameContainer.replaceWorld(new World(parts[1]));
+                gameContainer.getWorld().generate(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
                 for (HostedConnection conn : server.getConnections()) {
                     sendWorldToConn(conn);
                 }
@@ -198,28 +191,11 @@ public class ServerMain extends SimpleApplication implements EventListener {
             e.printStackTrace();
         }
 
-        Iterator<Bullet> iter = bullets.iterator();
-        while (iter.hasNext()) {
-            Bullet bullet = iter.next();
-            if (bullet.isDying()) {
-                iter.remove();
-            } else {
-                bullet.tick(world, eventManager, tpf);
-                for (Player player : players.values()) {
-                    if (player.getId() != bullet.getOwnerId() && player.collideWithPoint(bullet.getLocation())) {
-                        bullet.kill(eventManager);
-                        player.damage(1);
-                        eventManager.sendEvent(new PlayerStatEvent(player.getId(), player.getHealth()));
-                    }
-                }
-            }
-        }
-        server.broadcast(eventStacker.bakeUpdateMessage());
-    }
 
-    @EventHandler
-    public void onPlayerMovement(PlayerMovedEvent event) {
-        players.get(event.playerId).setLocation(event.position);
+        gameContainer.processMessages(messageQueue);
+        gameContainer.tick(tpf);
+
+        server.broadcast(eventStacker.bakeUpdateMessage());
     }
 
     @Override
@@ -232,18 +208,7 @@ public class ServerMain extends SimpleApplication implements EventListener {
 
         @Override
         public void messageReceived(HostedConnection source, Message m) {
-            if (m instanceof PlayerMovementMessage) {
-                eventManager.sendEvent(((PlayerMovementMessage) m).event);
-            } else if (m instanceof BlockChangeMessage) {
-                BlockChangeMessage msg = (BlockChangeMessage) m;
-                world.getBlockAt(msg.location).setType(msg.blockType);
-                server.broadcast(m);
-            } else if (m instanceof ActivateWeaponMessage) {
-                ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
-                Bullet newBullet = new Bullet(nextId++,source.getId(),msg.location,msg.direction.normalize(),15f);
-                bullets.add(newBullet);
-                eventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
-            }
+            messageQueue.add(m);
         }
 
     }
