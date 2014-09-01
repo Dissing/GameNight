@@ -108,7 +108,7 @@ public class Main extends SimpleApplication {
         initNetwork();
 
         cam.setFrustumNear(0.4f);
-        cam.setFrustumPerspective(60f, 1.6f, 0.1f, 200f);
+        cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
         initCrosshair();
 
         player.setLocation(new Vector3f(17,1,16));
