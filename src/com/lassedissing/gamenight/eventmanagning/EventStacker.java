@@ -28,6 +28,11 @@ public class EventStacker implements EventListener {
         events.add(event);
     }
 
+    @EventHandler
+    public void onBlockChange(BlockChangeEvent event) {
+        events.add(event);
+    }
+
     public UpdateMessage bakeUpdateMessage() {
         UpdateMessage msg = new UpdateMessage(events);
         events.clear();

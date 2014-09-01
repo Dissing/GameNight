@@ -11,6 +11,7 @@ import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.EventHandler;
 import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
@@ -126,8 +127,8 @@ public class ServerGameContainer implements GameContainer, EventListener {
                 eventManager.sendEvent(((PlayerMovementMessage) m).event);
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage msg = (BlockChangeMessage) m;
-                world.getBlockAt(msg.location).setType(msg.blockType);
-                //server.broadcast(m);
+                world.getBlockAt(msg.getX(),msg.getY(),msg.getZ()).setType(msg.getBlockType());
+                sendEvent(new BlockChangeEvent(msg.getBlockType(), msg.getX(), msg.getY(), msg.getZ()));
             } else if (m instanceof ActivateWeaponMessage) {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
                 Bullet newBullet = new Bullet(nextEntityId++,msg.getSourceId(),msg.getLocation(),msg.getDirection().normalize(),15f);

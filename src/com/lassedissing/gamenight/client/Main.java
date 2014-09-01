@@ -22,6 +22,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
+import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
@@ -142,6 +143,7 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
         Serializer.registerClass(PlayerNewEvent.class);
+        Serializer.registerClass(BlockChangeEvent.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -368,11 +370,6 @@ public class Main extends SimpleApplication {
                 players.put(other.playerId, new PlayerView(other.playerId, rootNode, this));
             }
 
-        } else if (m instanceof BlockChangeMessage) {
-
-            BlockChangeMessage blcMsg = (BlockChangeMessage) m;
-            chunkManager.setBlockType(blcMsg.blockType, (int)blcMsg.location.x, (int)blcMsg.location.y, (int)blcMsg.location.z);
-
         } else if (m instanceof UpdateMessage) {
 
             for (Event e : ((UpdateMessage) m).events) {
@@ -423,6 +420,11 @@ public class Main extends SimpleApplication {
                         }
 
                     }
+                } else if (e instanceof BlockChangeEvent) {
+
+                    BlockChangeEvent event = (BlockChangeEvent) e;
+                    chunkManager.setBlockType(event.getBlockType(), event.getX(), event.getY(), event.getZ());
+
                 }
             }
         }

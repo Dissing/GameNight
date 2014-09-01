@@ -11,17 +11,45 @@ import com.jme3.network.serializing.Serializable;
 
 @Serializable
 public class BlockChangeMessage extends AbstractMessage {
-    
-    public int blockType;
-    public Vector3f location;
-    
+
+    private int blockType;
+    private int x,y,z;
+
+    public BlockChangeMessage(int blockType, int x, int y, int z) {
+        this.blockType = blockType;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public BlockChangeMessage(int blockType, Vector3f location) {
         this.blockType = blockType;
-        this.location = location;
+        this.x = (int)location.x;
+        this.y = (int)location.y;
+        this.z = (int)location.z;
     }
-    
+
+    public int getBlockType() {
+        return blockType;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
+
+    /**
+     * Serialization
+     */
     public BlockChangeMessage() {
-        
+
     }
-    
+
 }

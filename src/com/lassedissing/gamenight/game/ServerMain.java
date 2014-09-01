@@ -14,6 +14,7 @@ import com.lassedissing.gamenight.eventmanagning.EventHandler;
 import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
+import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
 import com.lassedissing.gamenight.events.player.PlayerStatEvent;
@@ -101,6 +102,7 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
         Serializer.registerClass(PlayerNewEvent.class);
+        Serializer.registerClass(BlockChangeEvent.class);
 
         server.start();
 
