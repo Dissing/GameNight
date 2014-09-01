@@ -3,25 +3,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package com.lassedissing.gamenight.events;
+package com.lassedissing.gamenight.events.player;
 
-import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import java.util.ArrayList;
 import java.util.List;
 
 @Serializable
-public class PlayerNewEvent extends PlayerEvent {
+public class PlayerStatEvent extends PlayerEvent {
 
-    public PlayerNewEvent(int playerId) {
-        this.playerId = playerId;
+    private int health;
+
+    public PlayerStatEvent(int id, int health) {
+        this.playerId = id;
+        this.health = health;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     /**
-     * Only for serialization
+     * Serialization
      */
-    public PlayerNewEvent() {
+    public PlayerStatEvent() {
 
     }
 

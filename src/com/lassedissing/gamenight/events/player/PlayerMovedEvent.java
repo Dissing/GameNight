@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package com.lassedissing.gamenight.events;
+package com.lassedissing.gamenight.events.player;
 
 import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;

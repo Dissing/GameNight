@@ -1,9 +1,9 @@
-package com.lassedissing.gamenight.networking;
+package com.lassedissing.gamenight.game;
 
 
-import com.lassedissing.gamenight.networking.messages.PlayerMovementMessage;
-import com.lassedissing.gamenight.networking.messages.BlockChangeMessage;
-import com.lassedissing.gamenight.networking.messages.ChunkMessage;
+import com.lassedissing.gamenight.messages.PlayerMovementMessage;
+import com.lassedissing.gamenight.messages.BlockChangeMessage;
+import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.jme3.app.SimpleApplication;
 import com.jme3.math.Vector3f;
 import com.jme3.network.*;
@@ -14,15 +14,15 @@ import com.lassedissing.gamenight.eventmanagning.EventHandler;
 import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
-import com.lassedissing.gamenight.events.PlayerMovedEvent;
-import com.lassedissing.gamenight.events.PlayerNewEvent;
-import com.lassedissing.gamenight.events.PlayerStatEvent;
+import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
+import com.lassedissing.gamenight.events.player.PlayerNewEvent;
+import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
-import com.lassedissing.gamenight.networking.messages.ActivateWeaponMessage;
-import com.lassedissing.gamenight.networking.messages.UpdateMessage;
-import com.lassedissing.gamenight.networking.messages.WelcomeMessage;
+import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
+import com.lassedissing.gamenight.messages.UpdateMessage;
+import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.world.Player;

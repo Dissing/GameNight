@@ -3,33 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package com.lassedissing.gamenight.events;
+package com.lassedissing.gamenight.events.player;
 
-import com.jme3.network.serializing.Serializable;
+import com.lassedissing.gamenight.eventmanagning.ClosureHolder;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
+import com.lassedissing.gamenight.events.Event;
 import java.util.ArrayList;
 import java.util.List;
 
-@Serializable
-public class PlayerStatEvent extends PlayerEvent {
 
-    private int health;
+public class PlayerEvent extends Event implements ClosureHolder {
 
-    public PlayerStatEvent(int id, int health) {
-        this.playerId = id;
-        this.health = health;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    /**
-     * Serialization
-     */
-    public PlayerStatEvent() {
-
-    }
+    public int playerId;
 
     //ClosureHolder section
 
@@ -37,17 +22,15 @@ public class PlayerStatEvent extends PlayerEvent {
 
     @Override
     public int getClosureLevel() {
-        return 2;
+        return 1;
     }
 
     @Override
     public List<EventClosure> getClosures(int level) {
         switch (level) {
-            case 0:
-            case 1:     return super.getClosures(level);
-            case 2:     return closures;
+            case 0:     return super.getClosures(level);
+            case 1:     return closures;
             default:    throw new UnsupportedOperationException("Level " + level + " is not supported by " + getEventName());
         }
     }
-
 }

@@ -5,9 +5,10 @@
 
 package com.lassedissing.gamenight.eventmanagning;
 
+import com.lassedissing.gamenight.events.player.PlayerEvent;
 import com.lassedissing.gamenight.events.*;
 import com.lassedissing.gamenight.events.entity.*;
-import com.lassedissing.gamenight.networking.messages.UpdateMessage;
+import com.lassedissing.gamenight.messages.UpdateMessage;
 import java.util.ArrayList;
 import java.util.List;
 

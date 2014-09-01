@@ -3,11 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package com.lassedissing.gamenight.networking.messages;
+package com.lassedissing.gamenight.messages;
 
 import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
-import com.lassedissing.gamenight.events.PlayerNewEvent;
+import com.lassedissing.gamenight.events.player.PlayerNewEvent;
 import com.lassedissing.gamenight.world.Player;
 import java.util.Collection;
 
