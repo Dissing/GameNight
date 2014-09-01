@@ -77,7 +77,7 @@ public class ServerMain extends SimpleApplication implements EventListener {
 
         Log.INFO("Loading world..");
         world = new World("Test");
-        world.generate(4, 12);
+        world.generate(2, 2);
 
 
 

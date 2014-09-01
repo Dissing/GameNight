@@ -71,7 +71,7 @@ public class Main extends SimpleApplication {
     private boolean rightClick = false;
 
     private boolean mouseTrapped = false;
-    private boolean esdf = false;
+    private boolean esdf = true;
 
     private boolean buildMode = false;
 
@@ -259,7 +259,8 @@ public class Main extends SimpleApplication {
             } else if (name.equalsIgnoreCase(INPUT_JUMP)) {
                 jumpAction = isPressed;
             } else if (name.equalsIgnoreCase(INPUT_TAB) && isPressed) {
-                mouseTrapped = !mouseTrapped;
+                //mouseTrapped = !mouseTrapped;
+                buildMode = !buildMode;
             } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK)) {
                 leftClick = isPressed;
             } else if (name.equalsIgnoreCase(INPUT_RIGHT_CLICK)) {

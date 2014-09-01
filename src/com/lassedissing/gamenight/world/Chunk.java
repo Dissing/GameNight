@@ -34,13 +34,9 @@ public class Chunk implements java.io.Serializable {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 for (int k = 0; k < CHUNK_SIZE; k++) {
                     if (j == 0) {
-                        if (i == 0 || k == 0 || i == 15 || k == 15) {
-                            setIdAt(2,i,j,k);
-                        } else {
-                            setIdAt(1,i,j,k);
-                        }
-                    } else if (i % 2 == 0 && k % 2 == 0 && (i/2) > j) {
                         setIdAt(1,i,j,k);
+                    } else if (i == 0 || k == 0 || i == 15 || k == 15) {
+                        setIdAt(2,i,j,k);
                     }
                 }
             }
