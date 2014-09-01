@@ -358,7 +358,7 @@ public class Main extends SimpleApplication {
         if (m instanceof ChunkMessage) {
 
             ChunkMessage chunkMsg = (ChunkMessage) m;
-            chunkManager.addChunk(chunkMsg.chunk);
+            chunkManager.addChunk(chunkMsg.getChunk());
 
         } else if (m instanceof WelcomeMessage) {
 

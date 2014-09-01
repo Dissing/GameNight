@@ -31,7 +31,7 @@ public class World implements Serializable {
     public void generate(int width, int length) {
         this.width = width * 16;
         this.length = length * 16;
-        this.height = 16;
+        this.height = 32;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++) {
                 long pos = i;

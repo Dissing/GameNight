@@ -8,17 +8,77 @@ package com.lassedissing.gamenight.messages;
 import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.world.Chunk;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 @Serializable
 public class ChunkMessage extends AbstractMessage {
 
-    public Chunk chunk;
-    
+    private byte[] compressedData;
+    private int x;
+    private int z;
+
     public ChunkMessage() {
-        
+
     }
-    
+
     public ChunkMessage(Chunk chunk) {
-        this.chunk = chunk;
+        compressedData = compress(chunk.getRawArray());
+        System.out.println("Compressed size " + compressedData.length + " bytes");
+        x = chunk.getX();
+        z = chunk.getZ();
+    }
+
+    public Chunk getChunk() {
+        return new Chunk(x, z, decompress(compressedData));
+    }
+
+    private byte[] compress(int[] data) {
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream(16384);
+        DeflaterOutputStream deflater = new DeflaterOutputStream(byteOutputStream);
+        DataOutputStream out = new DataOutputStream(deflater);
+        int count  = 0;
+        try {
+            for (int integer : data) {
+                out.writeInt(integer);
+                count++;
+            }
+            out.flush();
+            deflater.finish();
+            out.close();
+            deflater.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Compressed " + count + " integers");
+        return byteOutputStream.toByteArray();
+    }
+
+    private int[] decompress(byte[] data) {
+        System.out.println("Got " + data.length + " bytes of data");
+        ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
+        InflaterInputStream inflater = new InflaterInputStream(byteInputStream);
+        DataInputStream in = new DataInputStream(inflater);
+        int[] result = new int[Chunk.CHUNK_VOLUME];
+        int count = 0;
+        try {
+            for (int i = 0; i < Chunk.CHUNK_VOLUME; i++) {
+                result[i] = in.readInt();
+                count++;
+            }
+
+            in.close();
+            inflater.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Decompressed " + count + " integers");
+        }
+        return result;
     }
 }

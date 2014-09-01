@@ -10,28 +10,24 @@ import com.jme3.network.serializing.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.InvalidParameterException;
 
 @Serializable
 public class Chunk implements java.io.Serializable {
 
     public final transient static float BLOCK_SIZE = 1f;
     public final transient static int CHUNK_SIZE = 16;
+    public final transient static int CHUNK_HEIGHT = 32;
     public final transient static int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
-    public final transient static int CHUNK_VOLUME = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
+    public final transient static int CHUNK_VOLUME = CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT;
 
     protected int[] blocks = new int[CHUNK_VOLUME];
-    protected Vector3f location = new Vector3f();
-
-    /**
-     * Only for serialization
-     */
-    public Chunk() {
-
-    }
+    protected int x;
+    protected int z;
 
     public Chunk(int x, int z)  {
         for (int i = 0; i < CHUNK_SIZE; i++) {
-            for (int j = 0; j < CHUNK_SIZE; j++) {
+            for (int j = 0; j < CHUNK_HEIGHT; j++) {
                 for (int k = 0; k < CHUNK_SIZE; k++) {
                     if (j == 0) {
                         setIdAt(1,i,j,k);
@@ -41,23 +37,29 @@ public class Chunk implements java.io.Serializable {
                 }
             }
         }
-        location.set(x, 0, z);
+        this.x = x;
+        this.z = z;
     }
 
-    public Vector3f getLocation() {
-        return location;
+    public Chunk(int x, int z, int[] blocks) {
+        if (blocks.length != CHUNK_VOLUME) {
+            throw new InvalidParameterException("Length of blocks array must be exactly " + CHUNK_VOLUME);
+        }
+        this.blocks = blocks;
+        this.x = x;
+        this.z = z;
     }
 
     public int getX() {
-        return (int)location.getX();
+        return x;
     }
 
     public int getZ() {
-        return (int)location.getZ();
+        return z;
     }
 
     public int getIdAt(int x, int y, int z) {
-        return blocks[(x & 0xF)*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+(z & 0xF)];
+        return blocks[(x & 0xF)*Chunk.CHUNK_HEIGHT*CHUNK_SIZE+y*Chunk.CHUNK_SIZE+(z & 0xF)];
     }
 
     public Block getBlockAt(int x, int y, int z) {
@@ -65,14 +67,14 @@ public class Chunk implements java.io.Serializable {
     }
 
     public void setIdAt(int value, int x, int y, int z) {
-        blocks[(x & 0xF)*Chunk.CHUNK_AREA+y*Chunk.CHUNK_SIZE+(z & 0xF)] = value;
+        blocks[(x & 0xF)*Chunk.CHUNK_HEIGHT*CHUNK_SIZE+y*Chunk.CHUNK_SIZE+(z & 0xF)] = value;
     }
 
     public boolean isPopulated(int x, int y, int z) {
-        int pos = x*CHUNK_AREA+y*CHUNK_SIZE+z;
+        int pos = x*CHUNK_SIZE*CHUNK_HEIGHT+y*CHUNK_SIZE+z;
 
         //Check if block is outside chunk
-        if (x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE || x < 0 || y < 0 || z < 0)
+        if (x >= CHUNK_SIZE || y >= CHUNK_HEIGHT || z >= CHUNK_SIZE || x < 0 || y < 0 || z < 0)
             return false;
 
         //Check if block is not empty
@@ -80,21 +82,15 @@ public class Chunk implements java.io.Serializable {
         return res;
     }
 
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-
-        for (int block : blocks) {
-            oos.writeInt(block);
-        }
-        oos.writeObject(location);
+    public int[] getRawArray() {
+        return blocks;
     }
 
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-        for (int i = 0; i < CHUNK_VOLUME; i++) {
-            blocks[i] = ois.readInt();
-        }
-        location = (Vector3f) ois.readObject();
+    /**
+    * Only for serialization
+    */
+    public Chunk() {
+
     }
 
 }
