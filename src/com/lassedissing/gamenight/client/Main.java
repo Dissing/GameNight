@@ -77,7 +77,6 @@ public class Main extends SimpleApplication {
 
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
-    private Vector3f prevLocation = new Vector3f();
 
     private BitmapText healthBar;
 
@@ -111,7 +110,7 @@ public class Main extends SimpleApplication {
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
         initCrosshair();
 
-        player.setLocation(new Vector3f(17,1,16));
+        player.setLocation(new Vector3f(20,1,20));
 
         healthBar = new BitmapText(guiFont,false);
         healthBar.setSize(guiFont.getCharSet().getRenderedSize());
@@ -288,8 +287,6 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
 
-        prevLocation.set(cam.getLocation());
-
         inputManager.setCursorVisible(mouseTrapped);
 
         walkDirection.zero();
@@ -316,7 +313,7 @@ public class Main extends SimpleApplication {
 
         player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
 
-        if (!prevLocation.equals(cam.getLocation()) && clientId != -1) {
+        if (!player.hasMoved() && clientId != -1) {
             client.send(new PlayerMovementMessage( new PlayerMovedEvent(clientId, cam.getLocation(), cam.getDirection()) ));
         }
 
