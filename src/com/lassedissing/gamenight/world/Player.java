@@ -16,14 +16,25 @@ public class Player {
     private float eyeOffset = 0.8f;
     private int health = 10;
 
+    private boolean spawned = false;
+
 
     public Player(int id, Vector3f location) {
         this.id = id;
         this.location = location;
     }
 
+    public void spawn(Vector3f location) {
+        this.location = location;
+        spawned = true;
+    }
+
     public void damage(int damage) {
         health -= damage;
+
+        if (health <= 0) {
+            spawned = false;
+        }
     }
 
     public boolean collideWithPoint(Vector3f point) {

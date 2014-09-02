@@ -5,14 +5,10 @@ import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.jme3.app.SimpleApplication;
-import com.jme3.math.Vector3f;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
-import com.lassedissing.gamenight.eventmanagning.EventHandler;
-import com.lassedissing.gamenight.eventmanagning.EventListener;
-import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
@@ -21,20 +17,15 @@ import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
+import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
+import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
-import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
-import com.lassedissing.gamenight.world.Player;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,6 +93,8 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
         Serializer.registerClass(PlayerNewEvent.class);
+        Serializer.registerClass(PlayerSpawnedEvent.class);
+        Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
 
         server.start();
@@ -177,6 +170,12 @@ public class ServerMain extends SimpleApplication {
                 Log.INFO("Generated new world with size: %d x %d", parts[2], parts[3]);
             } else {
                 Log.ERROR("Invalid amount of arguments: new map width length");
+            }
+
+        } else if (parts[0].equalsIgnoreCase("spawn")) {
+
+            if (parts.length == 2) {
+                gameContainer.spawnPlayer(Integer.parseInt(parts[1]));
             }
 
         }

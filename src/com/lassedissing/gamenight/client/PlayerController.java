@@ -33,6 +33,17 @@ public class PlayerController {
         this.location = location;
     }
 
+    public void setEyeLocation(Vector3f location) {
+        this.location = location.subtract(eye);
+    }
+
+    public Vector3f getLocation() {
+        return location;
+    }
+
+    public Vector3f getEyeLocation() {
+        return location.add(eye);
+    }
 
     private boolean isColliding(Vector3f pos, Vector3f width, int blockX, int blockY, int blockZ) {
         if (pos.x+width.x < blockX || pos.x > blockX+1) return false;
@@ -198,7 +209,6 @@ public class PlayerController {
 
 
         location.addLocal(velocityXZ.mult(tpf));
-        cam.setLocation(location.add(eye));
         prevLocation.set(location);
     }
 

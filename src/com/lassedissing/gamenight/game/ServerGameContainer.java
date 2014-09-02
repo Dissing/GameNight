@@ -16,6 +16,7 @@ import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
+import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
@@ -61,6 +62,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     public void playerConnected(int id) {
         players.put(id, new Player(id, Vector3f.ZERO));
         eventManager.sendEvent(new PlayerNewEvent(id));
+        this.spawnPlayer(id);
     }
 
     public void playerDisconnected(int id) {
@@ -92,8 +94,19 @@ public class ServerGameContainer implements GameContainer, EventListener {
     }
 
     @Override
+    public Player getPlayer(int id) {
+        return players.get(id);
+    }
+
+
+    @Override
     public Collection<Bullet> getBullets() {
         return bullets;
+    }
+
+    @Override
+    public void spawnPlayer(int id) {
+        sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,2,20)));
     }
 
     public void tick(float tpf) {

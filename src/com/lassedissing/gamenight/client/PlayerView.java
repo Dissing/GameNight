@@ -5,12 +5,12 @@
 
 package com.lassedissing.gamenight.client;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 
 
@@ -18,6 +18,7 @@ public class PlayerView {
 
     private int id;
     private Node node = new Node();;
+    private boolean visible = false;
 
     public PlayerView(int id, Node parent, Main app) {
         this.id = id;
@@ -78,6 +79,19 @@ public class PlayerView {
 
     public void setRotation(Vector3f rot) {
         node.lookAt(rot, Vector3f.UNIT_Y);
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        if (visible) {
+            node.setCullHint(Spatial.CullHint.Dynamic);
+        } else {
+            node.setCullHint(Spatial.CullHint.Never);
+        }
     }
 
 }

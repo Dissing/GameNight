@@ -32,6 +32,8 @@ import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
+import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
+import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
@@ -80,6 +82,8 @@ public class Main extends SimpleApplication {
 
     private BitmapText healthBar;
 
+    private boolean isSpawned = false;
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("You must specify IP");
@@ -110,7 +114,7 @@ public class Main extends SimpleApplication {
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
         initCrosshair();
 
-        player.setLocation(new Vector3f(20,1,20));
+        player.setEyeLocation(new Vector3f(16f,50f,16f));
 
         healthBar = new BitmapText(guiFont,false);
         healthBar.setSize(guiFont.getCharSet().getRenderedSize());
@@ -142,6 +146,8 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(EntitySpawnedEvent.class);
         Serializer.registerClass(PlayerStatEvent.class);
         Serializer.registerClass(PlayerNewEvent.class);
+        Serializer.registerClass(PlayerSpawnedEvent.class);
+        Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
 
         client.addMessageListener(new ClientListener(this));
@@ -289,54 +295,60 @@ public class Main extends SimpleApplication {
 
         inputManager.setCursorVisible(mouseTrapped);
 
-        walkDirection.zero();
+        if (isSpawned) {
 
-        if (leftAction) {
-            walkDirection.addLocal(cam.getLeft());
-        }
+            walkDirection.zero();
 
-        if (rightAction) {
-            walkDirection.addLocal(cam.getLeft().negate());
-        }
+            if (leftAction) {
+                walkDirection.addLocal(cam.getLeft());
+            }
 
-        if (forwardAction) {
-            walkDirection.addLocal(cam.getDirection().setY(0));
-        }
+            if (rightAction) {
+                walkDirection.addLocal(cam.getLeft().negate());
+            }
 
-        if (backAction) {
-            walkDirection.addLocal(cam.getDirection().setY(0).negate());
-        }
+            if (forwardAction) {
+                walkDirection.addLocal(cam.getDirection().setY(0));
+            }
 
-        if (jumpAction) {
-            player.jump();
-        }
+            if (backAction) {
+                walkDirection.addLocal(cam.getDirection().setY(0).negate());
+            }
 
-        player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
+            if (jumpAction) {
+                player.jump();
+            }
 
-        if (!player.hasMoved() && clientId != -1) {
-            client.send(new PlayerMovementMessage( new PlayerMovedEvent(clientId, cam.getLocation(), cam.getDirection()) ));
-        }
+            player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
 
-        if (buildMode) {
-            Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
-            if (selectedBlock != null) {
-                chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
+            if (!player.hasMoved() && clientId != -1) {
+                client.send(new PlayerMovementMessage( new PlayerMovedEvent(clientId, player.getEyeLocation(), cam.getDirection()) ));
+            }
+
+            if (buildMode) {
+                Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
+                if (selectedBlock != null) {
+                    chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
+                    if (leftClick) {
+                        client.send(new BlockChangeMessage(0, selectedBlock));
+                        leftClick = false;
+                    }
+                    if (rightClick) {
+                        selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
+                        client.send(new BlockChangeMessage(1, selectedBlock));
+                        rightClick = false;
+                    }
+                }
+            } else {
                 if (leftClick) {
-                    client.send(new BlockChangeMessage(0, selectedBlock));
+                    client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
                     leftClick = false;
                 }
-                if (rightClick) {
-                    selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
-                    client.send(new BlockChangeMessage(1, selectedBlock));
-                    rightClick = false;
-                }
-            }
-        } else {
-            if (leftClick) {
-                client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
-                leftClick = false;
             }
         }
+
+        cam.setLocation(player.getEyeLocation());
+
 
     }
 
@@ -416,7 +428,31 @@ public class Main extends SimpleApplication {
                             players.put(event.playerId, new PlayerView(event.playerId, rootNode, this));
                         }
 
+                    } else if (e instanceof PlayerSpawnedEvent) {
+
+                        PlayerSpawnedEvent event = (PlayerSpawnedEvent) e;
+                        if (event.playerId == clientId) {
+                            player.setEyeLocation(event.getLocation());
+                            isSpawned = true;
+                        } else {
+                            PlayerView player = players.get(event.playerId);
+                            player.setVisible(true);
+                            player.setPosition(event.getLocation());
+                        }
+
+                    } else if (e instanceof PlayerDiedEvent) {
+
+                        PlayerDiedEvent event = (PlayerDiedEvent) e;
+                        if (event.playerId == clientId) {
+                            cam.setLocation(new Vector3f(16.5f,32,16.5f));
+                            isSpawned = false;
+                        } else {
+                            PlayerView player = players.get(event.playerId);
+                            player.setVisible(false);
+                        }
+
                     }
+
                 } else if (e instanceof BlockChangeEvent) {
 
                     BlockChangeEvent event = (BlockChangeEvent) e;

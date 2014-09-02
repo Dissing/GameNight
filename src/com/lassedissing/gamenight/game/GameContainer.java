@@ -23,6 +23,10 @@ public interface GameContainer {
 
     public Collection<Player> getPlayers();
 
+    public Player getPlayer(int id);
+
     public Collection<Bullet> getBullets();
+
+    public void spawnPlayer(int id);
 
 }
