@@ -1,0 +1,13 @@
+MaterialDef Block {
+    MaterialParameters {
+        Texture2D Texture
+        Color Color (Color)
+    }
+    Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        VertexShader GLSL130: Shaders/WeaponShader.vert
+        FragmentShader GLSL130: Shaders/WeaponShader.frag
+    }
+}

@@ -22,6 +22,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
+import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
@@ -84,6 +85,8 @@ public class Main extends SimpleApplication {
 
     private boolean isSpawned = false;
 
+    private Geometry weaponHUD;
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("You must specify IP");
@@ -122,6 +125,14 @@ public class Main extends SimpleApplication {
         healthBar.setLocalTranslation(10, 700, 0);
         healthBar.setText("Health: 10");
         guiNode.attachChild(healthBar);
+
+        WeaponView ak47 = new WeaponView("AK47", assetManager);
+
+        Geometry weaponGeo = new Geometry("Weapon",ak47.mesh);
+        rootNode.attachChild(weaponGeo);
+        weaponGeo.setLocalTranslation(24, 2, 24);
+        weaponGeo.setMaterial(ak47.weaponMaterial);
+        weaponGeo.scale(0.02f);
     }
 
     private void initNetwork() {
