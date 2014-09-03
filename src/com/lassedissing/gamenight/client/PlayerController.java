@@ -15,7 +15,7 @@ public class PlayerController {
     private Vector3f velocityXZ = new Vector3f();
     private Vector3f velocityY = new Vector3f();
     private Vector3f eye = new Vector3f(0.4f,1.6f,0.4f);
-    private Vector3f width = new Vector3f(0.8f,1.8f,0.8f);
+    private Vector3f width = new Vector3f(0.6f,1.8f,0.6f);
     private Vector3f center = new Vector3f(0.4f,0, 0.4f);
     private float walkSpeed = 9f;
     private float friction = 15f;
@@ -45,7 +45,12 @@ public class PlayerController {
         return location.add(eye);
     }
 
-    private boolean isColliding(Vector3f pos, Vector3f width, int blockX, int blockY, int blockZ) {
+
+    public boolean isColliding(Vector3f playerPos, Vector3f blockPos) {
+        return isColliding(playerPos, width, (int)blockPos.x, (int)blockPos.y, (int)blockPos.z);
+    }
+
+    public boolean isColliding(Vector3f pos, Vector3f width, int blockX, int blockY, int blockZ) {
         if (pos.x+width.x < blockX || pos.x > blockX+1) return false;
         if (pos.y+width.y < blockY || pos.y > blockY+1) return false;
         if (pos.z+width.z < blockZ || pos.z > blockZ+1) return false;

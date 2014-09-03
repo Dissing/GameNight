@@ -361,8 +361,16 @@ public class Main extends SimpleApplication {
                     }
                     if (rightClick) {
                         selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
-                        client.send(new BlockChangeMessage(1, selectedBlock));
-                        rightClick = false;
+                        boolean blocked = false;
+                        blocked = player.isColliding(player.getLocation().add(0, 0.1f, 0), selectedBlock);
+                        for (PlayerView other : players.values()) {
+                            if (blocked) break;
+                            blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
+                        }
+                        if (!blocked) {
+                            client.send(new BlockChangeMessage(1, selectedBlock));
+                            rightClick = false;
+                        }
                     }
                 }
             } else {

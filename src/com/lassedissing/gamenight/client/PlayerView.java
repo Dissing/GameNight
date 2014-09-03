@@ -77,6 +77,10 @@ public class PlayerView {
         node.setLocalTranslation(pos.subtractLocal(0, 1.6f, 0));
     }
 
+    public Vector3f getPosition() {
+        return node.getLocalTranslation();
+    }
+
     public void setRotation(Vector3f rot) {
         node.lookAt(rot, Vector3f.UNIT_Y);
     }
