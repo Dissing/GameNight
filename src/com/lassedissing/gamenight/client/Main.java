@@ -22,6 +22,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
@@ -43,6 +45,7 @@ import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -85,7 +88,7 @@ public class Main extends SimpleApplication {
 
     private boolean isSpawned = false;
 
-    private Geometry weaponHUD;
+    private Geometry weaponGeo;
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -126,13 +129,25 @@ public class Main extends SimpleApplication {
         healthBar.setText("Health: 10");
         guiNode.attachChild(healthBar);
 
+        Camera weaponCam = cam.clone();
+        weaponCam.setLocation(new Vector3f(0, 0, 0));
+        weaponCam.lookAt(new Vector3f(0, 0, 1), Vector3f.UNIT_Y);
+        weaponCam.setLocation(new Vector3f(0, 0, 0));
+        ViewPort weaponView = renderManager.createMainView("weapon view", weaponCam);
+        weaponView.setClearFlags(false, true, false);
+
         WeaponView ak47 = new WeaponView("AK47", assetManager);
 
-        Geometry weaponGeo = new Geometry("Weapon",ak47.mesh);
-        rootNode.attachChild(weaponGeo);
-        weaponGeo.setLocalTranslation(24, 2, 24);
+        weaponGeo = new Geometry("Weapon",ak47.mesh);
+        weaponView.attachScene(weaponGeo);
+        weaponView.setEnabled(true);
+
+        weaponGeo.setLocalTranslation(-0.2f, -0.7f, 1f);
+        weaponGeo.rotate(-0.2f, -2.8f, 0);
         weaponGeo.setMaterial(ak47.weaponMaterial);
-        weaponGeo.scale(0.02f);
+        weaponGeo.scale(0.03f);
+
+        weaponGeo.updateGeometricState();
     }
 
     private void initNetwork() {
@@ -365,6 +380,7 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleRender(RenderManager rm) {
+        weaponGeo.updateGeometricState();
         viewPort.setBackgroundColor(new ColorRGBA(0.4f, 0.6f, 0.9f, 1.0f));
     }
 
