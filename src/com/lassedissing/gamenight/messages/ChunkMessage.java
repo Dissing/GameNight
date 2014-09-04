@@ -29,7 +29,6 @@ public class ChunkMessage extends AbstractMessage {
 
     public ChunkMessage(Chunk chunk) {
         compressedData = compress(chunk.getRawArray());
-        System.out.println("Compressed size " + compressedData.length + " bytes");
         x = chunk.getX();
         z = chunk.getZ();
     }
@@ -55,12 +54,10 @@ public class ChunkMessage extends AbstractMessage {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Compressed " + count + " integers");
         return byteOutputStream.toByteArray();
     }
 
     private int[] decompress(byte[] data) {
-        System.out.println("Got " + data.length + " bytes of data");
         ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
         InflaterInputStream inflater = new InflaterInputStream(byteInputStream);
         DataInputStream in = new DataInputStream(inflater);
@@ -77,7 +74,7 @@ public class ChunkMessage extends AbstractMessage {
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Decompressed " + count + " integers");
+            System.out.println("Partial chunk message!");
         }
         return result;
     }
