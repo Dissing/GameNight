@@ -291,7 +291,7 @@ public class Main extends SimpleApplication {
             } else if (name.equalsIgnoreCase(INPUT_JUMP)) {
                 jumpAction = isPressed;
             } else if (name.equalsIgnoreCase(INPUT_TAB) && isPressed) {
-                //mouseTrapped = !mouseTrapped;
+                chunkManager.hideSelectBlock();
                 buildMode = !buildMode;
             } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK)) {
                 leftClick = isPressed;
