@@ -45,7 +45,6 @@ import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -57,6 +56,7 @@ public class Main extends SimpleApplication {
     Client client;
 
     ChunkManager chunkManager = new ChunkManager();
+    InputProcessor inputProcessor = new InputProcessor(this);
 
     private int clientId = -1;
     private Map<Integer,PlayerView> players = new HashMap<>();
@@ -68,18 +68,7 @@ public class Main extends SimpleApplication {
     public static boolean MIPMAP = false;
     public static int ANISOTROPIC = 0;
 
-    private boolean leftAction = false;
-    private boolean rightAction = false;
-    private boolean forwardAction = false;
-    private boolean backAction = false;
-    private boolean jumpAction = false;
-    private boolean leftClick = false;
-    private boolean rightClick = false;
-
-    private boolean mouseTrapped = false;
-    private boolean esdf = true;
-
-    private boolean buildMode = false;
+    public boolean buildMode = false;
 
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
@@ -113,7 +102,9 @@ public class Main extends SimpleApplication {
 
         rootNode.attachChild(chunkManager.init(assetManager));
 
-        initInput();
+        flyCam.setEnabled(false);
+
+        inputProcessor.init(inputManager,mouseInput);
         initNetwork();
 
         cam.setFrustumNear(0.4f);
@@ -191,62 +182,11 @@ public class Main extends SimpleApplication {
         guiNode.attachChild(crosshair);
     }
 
-    private final static String INPUT_CAM_LEFT = "CamLeft";
-    private final static String INPUT_CAM_RIGHT = "CamRight";
-    private final static String INPUT_CAM_UP = "CamUp";
-    private final static String INPUT_CAM_DOWN = "CamDown";
-    private final static String INPUT_STRAFE_LEFT = "StrafeLeft";
-    private final static String INPUT_STRAFE_RIGHT = "StrafeRight";
-    private final static String INPUT_MOVE_FORWARD = "MoveForward";
-    private final static String INPUT_MOVE_BACKWARD = "MoveBackward";
-    private final static String INPUT_JUMP = "Jump";
-    private final static String INPUT_TAB = "Tab";
-    private final static String INPUT_LEFT_CLICK = "LeftClick";
-    private final static String INPUT_RIGHT_CLICK = "RightClick";
-
-    private static String[] keyMappings = new String[]{
-        INPUT_CAM_LEFT,
-        INPUT_CAM_RIGHT,
-        INPUT_CAM_UP,
-        INPUT_CAM_DOWN,
-        INPUT_STRAFE_LEFT,
-        INPUT_STRAFE_RIGHT,
-        INPUT_MOVE_FORWARD,
-        INPUT_MOVE_BACKWARD,
-        INPUT_JUMP,
-        INPUT_TAB,
-        INPUT_LEFT_CLICK,
-        INPUT_RIGHT_CLICK
-    };
-
     private void initInput() {
 
-        flyCam.setEnabled(false);
-        inputManager.addMapping(INPUT_TAB, new KeyTrigger(KeyInput.KEY_TAB));
-        if (esdf) {
-            inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_S));
-            inputManager.addMapping(INPUT_STRAFE_RIGHT, new KeyTrigger(KeyInput.KEY_F));
-            inputManager.addMapping(INPUT_MOVE_FORWARD, new KeyTrigger(KeyInput.KEY_E));
-            inputManager.addMapping(INPUT_MOVE_BACKWARD, new KeyTrigger(KeyInput.KEY_D));
-        } else {
-            inputManager.addMapping(INPUT_STRAFE_LEFT, new KeyTrigger(KeyInput.KEY_A));
-            inputManager.addMapping(INPUT_STRAFE_RIGHT, new KeyTrigger(KeyInput.KEY_D));
-            inputManager.addMapping(INPUT_MOVE_FORWARD, new KeyTrigger(KeyInput.KEY_W));
-            inputManager.addMapping(INPUT_MOVE_BACKWARD, new KeyTrigger(KeyInput.KEY_S));
-        }
-        inputManager.addMapping(INPUT_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addMapping(INPUT_CAM_LEFT, new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
-        inputManager.addMapping(INPUT_CAM_RIGHT, new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
-        inputManager.addMapping(INPUT_CAM_UP, new MouseAxisTrigger(mouseInput.AXIS_Y, false), new KeyTrigger(KeyInput.KEY_UP));
-        inputManager.addMapping(INPUT_CAM_DOWN, new MouseAxisTrigger(mouseInput.AXIS_Y, true), new KeyTrigger(KeyInput.KEY_DOWN));
-        inputManager.addMapping(INPUT_LEFT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
-        inputManager.addMapping(INPUT_RIGHT_CLICK, new MouseButtonTrigger(mouseInput.BUTTON_RIGHT));
-
-
-        inputManager.addListener(inputListener, keyMappings);
     }
 
-    private void rotateCamera(float value, Vector3f axis) {
+    public void rotateCamera(float value, Vector3f axis) {
 
         Matrix3f mat = new Matrix3f();
         mat.fromAngleNormalAxis(value, axis);
@@ -270,78 +210,32 @@ public class Main extends SimpleApplication {
         cam.setAxes(quaternion);
     }
 
-    private InputListener inputListener = new InputListener();
-
-    private class InputListener implements AnalogListener, ActionListener {
-
-        private final Vector3f CameraUp = new Vector3f(0.0f,1.0f,0.0f);
-
-        @Override
-        public void onAction(String name, boolean isPressed, float tpf) {
-            if (name.equalsIgnoreCase("Pause") && isPressed) {
-
-            } else if (name.equalsIgnoreCase(INPUT_STRAFE_LEFT)) {
-                leftAction = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_STRAFE_RIGHT)) {
-                rightAction = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_MOVE_FORWARD)) {
-                forwardAction = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_MOVE_BACKWARD)) {
-                backAction = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_JUMP)) {
-                jumpAction = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_TAB) && isPressed) {
-                chunkManager.hideSelectBlock();
-                buildMode = !buildMode;
-            } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK)) {
-                leftClick = isPressed;
-            } else if (name.equalsIgnoreCase(INPUT_RIGHT_CLICK)) {
-                rightClick = isPressed;
-            }
-        }
-
-        @Override
-        public void onAnalog(String name, float value, float tps) {
-
-            if (name.equalsIgnoreCase(INPUT_CAM_LEFT)) {
-                rotateCamera(value, CameraUp);
-            } else if (name.equalsIgnoreCase(INPUT_CAM_RIGHT)) {
-                rotateCamera(-value, CameraUp);
-            } else if (name.equalsIgnoreCase(INPUT_CAM_UP)) {
-                rotateCamera(-value, cam.getLeft());
-            } else if (name.equalsIgnoreCase(INPUT_CAM_DOWN)) {
-                rotateCamera(value, cam.getLeft());
-            }
-        }
-
-    };
-
     @Override
     public void simpleUpdate(float tpf) {
 
-        inputManager.setCursorVisible(mouseTrapped);
+        inputManager.setCursorVisible(inputProcessor.isMouseTrapped());
 
         if (isSpawned) {
 
             walkDirection.zero();
 
-            if (leftAction) {
+            if (inputProcessor.leftAction()) {
                 walkDirection.addLocal(cam.getLeft());
             }
 
-            if (rightAction) {
+            if (inputProcessor.rightAction()) {
                 walkDirection.addLocal(cam.getLeft().negate());
             }
 
-            if (forwardAction) {
+            if (inputProcessor.forwardAction()) {
                 walkDirection.addLocal(cam.getDirection().setY(0));
             }
 
-            if (backAction) {
+            if (inputProcessor.backAction()) {
                 walkDirection.addLocal(cam.getDirection().setY(0).negate());
             }
 
-            if (jumpAction) {
+            if (inputProcessor.jumpAction()) {
                 player.jump();
             }
 
@@ -355,11 +249,11 @@ public class Main extends SimpleApplication {
                 Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
                 if (selectedBlock != null) {
                     chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
-                    if (leftClick) {
+                    if (inputProcessor.leftClick()) {
                         client.send(new BlockChangeMessage(0, selectedBlock));
-                        leftClick = false;
+                        inputProcessor.eatLeftClick();
                     }
-                    if (rightClick) {
+                    if (inputProcessor.rightClick()) {
                         selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
                         boolean blocked = false;
                         blocked = player.isColliding(player.getLocation().add(0, 0.1f, 0), selectedBlock);
@@ -369,14 +263,14 @@ public class Main extends SimpleApplication {
                         }
                         if (!blocked) {
                             client.send(new BlockChangeMessage(1, selectedBlock));
-                            rightClick = false;
+                            inputProcessor.eatRightClick();
                         }
                     }
                 }
             } else {
-                if (leftClick) {
+                if (inputProcessor.leftClick()) {
                     client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
-                    leftClick = false;
+                    inputProcessor.eatLeftClick();
                 }
             }
         }
