@@ -20,23 +20,49 @@ public class World implements Serializable {
 
     private String name;
     private HashMap<Long,Chunk> chunks = new HashMap<>();
-    private int width;
-    private int length;
-    private int height;
+    private int chunkWidth;
+    private int chunkLength;
+    private int chunkHeight;
+    private int blockWidth;
+    private int blockLength;
+    private int blockHeight;
 
     public World(String name) {
         this.name = name;
     }
 
     public void generate(int width, int length) {
-        this.width = width * 16;
-        this.length = length * 16;
-        this.height = 32;
+        chunkWidth = width;
+        chunkHeight = 1;
+        chunkLength = length;
+        blockWidth = width * 16;
+        blockLength = length * 16;
+        blockHeight = 32;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++) {
                 long pos = i;
                 pos += j << 16;
                 chunks.put(pos, new Chunk(i, j));
+            }
+        }
+        for (int h = 0; h < blockHeight; h++) {
+            for (int w = 0; w < blockWidth; w++) {
+                getBlockAt(w, h, 0).setType(2);
+                getBlockAt(w, h, blockLength-1).setType(2);
+            }
+            for (int l = 0; l < blockLength; l++) {
+                getBlockAt(0, h, l).setType(2);
+                getBlockAt(blockWidth-1, h, l).setType(2);
+            }
+        }
+        setWall(true,31,64);
+    }
+
+    public void setWall(boolean enabled, int p1, int p2) {
+        for (int h = 0; h < blockHeight; h++) {
+            for (int w = 0; w < blockWidth; w++) {
+                getBlockAt(w,h,p1).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
+                getBlockAt(w,h,p2).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
             }
         }
     }
@@ -92,15 +118,15 @@ public class World implements Serializable {
     }
 
     public int getWidth() {
-        return width;
+        return chunkWidth;
     }
 
     public int getHeight() {
-        return height;
+        return chunkHeight;
     }
 
     public int getLength() {
-        return length;
+        return chunkLength;
     }
 
     public boolean save(String name) {

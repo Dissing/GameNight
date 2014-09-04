@@ -51,7 +51,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
         Log.INFO("Loading world..");
         world = new World("Test");
-        world.generate(2, 2);
+        world.generate(2, 6);
 
     }
 
@@ -106,7 +106,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @Override
     public void spawnPlayer(int id) {
-        sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,2,20)));
+        sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,11,20)));
     }
 
     public void tick(float tpf) {

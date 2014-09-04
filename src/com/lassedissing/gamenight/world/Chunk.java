@@ -29,16 +29,20 @@ public class Chunk implements java.io.Serializable {
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_HEIGHT; j++) {
                 for (int k = 0; k < CHUNK_SIZE; k++) {
-                    if (j == 0) {
-                        setIdAt(1,i,j,k);
-                    } else if (i == 0 || k == 0 || i == 15 || k == 15) {
-                        setIdAt(2,i,j,k);
-                    }
+                    setIdAt(getLayerAtHeight(j), i, j, k);
                 }
             }
         }
         this.x = x;
         this.z = z;
+    }
+
+    public static int getLayerAtHeight(int y) {
+        if (y == 0) return 2;
+        if (y < 6) return 1;
+        if (y < 9) return 3;
+        if (y == 9) return 4;
+        return 0;
     }
 
     public Chunk(int x, int z, int[] blocks) {
