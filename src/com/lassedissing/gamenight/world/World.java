@@ -117,16 +117,28 @@ public class World implements Serializable {
         return name;
     }
 
-    public int getWidth() {
+    public int getChunkWidth() {
         return chunkWidth;
     }
 
-    public int getHeight() {
+    public int getChunkHeight() {
         return chunkHeight;
     }
 
-    public int getLength() {
+    public int getChunkLength() {
         return chunkLength;
+    }
+
+    public int getBlockWidth() {
+        return blockWidth;
+    }
+
+    public int getBlockHeight() {
+        return blockHeight;
+    }
+
+    public int getBlockLength() {
+        return blockLength;
     }
 
     public boolean save(String name) {

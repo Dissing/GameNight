@@ -63,19 +63,13 @@ public class InputProcessor implements AnalogListener, ActionListener {
     }
 
     public void init(InputManager inputManager, MouseInput mouseInput) {
-        inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(KeyInput.KEY_TAB));
-        if (esdf) {
-            inputManager.addMapping(INPUT_STRAFE_LEFT.name(), new KeyTrigger(KeyInput.KEY_S));
-            inputManager.addMapping(INPUT_STRAFE_RIGHT.name(), new KeyTrigger(KeyInput.KEY_F));
-            inputManager.addMapping(INPUT_MOVE_FORWARD.name(), new KeyTrigger(KeyInput.KEY_E));
-            inputManager.addMapping(INPUT_MOVE_BACKWARD.name(), new KeyTrigger(KeyInput.KEY_D));
-        } else {
-            inputManager.addMapping(INPUT_STRAFE_LEFT.name(), new KeyTrigger(KeyInput.KEY_A));
-            inputManager.addMapping(INPUT_STRAFE_RIGHT.name(), new KeyTrigger(KeyInput.KEY_D));
-            inputManager.addMapping(INPUT_MOVE_FORWARD.name(), new KeyTrigger(KeyInput.KEY_W));
-            inputManager.addMapping(INPUT_MOVE_BACKWARD.name(), new KeyTrigger(KeyInput.KEY_S));
-        }
-        inputManager.addMapping(INPUT_JUMP.name(), new KeyTrigger(KeyInput.KEY_SPACE));
+
+        inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
+        inputManager.addMapping(INPUT_STRAFE_LEFT.name(), new KeyTrigger(ClientSettings.getKey("left", KeyInput.KEY_A)));
+        inputManager.addMapping(INPUT_STRAFE_RIGHT.name(), new KeyTrigger(ClientSettings.getKey("right", KeyInput.KEY_D)));
+        inputManager.addMapping(INPUT_MOVE_FORWARD.name(), new KeyTrigger(ClientSettings.getKey("forward", KeyInput.KEY_W)));
+        inputManager.addMapping(INPUT_MOVE_BACKWARD.name(), new KeyTrigger(ClientSettings.getKey("backward", KeyInput.KEY_S)));
+        inputManager.addMapping(INPUT_JUMP.name(), new KeyTrigger(ClientSettings.getKey("jump", KeyInput.KEY_SPACE)));
         inputManager.addMapping(INPUT_CAM_LEFT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping(INPUT_CAM_RIGHT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping(INPUT_CAM_UP.name(), new MouseAxisTrigger(mouseInput.AXIS_Y, false), new KeyTrigger(KeyInput.KEY_UP));

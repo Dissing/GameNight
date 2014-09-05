@@ -178,6 +178,10 @@ public class ServerMain extends SimpleApplication {
                 gameContainer.spawnPlayer(Integer.parseInt(parts[1]));
             }
 
+        } else if (parts[0].equalsIgnoreCase("wall")) {
+
+            gameContainer.getWorld().setWall(false, 31, 64);
+
         }
     }
 

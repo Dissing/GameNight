@@ -32,9 +32,9 @@ public class Bullet {
         location.addLocal(velocity.mult(tpf));
         eventManager.sendEvent(new EntityMovedEvent(id, location));
 
-        if (location.x < 0 || location.x > world.getWidth() ||
-                location.y < 0 || location.y > world.getHeight() ||
-                location.z < 0 || location.z > world.getLength()) {
+        if (location.x < 0 || location.x > world.getBlockWidth() ||
+                location.y < 0 || location.y > world.getBlockHeight() ||
+                location.z < 0 || location.z > world.getBlockLength()) {
             kill(eventManager);
             return;
         }
