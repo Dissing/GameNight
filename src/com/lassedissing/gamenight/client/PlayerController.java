@@ -16,6 +16,7 @@ public class PlayerController {
     private Vector3f velocityY = new Vector3f();
     private Vector3f eye = new Vector3f(0.4f,1.6f,0.4f);
     private Vector3f width = new Vector3f(0.6f,1.8f,0.6f);
+    private Vector3f crawlWidth = new Vector3f(0.8f,1.8f,0.8f);
     private Vector3f center = new Vector3f(0.4f,0, 0.4f);
     private float walkSpeed = 9f;
     private float friction = 15f;
@@ -24,6 +25,7 @@ public class PlayerController {
     private Vector3f gravity = new Vector3f(0,-36f,0);
     private Vector3f prevLocation = new Vector3f();
 
+    private boolean isCrawling;
 
     public PlayerController() {
 
@@ -89,26 +91,35 @@ public class PlayerController {
         int y2 = manager.getId(cenX, (int)newPos.y, cenZ+1);
         int y3 = manager.getId(cenX-1, (int)newPos.y, cenZ);
         int y4 = manager.getId(cenX, (int)newPos.y, cenZ-1);
+        int y5 = manager.getId(cenX+1, (int)newPos.y, cenZ+1);
+        int y6 = manager.getId(cenX+1, (int)newPos.y, cenZ-1);
+        int y7 = manager.getId(cenX-1, (int)newPos.y, cenZ+1);
+        int y8 = manager.getId(cenX-1, (int)newPos.y, cenZ-1);
 
-        int y5 = manager.getId(cenX, (int)newPos.y+2, cenZ);
-        int y6 = manager.getId(cenX+1, (int)newPos.y+2, cenZ);
-        int y7 = manager.getId(cenX, (int)newPos.y+2, cenZ+1);
-        int y8 = manager.getId(cenX-1, (int)newPos.y+2, cenZ);
-        int y9 = manager.getId(cenX, (int)newPos.y+2, cenZ-1);
+        int y10 = manager.getId(cenX, (int)newPos.y+2, cenZ);
+        int y11 = manager.getId(cenX+1, (int)newPos.y+2, cenZ);
+        int y12 = manager.getId(cenX, (int)newPos.y+2, cenZ+1);
+        int y13 = manager.getId(cenX-1, (int)newPos.y+2, cenZ);
+        int y14 = manager.getId(cenX, (int)newPos.y+2, cenZ-1);
 
         boolean colGround =
                      ((y0 != 0 && isColliding(newPos, width, cenX, cenY, cenZ)) ||
                       (y1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ)) ||
                       (y2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+1)) ||
                       (y3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ)) ||
-                      (y4 != 0 && isColliding(newPos, width, cenX, cenY, cenZ-1)));
+                      (y4 != 0 && isColliding(newPos, width, cenX, cenY, cenZ-1)) ||
+
+                      (y5 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+1)) ||
+                      (y6 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ-1)) ||
+                      (y7 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+1)) ||
+                      (y8 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ-1)));
 
         boolean colRoof =
-                    ((y5 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ)) ||
-                     (y6 != 0 && isColliding(newPos, width, cenX+1, cenY+2, cenZ)) ||
-                     (y7 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ+1)) ||
-                     (y8 != 0 && isColliding(newPos, width, cenX-1, cenY+2, cenZ)) ||
-                     (y9 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ-1)));
+                    ((y10 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ)) ||
+                     (y11 != 0 && isColliding(newPos, width, cenX+1, cenY+2, cenZ)) ||
+                     (y12 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ+1)) ||
+                     (y13 != 0 && isColliding(newPos, width, cenX-1, cenY+2, cenZ)) ||
+                     (y14 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ-1)));
 
         if (colGround) {
             isOnGround = true;
@@ -123,7 +134,7 @@ public class PlayerController {
 
         desiredDirection.y = 0;
         desiredDirection.normalizeLocal();
-        desiredDirection.multLocal(walkSpeed);
+        desiredDirection.multLocal(walkSpeed * (isCrawling ? 0.5f : 1f));
         Vector3f velDiff = new Vector3f(desiredDirection);
         velDiff.subtractLocal(velocityXZ);
 
@@ -142,55 +153,55 @@ public class PlayerController {
         //Step X
         newPos.set(location);
         newPos.x += velocityXZ.x * tpf;
-        int side = velocityXZ.x > 0 ? 1 : -1;
+        int sideX = velocityXZ.x > 0 ? 1 : -1;
 
-        int x1 = manager.getId(cenX+side, cenY, cenZ+1);
-        int x2 = manager.getId(cenX+side, cenY, cenZ);
-        int x3 = manager.getId(cenX+side, cenY, cenZ-1);
-        int x4 = manager.getId(cenX+side, cenY+1, cenZ+1);
-        int x5 = manager.getId(cenX+side, cenY+1, cenZ);
-        int x6 = manager.getId(cenX+side, cenY+1, cenZ-1);
-        int x7 = manager.getId(cenX+side, cenY+2, cenZ+1);
-        int x8 = manager.getId(cenX+side, cenY+2, cenZ);
-        int x9 = manager.getId(cenX+side, cenY+2, cenZ-1);
+        int x1 = manager.getId(cenX+sideX, cenY, cenZ+1);
+        int x2 = manager.getId(cenX+sideX, cenY, cenZ);
+        int x3 = manager.getId(cenX+sideX, cenY, cenZ-1);
+        int x4 = manager.getId(cenX+sideX, cenY+1, cenZ+1);
+        int x5 = manager.getId(cenX+sideX, cenY+1, cenZ);
+        int x6 = manager.getId(cenX+sideX, cenY+1, cenZ-1);
+        int x7 = manager.getId(cenX+sideX, cenY+2, cenZ+1);
+        int x8 = manager.getId(cenX+sideX, cenY+2, cenZ);
+        int x9 = manager.getId(cenX+sideX, cenY+2, cenZ-1);
 
 
         boolean colX =
-                ((x1 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ+1)) ||
-                 (x2 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ)) ||
-                 (x3 != 0 && isColliding(newPos, width, cenX+side, cenY, cenZ-1)) ||
-                 (x4 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ+1)) ||
-                 (x5 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ)) ||
-                 (x6 != 0 && isColliding(newPos, width, cenX+side, cenY+1, cenZ-1)) ||
-                 (x7 != 0 && isColliding(newPos, width, cenX+side, cenY+2, cenZ+1)) ||
-                 (x8 != 0 && isColliding(newPos, width, cenX+side, cenY+2, cenZ)) ||
-                 (x9 != 0 && isColliding(newPos, width, cenX+side, cenY+2, cenZ-1)));
+                ((x1 != 0 && isColliding(newPos, width, cenX+sideX, cenY, cenZ+1)) ||
+                 (x2 != 0 && isColliding(newPos, width, cenX+sideX, cenY, cenZ)) ||
+                 (x3 != 0 && isColliding(newPos, width, cenX+sideX, cenY, cenZ-1)) ||
+                 (x4 != 0 && isColliding(newPos, width, cenX+sideX, cenY+1, cenZ+1)) ||
+                 (x5 != 0 && isColliding(newPos, width, cenX+sideX, cenY+1, cenZ)) ||
+                 (x6 != 0 && isColliding(newPos, width, cenX+sideX, cenY+1, cenZ-1)) ||
+                 (x7 != 0 && isColliding(newPos, width, cenX+sideX, cenY+2, cenZ+1)) ||
+                 (x8 != 0 && isColliding(newPos, width, cenX+sideX, cenY+2, cenZ)) ||
+                 (x9 != 0 && isColliding(newPos, width, cenX+sideX, cenY+2, cenZ-1)));
 
         //Step Z
         newPos.set(location);
         newPos.z += velocityXZ.z * tpf;
-        side = velocityXZ.z > 0 ? 1 : -1;
+        int sideZ = velocityXZ.z > 0 ? 1 : -1;
 
-        int z1 = manager.getId(cenX+1, cenY, cenZ+side);
-        int z2 = manager.getId(cenX, cenY, cenZ+side);
-        int z3 = manager.getId(cenX-1, cenY, cenZ+side);
-        int z4 = manager.getId(cenX+1, cenY+1, cenZ+side);
-        int z5 = manager.getId(cenX, cenY+1, cenZ+side);
-        int z6 = manager.getId(cenX-1, cenY+1, cenZ+side);
-        int z7 = manager.getId(cenX+1, cenY+2, cenZ+side);
-        int z8 = manager.getId(cenX, cenY+2, cenZ+side);
-        int z9 = manager.getId(cenX-1, cenY+2, cenZ+side);;
+        int z1 = manager.getId(cenX+1, cenY, cenZ+sideZ);
+        int z2 = manager.getId(cenX, cenY, cenZ+sideZ);
+        int z3 = manager.getId(cenX-1, cenY, cenZ+sideZ);
+        int z4 = manager.getId(cenX+1, cenY+1, cenZ+sideZ);
+        int z5 = manager.getId(cenX, cenY+1, cenZ+sideZ);
+        int z6 = manager.getId(cenX-1, cenY+1, cenZ+sideZ);
+        int z7 = manager.getId(cenX+1, cenY+2, cenZ+sideZ);
+        int z8 = manager.getId(cenX, cenY+2, cenZ+sideZ);
+        int z9 = manager.getId(cenX-1, cenY+2, cenZ+sideZ);
 
         boolean colZ =
-                ((z1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+side)) ||
-                 (z2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+side)) ||
-                 (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+side)) ||
-                 (z4 != 0 && isColliding(newPos, width, cenX+1, cenY+1, cenZ+side)) ||
-                 (z5 != 0 && isColliding(newPos, width, cenX, cenY+1, cenZ+side)) ||
-                 (z6 != 0 && isColliding(newPos, width, cenX-1, cenY+1, cenZ+side))||
-                 (z7 != 0 && isColliding(newPos, width, cenX+1, cenY+2, cenZ+side)) ||
-                 (z8 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ+side)) ||
-                 (z9 != 0 && isColliding(newPos, width, cenX-1, cenY+2, cenZ+side)));
+                ((z1 != 0 && isColliding(newPos, width, cenX+1, cenY, cenZ+sideZ)) ||
+                 (z2 != 0 && isColliding(newPos, width, cenX, cenY, cenZ+sideZ)) ||
+                 (z3 != 0 && isColliding(newPos, width, cenX-1, cenY, cenZ+sideZ)) ||
+                 (z4 != 0 && isColliding(newPos, width, cenX+1, cenY+1, cenZ+sideZ)) ||
+                 (z5 != 0 && isColliding(newPos, width, cenX, cenY+1, cenZ+sideZ)) ||
+                 (z6 != 0 && isColliding(newPos, width, cenX-1, cenY+1, cenZ+sideZ))||
+                 (z7 != 0 && isColliding(newPos, width, cenX+1, cenY+2, cenZ+sideZ)) ||
+                 (z8 != 0 && isColliding(newPos, width, cenX, cenY+2, cenZ+sideZ)) ||
+                 (z9 != 0 && isColliding(newPos, width, cenX-1, cenY+2, cenZ+sideZ)));
 
         if (colX && colZ) {
             if (Math.abs(cam.getDirection().getX()) > 0.97f && Math.abs(desiredDirection.x) > Math.abs(desiredDirection.z)) {
@@ -201,13 +212,38 @@ public class PlayerController {
             }
         }
 
+        if (isCrawling && isOnGround) {
+            if (manager.getId(cenX, cenY-1, cenZ) == 0) {
+                boolean crawlX = manager.getId(cenX+sideX, cenY-1, cenZ) == 0 &&
+                         (manager.getId(cenX-sideX, cenY-1, cenZ) != 0);
+                boolean crawlZ = manager.getId(cenX, cenY-1, cenZ+sideZ) == 0 &&
+                         (manager.getId(cenX, cenY-1, cenZ - sideZ) != 0);
+
+                if (crawlX) {
+                    colX = true;
+                }
+                if (crawlZ) {
+                    colZ = true;
+                }
+                if (!(crawlX || crawlZ)) {
+                    boolean crawlXZ = manager.getId(cenX, cenY-1, cenZ+sideZ) == 0 &&
+                            ((manager.getId(cenX - sideX, cenY-1, cenZ - sideZ) != 0));
+                    if (crawlXZ) {
+
+                        colX = true;
+                        colZ = true;
+                    }
+                }
+            }
+        }
+
         if (colX) {
-            Vector3f collidingNormal = new Vector3f(-side,0,0);
+            Vector3f collidingNormal = new Vector3f(-sideX,0,0);
             collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
             velocityXZ.subtractLocal(collidingNormal);
         }
         if (colZ) {
-            Vector3f collidingNormal = new Vector3f(0,0,-side);
+            Vector3f collidingNormal = new Vector3f(0,0,-sideZ);
             collidingNormal.multLocal(collidingNormal.dot(velocityXZ));
             velocityXZ.subtractLocal(collidingNormal);
         }
@@ -215,6 +251,14 @@ public class PlayerController {
 
         location.addLocal(velocityXZ.mult(tpf));
         prevLocation.set(location);
+    }
+
+    public void setCrawling(boolean isCrawling) {
+        this.isCrawling = isCrawling;
+    }
+
+    public boolean isCrawling() {
+        return isCrawling;
     }
 
 }

@@ -47,6 +47,7 @@ public class InputProcessor implements AnalogListener, ActionListener {
         INPUT_MOVE_BACKWARD,
         INPUT_JUMP,
         INPUT_TAB,
+        INPUT_CRAWL,
         INPUT_LEFT_CLICK,
         INPUT_RIGHT_CLICK
     }
@@ -64,12 +65,13 @@ public class InputProcessor implements AnalogListener, ActionListener {
 
     public void init(InputManager inputManager, MouseInput mouseInput) {
 
-        inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
         inputManager.addMapping(INPUT_STRAFE_LEFT.name(), new KeyTrigger(ClientSettings.getKey("left", KeyInput.KEY_A)));
         inputManager.addMapping(INPUT_STRAFE_RIGHT.name(), new KeyTrigger(ClientSettings.getKey("right", KeyInput.KEY_D)));
         inputManager.addMapping(INPUT_MOVE_FORWARD.name(), new KeyTrigger(ClientSettings.getKey("forward", KeyInput.KEY_W)));
         inputManager.addMapping(INPUT_MOVE_BACKWARD.name(), new KeyTrigger(ClientSettings.getKey("backward", KeyInput.KEY_S)));
         inputManager.addMapping(INPUT_JUMP.name(), new KeyTrigger(ClientSettings.getKey("jump", KeyInput.KEY_SPACE)));
+        inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
+        inputManager.addMapping(INPUT_CRAWL.name(), new KeyTrigger(ClientSettings.getKey("crawl", KeyInput.KEY_LCONTROL)));
         inputManager.addMapping(INPUT_CAM_LEFT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping(INPUT_CAM_RIGHT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping(INPUT_CAM_UP.name(), new MouseAxisTrigger(mouseInput.AXIS_Y, false), new KeyTrigger(KeyInput.KEY_UP));
@@ -98,6 +100,8 @@ public class InputProcessor implements AnalogListener, ActionListener {
         } else if (name.equalsIgnoreCase(INPUT_TAB.name()) && isPressed) {
             main.chunkManager.hideSelectBlock();
             main.buildMode = !main.buildMode;
+        } else if (name.equalsIgnoreCase(INPUT_CRAWL.name())) {
+            main.getPlayer().setCrawling(isPressed);
         } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK.name())) {
             leftClick = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_RIGHT_CLICK.name())) {

@@ -210,6 +210,10 @@ public class Main extends SimpleApplication {
         cam.setAxes(quaternion);
     }
 
+    public PlayerController getPlayer() {
+        return player;
+    }
+
     @Override
     public void simpleUpdate(float tpf) {
 
