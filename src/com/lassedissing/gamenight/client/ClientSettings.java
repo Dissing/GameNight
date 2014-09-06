@@ -6,14 +6,11 @@
 package com.lassedissing.gamenight.client;
 
 import com.jme3.input.KeyInput;
-import com.jme3.input.controls.KeyTrigger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class ClientSettings {
@@ -56,7 +53,7 @@ public class ClientSettings {
         try {
             String trigger = get(key,"");
             if (!trigger.isEmpty()) {
-                return KeyInput.class.getDeclaredField("KEY_" + trigger).getInt(null);
+                return KeyInput.class.getDeclaredField("KEY_" + trigger.toUpperCase()).getInt(null);
             } else {
                 return defaultValue;
             }

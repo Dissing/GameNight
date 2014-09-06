@@ -44,6 +44,7 @@ import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +98,8 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+
+        ClientSettings.init(new File("config.ini"));
 
         assetManager.registerLocator("lib/assets.jar", ClasspathLocator.class);
 
