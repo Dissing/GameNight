@@ -60,7 +60,7 @@ public class World implements Serializable {
 
     public void setWall(boolean enabled, int p1, int p2) {
         for (int h = 0; h < blockHeight; h++) {
-            for (int w = 0; w < blockWidth; w++) {
+            for (int w = 1; w < blockWidth-1; w++) {
                 getBlockAt(w,h,p1).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
                 getBlockAt(w,h,p2).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
             }
