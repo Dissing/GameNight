@@ -28,25 +28,25 @@ public class Bullet {
         this.ownerId = ownerId;
     }
 
-    public void tick(World world, EventManager eventManager, float tpf) {
+    public void tick(World world, float tpf) {
         location.addLocal(velocity.mult(tpf));
-        eventManager.sendEvent(new EntityMovedEvent(id, location));
+        EventManager.sendEvent(new EntityMovedEvent(id, location));
 
         if (location.x < 0 || location.x > world.getBlockWidth() ||
                 location.y < 0 || location.y > world.getBlockHeight() ||
                 location.z < 0 || location.z > world.getBlockLength()) {
-            kill(eventManager);
+            kill();
             return;
         }
 
         if (world.getBlockAt(location).isBulletCollidable()) {
-            kill(eventManager);
+            kill();
         }
     }
 
-    public void kill(EventManager eventManager) {
+    public void kill() {
         dying = true;
-        eventManager.sendEvent(new EntityDiedEvent(id));
+        EventManager.sendEvent(new EntityDiedEvent(id));
     }
 
     public boolean isDying() {

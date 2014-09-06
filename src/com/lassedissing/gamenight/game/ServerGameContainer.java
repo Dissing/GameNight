@@ -61,17 +61,12 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     public void playerConnected(int id) {
         players.put(id, new Player(id, Vector3f.ZERO));
-        eventManager.sendEvent(new PlayerNewEvent(id));
+        EventManager.sendEvent(new PlayerNewEvent(id));
         this.spawnPlayer(id);
     }
 
     public void playerDisconnected(int id) {
         players.remove(id);
-    }
-
-    @Override
-    public void sendEvent(Event event) {
-        eventManager.sendEvent(event);
     }
 
     @Override
@@ -106,7 +101,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @Override
     public void spawnPlayer(int id) {
-        sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,11,20)));
+        EventManager.sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,11,20)));
     }
 
     public void tick(float tpf) {
@@ -116,12 +111,12 @@ public class ServerGameContainer implements GameContainer, EventListener {
             if (bullet.isDying()) {
                 iter.remove();
             } else {
-                bullet.tick(world, eventManager, tpf);
+                bullet.tick(world, tpf);
                 for (Player player : players.values()) {
                     if (player.getId() != bullet.getOwnerId() && player.collideWithPoint(bullet.getLocation())) {
-                        bullet.kill(eventManager);
+                        bullet.kill();
                         player.damage(1);
-                        eventManager.sendEvent(new PlayerStatEvent(player.getId(), player.getHealth()));
+                        EventManager.sendEvent(new PlayerStatEvent(player.getId(), player.getHealth()));
                     }
                 }
             }
@@ -137,16 +132,16 @@ public class ServerGameContainer implements GameContainer, EventListener {
         for (int i = messages.size(); i > 0; i--) {
             Message m = messages.remove();
             if (m instanceof PlayerMovementMessage) {
-                eventManager.sendEvent(((PlayerMovementMessage) m).event);
+                EventManager.sendEvent(((PlayerMovementMessage) m).event);
             } else if (m instanceof BlockChangeMessage) {
                 BlockChangeMessage msg = (BlockChangeMessage) m;
                 world.getBlockAt(msg.getX(),msg.getY(),msg.getZ()).setType(msg.getBlockType());
-                sendEvent(new BlockChangeEvent(msg.getBlockType(), msg.getX(), msg.getY(), msg.getZ()));
+                EventManager.sendEvent(new BlockChangeEvent(msg.getBlockType(), msg.getX(), msg.getY(), msg.getZ()));
             } else if (m instanceof ActivateWeaponMessage) {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
                 Bullet newBullet = new Bullet(nextEntityId++,msg.getSourceId(),msg.getLocation(),msg.getDirection().normalize(),15f);
                 bullets.add(newBullet);
-                eventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
+                EventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
             }
         }
     }

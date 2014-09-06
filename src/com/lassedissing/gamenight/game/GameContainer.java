@@ -15,8 +15,6 @@ import java.util.Collection;
 
 public interface GameContainer {
 
-    public void sendEvent(Event event);
-
     public EventManager getEventManager();
 
     public World getWorld();

@@ -33,9 +33,15 @@ public class EventStacker implements EventListener {
         events.add(event);
     }
 
-    public UpdateMessage bakeUpdateMessage() {
-        UpdateMessage msg = new UpdateMessage(events);
-        events.clear();
-        return msg;
+    public UpdateMessage[] bakeUpdateMessages() {
+        int numberOfMessages = events.size() / 1000 + 1;
+        UpdateMessage[] msgs = new UpdateMessage[numberOfMessages];
+
+        for (int i = 0; i < numberOfMessages; i++) {
+            msgs[i] = new UpdateMessage(events.subList(0, Math.min(1000,events.size())));
+            events = events.subList(Math.min(1000,events.size()), events.size());
+        }
+
+        return msgs;
     }
 }

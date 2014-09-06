@@ -200,7 +200,10 @@ public class ServerMain extends SimpleApplication {
         gameContainer.processMessages(messageQueue);
         gameContainer.tick(tpf);
 
-        server.broadcast(eventStacker.bakeUpdateMessage());
+        for (UpdateMessage msg : eventStacker.bakeUpdateMessages()) {
+            server.broadcast(msg);
+        }
+
     }
 
     @Override

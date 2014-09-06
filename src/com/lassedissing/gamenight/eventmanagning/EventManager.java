@@ -11,7 +11,7 @@ import java.util.List;
 
 public class EventManager {
 
-    public void sendEvent(Event event) {
+    public static void sendEvent(Event event) {
 
         int level = event.getClosureLevel();
 

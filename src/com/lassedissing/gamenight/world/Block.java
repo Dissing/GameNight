@@ -5,6 +5,9 @@
 
 package com.lassedissing.gamenight.world;
 
+import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.events.BlockChangeEvent;
+
 
 public class Block {
 
@@ -30,6 +33,7 @@ public class Block {
 
     public void setType(int type) {
         chunk.setIdAt(type, x & 0xF, y, z & 0xF);
+        EventManager.sendEvent(new BlockChangeEvent(type, x, y, z));
     }
 
 }
