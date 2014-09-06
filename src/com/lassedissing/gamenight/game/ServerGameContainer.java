@@ -14,6 +14,7 @@ import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
+import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
@@ -60,7 +61,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     }
 
     public void playerConnected(int id) {
-        players.put(id, new Player(id, Vector3f.ZERO));
+        players.put(id, new Player(id, 2, Vector3f.ZERO));
         EventManager.sendEvent(new PlayerNewEvent(id));
         this.spawnPlayer(id);
     }
@@ -101,7 +102,9 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @Override
     public void spawnPlayer(int id) {
-        EventManager.sendEvent(new PlayerSpawnedEvent(id, new Vector3f(20,11,20)));
+        Player player = players.get(id);
+        player.spawn(world.getSpawn(player.getTeam()));
+        EventManager.sendEvent(new PlayerSpawnedEvent(id,player.getLocation()));
     }
 
     public void tick(float tpf) {
@@ -113,11 +116,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
             } else {
                 bullet.tick(world, tpf);
                 for (Player player : players.values()) {
-                    if (player.getId() != bullet.getOwnerId() && player.collideWithPoint(bullet.getLocation())) {
-                        bullet.kill();
-                        player.damage(1);
-                        EventManager.sendEvent(new PlayerStatEvent(player.getId(), player.getHealth()));
-                    }
+                    player.testCollideWithBullet(bullet);
                 }
             }
         }

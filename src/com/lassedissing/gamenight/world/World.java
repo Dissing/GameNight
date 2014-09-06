@@ -27,6 +27,9 @@ public class World implements Serializable {
     private int blockLength;
     private int blockHeight;
 
+    private Vector3f team1Spawn;
+    private Vector3f team2Spawn;
+
     public World(String name) {
         this.name = name;
     }
@@ -55,7 +58,9 @@ public class World implements Serializable {
                 getBlockAt(blockWidth-1, h, l).setType(2);
             }
         }
-        setWall(true,31,64);
+        setWall(true,length/3*16-1,length/3*2*16);
+        team1Spawn = new Vector3f(blockWidth/2, 11, 5);
+        team2Spawn = new Vector3f(blockWidth/2, 11, blockLength - 5);
     }
 
     public void setWall(boolean enabled, int p1, int p2) {
@@ -139,6 +144,14 @@ public class World implements Serializable {
 
     public int getBlockLength() {
         return blockLength;
+    }
+
+    public Vector3f getSpawn(int team) {
+        switch (team) {
+            case 1: return team1Spawn;
+            case 2: return team2Spawn;
+            default: throw new IllegalArgumentException("There is no team " + team);
+        }
     }
 
     public boolean save(String name) {

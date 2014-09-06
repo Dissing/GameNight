@@ -370,6 +370,7 @@ public class Main extends SimpleApplication {
                         if (event.playerId == clientId) {
                             player.setEyeLocation(event.getLocation());
                             isSpawned = true;
+                            System.out.println("Spawning");
                         } else {
                             PlayerView player = players.get(event.playerId);
                             player.setVisible(true);
@@ -382,6 +383,7 @@ public class Main extends SimpleApplication {
                         if (event.playerId == clientId) {
                             cam.setLocation(new Vector3f(16.5f,32,16.5f));
                             isSpawned = false;
+                            System.out.println("Died");
                         } else {
                             PlayerView player = players.get(event.playerId);
                             player.setVisible(false);

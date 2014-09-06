@@ -180,7 +180,15 @@ public class ServerMain extends SimpleApplication {
 
         } else if (parts[0].equalsIgnoreCase("wall")) {
 
-            gameContainer.getWorld().setWall(false, 31, 64);
+            if (parts.length == 2) {
+                gameContainer.getWorld().setWall(parts[1].equalsIgnoreCase("up"), 31, 64);
+            }
+
+        } else if (parts[0].equalsIgnoreCase("hurt")) {
+
+            if (parts.length == 3) {
+                gameContainer.getPlayer(Integer.parseInt(parts[1])).damage(Integer.parseInt(parts[2]));
+            }
 
         }
     }

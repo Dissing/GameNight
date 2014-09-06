@@ -6,6 +6,9 @@
 package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
+import com.lassedissing.gamenight.eventmanagning.EventManager;
+import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
+import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 
 
 public class Player {
@@ -15,25 +18,31 @@ public class Player {
     private Vector3f width = new Vector3f(0.4f,0.9f,0.4f);
     private float eyeOffset = 0.8f;
     private int health = 10;
+    private int team;
 
     private boolean spawned = false;
 
 
-    public Player(int id, Vector3f location) {
+    public Player(int id, int team, Vector3f location) {
         this.id = id;
         this.location = location;
+        this.team = team;
     }
 
     public void spawn(Vector3f location) {
         this.location = location;
         spawned = true;
+        health = 10;
+        EventManager.sendEvent(new PlayerStatEvent(id, health));
     }
 
     public void damage(int damage) {
         health -= damage;
+        EventManager.sendEvent(new PlayerStatEvent(id, health));
 
         if (health <= 0) {
             spawned = false;
+            EventManager.sendEvent(new PlayerDiedEvent(id));
         }
     }
 
@@ -42,6 +51,13 @@ public class Player {
         if (point.y > location.y+width.y-eyeOffset || point.y < location.y-width.y-eyeOffset) return false;
         if (point.z > location.z+width.z || point.z < location.z-width.z) return false;
         return true;
+    }
+
+    public void testCollideWithBullet(Bullet bullet) {
+        if (id != bullet.getOwnerId() && collideWithPoint(bullet.getLocation())) {
+            bullet.kill();
+            damage(1);
+        }
     }
 
     public int getId() {
@@ -58,6 +74,10 @@ public class Player {
 
     public Vector3f getLocation() {
         return location;
+    }
+
+    public int getTeam() {
+        return team;
     }
 
 }
