@@ -6,31 +6,30 @@
 package com.lassedissing.gamenight.world;
 
 import com.jme3.math.Vector3f;
+import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 
-public class Bullet {
+@Serializable
+public class Bullet extends Entity {
 
-    private Vector3f location;
     private Vector3f velocity;
     private float speed;
     private boolean dying;
-    private int id;
     private int ownerId;
 
 
     public Bullet(int id, int ownerId, Vector3f source, Vector3f direction, float speed) {
-        location = source;
+        super(id,source);
         velocity = direction.mult(speed);
         dying = false;
-        this.id = id;
         this.ownerId = ownerId;
     }
 
     public void tick(World world, float tpf) {
         location.addLocal(velocity.mult(tpf));
-        EventManager.sendEvent(new EntityMovedEvent(id, location));
+        EventManager.sendEvent(new EntityMovedEvent(this));
 
         if (location.x < 0 || location.x > world.getBlockWidth() ||
                 location.y < 0 || location.y > world.getBlockHeight() ||
@@ -46,23 +45,20 @@ public class Bullet {
 
     public void kill() {
         dying = true;
-        EventManager.sendEvent(new EntityDiedEvent(id));
+        EventManager.sendEvent(new EntityDiedEvent(this));
     }
 
     public boolean isDying() {
         return dying;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public int getOwnerId() {
         return ownerId;
     }
 
-    public Vector3f getLocation() {
-        return location;
+    @Override
+    public EntityType getType() {
+        return EntityType.Bullet;
     }
 
     /**

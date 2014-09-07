@@ -7,14 +7,22 @@ package com.lassedissing.gamenight.events.entity;
 
 import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
+import com.lassedissing.gamenight.world.Entity;
+import com.lassedissing.gamenight.world.EntityType;
 import java.util.ArrayList;
 import java.util.List;
 
 @Serializable
 public class EntityDiedEvent extends EntityEvent {
 
-    public EntityDiedEvent(int id) {
+    public EntityDiedEvent(int id, EntityType type) {
         this.id = id;
+        this.type = type;
+    }
+
+    public EntityDiedEvent(Entity entity) {
+        this.id = entity.getId();
+        this.type = entity.getType();
     }
 
     /**

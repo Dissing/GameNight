@@ -31,6 +31,8 @@ public class World implements Serializable {
     private Vector3f team2Spawn;
     private Vector3f team1Spectate;
     private Vector3f team2Spectate;
+    private Vector3f team1FlagLocation;
+    private Vector3f team2FlagLocation;
 
     public World(String name) {
         this.name = name;
@@ -61,10 +63,12 @@ public class World implements Serializable {
             }
         }
         setWall(true);
-        team1Spawn = new Vector3f(blockWidth/2, 11, 5);
-        team2Spawn = new Vector3f(blockWidth/2, 11, blockLength - 5);
+        team1Spawn = new Vector3f(blockWidth/2, 11, 15);
+        team2Spawn = new Vector3f(blockWidth/2, 11, blockLength - 15);
         team1Spectate = new Vector3f(team1Spawn).setY(50);
         team2Spectate = new Vector3f(team2Spawn).setY(50);
+        team1FlagLocation = new Vector3f(blockWidth/2, 11, 5);
+        team2FlagLocation = new Vector3f(blockWidth/2, 11, blockLength - 5);
     }
 
     public void setWall(boolean enabled) {
@@ -164,6 +168,14 @@ public class World implements Serializable {
         switch (team) {
             case 1: return team1Spectate;
             case 2: return team2Spectate;
+            default: throw new IllegalArgumentException("There is no team " + team);
+        }
+    }
+
+    public Vector3f getFlagLocation(int team) {
+        switch (team) {
+            case 1: return team1FlagLocation;
+            case 2: return team2FlagLocation;
             default: throw new IllegalArgumentException("There is no team " + team);
         }
     }

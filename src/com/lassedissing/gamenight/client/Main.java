@@ -5,6 +5,8 @@
 
 package com.lassedissing.gamenight.client;
 
+import com.lassedissing.gamenight.client.views.BulletView;
+import com.lassedissing.gamenight.client.views.EntityView;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.font.BitmapText;
@@ -19,6 +21,7 @@ import com.jme3.network.serializing.Serializer;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.lassedissing.gamenight.client.views.FlagView;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
@@ -40,6 +43,9 @@ import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
+import com.lassedissing.gamenight.world.Bullet;
+import com.lassedissing.gamenight.world.EntityType;
+import com.lassedissing.gamenight.world.Flag;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,7 +64,7 @@ public class Main extends SimpleApplication {
     private int clientId = -1;
     private Map<Integer,PlayerView> players = new HashMap<>();
 
-    private Map<Integer,BulletView> bullets = new HashMap<>();
+    private Map<Integer,EntityView> entities = new HashMap<>();
 
     public String serverIp;
     public String name;
@@ -167,6 +173,8 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
+        Serializer.registerClass(Flag.class);
+        Serializer.registerClass(Bullet.class);
 
         client.addMessageListener(new ClientListener(this));
 
@@ -324,18 +332,25 @@ public class Main extends SimpleApplication {
                     if (e instanceof EntityMovedEvent) {
 
                         EntityMovedEvent event = (EntityMovedEvent) e;
-                        bullets.get(event.getId()).setLocation(event.getLocation());
+                        entities.get(event.getId()).setLocation(event.getLocation());
 
                     } else if (e instanceof EntitySpawnedEvent) {
 
                         EntitySpawnedEvent spawnEvent = (EntitySpawnedEvent) e;
-                        bullets.put(spawnEvent.getId(), new BulletView(spawnEvent.getId(),spawnEvent.getLocation(),rootNode,this));
+                        if (spawnEvent.getType() == EntityType.Flag) {
+                            Flag flag = (Flag)spawnEvent.getEntity();
+                            entities.put(spawnEvent.getId(), new FlagView(spawnEvent.getId(),flag.getTeam(),flag.getLocation(),rootNode,this));
+
+                        } else if (spawnEvent.getType() == EntityType.Bullet) {
+                            Bullet bullet = (Bullet)spawnEvent.getEntity();
+                            entities.put(spawnEvent.getId(), new BulletView(spawnEvent.getId(),bullet.getLocation(),rootNode,this));
+                        }
 
                     }  else if (e instanceof EntityDiedEvent) {
 
                         EntityDiedEvent event = (EntityDiedEvent) e;
-                        bullets.get(event.getId()).destroy();
-                        bullets.remove(event.getId());
+                        entities.get(event.getId()).destroy();
+                        entities.remove(event.getId());
 
                     }
 

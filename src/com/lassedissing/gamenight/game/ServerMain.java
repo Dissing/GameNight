@@ -24,7 +24,9 @@ import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
+import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Chunk;
+import com.lassedissing.gamenight.world.Flag;
 import com.lassedissing.gamenight.world.World;
 import java.io.Console;
 import java.io.IOException;
@@ -100,6 +102,8 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
+        Serializer.registerClass(Flag.class);
+        Serializer.registerClass(Bullet.class);
 
         server.start();
 

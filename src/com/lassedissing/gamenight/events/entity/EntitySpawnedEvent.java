@@ -8,21 +8,24 @@ package com.lassedissing.gamenight.events.entity;
 import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
+import com.lassedissing.gamenight.world.Entity;
+import com.lassedissing.gamenight.world.EntityType;
 import java.util.ArrayList;
 import java.util.List;
 
 @Serializable
 public class EntitySpawnedEvent extends EntityEvent {
 
-    private Vector3f location;
+    private Entity entity;
 
-    public EntitySpawnedEvent(int id, Vector3f location) {
-        this.id = id;
-        this.location = location;
+    public EntitySpawnedEvent(Entity entity) {
+        this.id = entity.getId();
+        this.type = entity.getType();
+        this.entity = entity;
     }
 
-    public Vector3f getLocation(){
-        return location;
+    public Entity getEntity() {
+        return entity;
     }
 
     /**

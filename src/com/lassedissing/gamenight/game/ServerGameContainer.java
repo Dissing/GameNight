@@ -21,8 +21,8 @@ import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
-import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
+import com.lassedissing.gamenight.world.Flag;
 import com.lassedissing.gamenight.world.Player;
 import com.lassedissing.gamenight.world.World;
 import java.util.Collection;
@@ -42,6 +42,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     private Map<Integer,Player> players = new HashMap<>();
     private List<Bullet> bullets = new LinkedList<>();
+    private Map<Integer,Flag> flags = new HashMap<>();
 
     private int nextEntityId = 0;
 
@@ -128,10 +129,21 @@ public class ServerGameContainer implements GameContainer, EventListener {
                 }
             }
         }
+        for (Player player : players.values()) {
+            for (Flag flag : flags.values()) {
+                if (player.getTeam() != flag.getTeam() && player.collideWithPoint(flag.getLocation())) {
+                    Log.DEBUG("Player %s picked up flag", player.getName());
+                }
+            }
+        }
     }
 
     public void startGame() {
         Log.INFO("Game started: BUILD MODE");
+
+        flags.put(1,new Flag(nextEntityId++,1, world.getFlagLocation(1)));
+        flags.put(2,new Flag(nextEntityId++,2, world.getFlagLocation(2)));
+
         for (Player player : players.values()) {
             spawnPlayer(player.getId());
         }
@@ -175,7 +187,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
                 Bullet newBullet = new Bullet(nextEntityId++,msg.getSourceId(),msg.getLocation(),msg.getDirection().normalize(),15f);
                 bullets.add(newBullet);
-                EventManager.sendEvent(new EntitySpawnedEvent(newBullet.getId(), newBullet.getLocation()));
+                EventManager.sendEvent(new EntitySpawnedEvent(newBullet));
             }
         }
     }

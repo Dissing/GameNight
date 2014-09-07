@@ -7,6 +7,7 @@ package com.lassedissing.gamenight.events.entity;
 
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import com.lassedissing.gamenight.events.Event;
+import com.lassedissing.gamenight.world.EntityType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,14 @@ import java.util.List;
 public class EntityEvent extends Event {
 
     protected int id;
+    protected EntityType type;
 
     public int getId() {
         return id;
+    }
+
+    public EntityType getType() {
+        return type;
     }
 
     //ClosureHolder section
