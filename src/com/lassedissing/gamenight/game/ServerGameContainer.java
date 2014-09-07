@@ -38,6 +38,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     private World world;
     private EventManager eventManager;
+    private DelayedActionManager delayedActionManager;
 
     private Map<Integer,Player> players = new HashMap<>();
     private List<Bullet> bullets = new LinkedList<>();
@@ -47,6 +48,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     public void init() {
 
         eventManager = new EventManager();
+        delayedActionManager = new DelayedActionManager();
 
         eventManager.registerListener(this);
 
@@ -63,7 +65,6 @@ public class ServerGameContainer implements GameContainer, EventListener {
     public void playerConnected(int id) {
         players.put(id, new Player(id, 2, Vector3f.ZERO));
         EventManager.sendEvent(new PlayerNewEvent(id));
-        this.spawnPlayer(id);
     }
 
     public void playerDisconnected(int id) {
@@ -108,6 +109,9 @@ public class ServerGameContainer implements GameContainer, EventListener {
     }
 
     public void tick(float tpf) {
+
+        delayedActionManager.tick(tpf);
+
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet bullet = iter.next();
@@ -125,6 +129,17 @@ public class ServerGameContainer implements GameContainer, EventListener {
     @EventHandler
     public void onPlayerMovement(PlayerMovedEvent event) {
         players.get(event.playerId).setLocation(event.position);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(final PlayerDiedEvent event) {
+        delayedActionManager.add(new DelayedAction() {
+
+            @Override
+            public void execute() {
+                spawnPlayer(event.playerId);
+            }
+        }, 10);
     }
 
     public void processMessages(ConcurrentLinkedQueue<Message> messages) {
