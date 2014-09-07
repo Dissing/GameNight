@@ -21,6 +21,7 @@ import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
+import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Chunk;
@@ -89,6 +90,7 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(UpdateMessage.class);
         Serializer.registerClass(WelcomeMessage.class);
+        Serializer.registerClass(JoinMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
@@ -105,10 +107,7 @@ public class ServerMain extends SimpleApplication {
 
             @Override
             public void connectionAdded(Server server, HostedConnection conn) {
-                Log.INFO("Player name %d connected from %s", conn.getId(), conn.getAddress());
-                conn.send(new WelcomeMessage(conn.getId(), gameContainer.getPlayers()));
-                gameContainer.playerConnected(conn.getId());
-                sendWorldToConn(conn);
+
             }
 
             @Override
@@ -224,7 +223,17 @@ public class ServerMain extends SimpleApplication {
 
         @Override
         public void messageReceived(HostedConnection source, Message m) {
-            messageQueue.add(m);
+
+            if (!(m instanceof JoinMessage)) {
+                messageQueue.add(m);
+            } else {
+                String name = ((JoinMessage)m).getName();
+                Log.INFO("Player %s:%d connected from %s", name, source.getId(), source.getAddress());
+                source.send(new WelcomeMessage(source.getId(), gameContainer.getPlayers()));
+                gameContainer.playerConnected(source.getId(),name);
+                sendWorldToConn(source);
+            }
+
         }
 
     }

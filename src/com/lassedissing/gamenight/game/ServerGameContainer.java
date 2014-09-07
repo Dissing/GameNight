@@ -21,6 +21,7 @@ import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
+import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Player;
 import com.lassedissing.gamenight.world.World;
@@ -61,8 +62,8 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     }
 
-    public void playerConnected(int id) {
-        players.put(id, new Player(id, 2, Vector3f.ZERO));
+    public void playerConnected(int id, String name) {
+        players.put(id, new Player(id, name, 2, Vector3f.ZERO));
         EventManager.sendEvent(new PlayerNewEvent(id));
         EventManager.sendEvent(new PlayerTeleportEvent(id,world.getSpectate(players.get(id).getTeam())));
     }

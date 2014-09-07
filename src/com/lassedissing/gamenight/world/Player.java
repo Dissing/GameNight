@@ -14,24 +14,23 @@ import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 public class Player {
 
     private int id;
+    private String name;
     private Vector3f location;
     private Vector3f width = new Vector3f(0.4f,0.9f,0.4f);
     private float eyeOffset = 0.8f;
     private int health = 10;
     private int team;
 
-    private boolean spawned = false;
 
-
-    public Player(int id, int team, Vector3f location) {
+    public Player(int id, String name, int team, Vector3f location) {
         this.id = id;
         this.location = location;
         this.team = team;
+        this.name = name;
     }
 
     public void spawn(Vector3f location) {
         this.location = location;
-        spawned = true;
         health = 10;
         EventManager.sendEvent(new PlayerStatEvent(id, health));
     }
@@ -41,7 +40,6 @@ public class Player {
         EventManager.sendEvent(new PlayerStatEvent(id, health));
 
         if (health <= 0) {
-            spawned = false;
             EventManager.sendEvent(new PlayerDiedEvent(id));
         }
     }
@@ -78,6 +76,10 @@ public class Player {
 
     public int getTeam() {
         return team;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

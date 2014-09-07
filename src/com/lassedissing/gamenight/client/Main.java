@@ -8,12 +8,6 @@ package com.lassedissing.gamenight.client;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.font.BitmapText;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseAxisTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
@@ -25,7 +19,6 @@ import com.jme3.network.serializing.Serializer;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
@@ -43,6 +36,7 @@ import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
 import com.lassedissing.gamenight.messages.ChunkMessage;
+import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
@@ -67,6 +61,7 @@ public class Main extends SimpleApplication {
     private Map<Integer,BulletView> bullets = new HashMap<>();
 
     public String serverIp;
+    public String name;
 
     public static boolean MIPMAP = false;
     public static int ANISOTROPIC = 0;
@@ -83,8 +78,8 @@ public class Main extends SimpleApplication {
     private Geometry weaponGeo;
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("You must specify IP");
+        if (args.length != 2) {
+            System.out.println("You must specify IP and name");
         }
 
         AppSettings settings = new AppSettings(true);
@@ -95,6 +90,7 @@ public class Main extends SimpleApplication {
         app.setShowSettings(false);
         Logger.getLogger("").setLevel(Level.WARNING);
         app.serverIp = args[0];
+        app.name = args[1];
         app.start();
     }
 
@@ -161,6 +157,7 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(ActivateWeaponMessage.class);
         Serializer.registerClass(UpdateMessage.class);
         Serializer.registerClass(WelcomeMessage.class);
+        Serializer.registerClass(JoinMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);
@@ -174,6 +171,8 @@ public class Main extends SimpleApplication {
         client.addMessageListener(new ClientListener(this));
 
         client.start();
+
+        client.send(new JoinMessage(name));
     }
 
     private void initCrosshair() {
