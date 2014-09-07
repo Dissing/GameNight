@@ -134,12 +134,12 @@ public class ServerGameContainer implements GameContainer, EventListener {
             for (Flag flag : flags.values()) {
                 if (!flag.isPickedUp() && player.collideWithPoint(flag.getLocation())) {
                     if (player.getTeam() != flag.getTeam()) {
-                        Log.DEBUG("Player pickedup flag", player.getTeam());
+                        Log.DEBUG("Player %s pickedup flag", player.getName());
                         player.setHasFlag(flag,true);
                         EventManager.sendEvent(new FlagEvent(player.getId(), flag.getId()));
                     } else if (player.hasFlag()) {
                         Log.DEBUG("Team %d scored a point", player.getTeam());
-                        player.setHasFlag(flag,false);
+                        player.setHasFlag(flags.get(player.getPickedUpFlagTeam()),false);
                         EventManager.sendEvent(new FlagEvent(player.getPickedUpFlagTeam(), true));
                     }
                 }
