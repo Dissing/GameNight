@@ -84,11 +84,11 @@ public class ChunkManager {
             return;
         }
         view.chunk.setIdAt(type, x % 16, y, z % 16);
-        rebuildChunk(x / 16, z / 16);
-        if (x % 16 == 0)  rebuildChunk(x / 16 - 1, z / 16);
-        if (x % 16 == 15) rebuildChunk(x / 16 + 1, z / 16);
-        if (z % 16 == 0)  rebuildChunk(x / 16, z / 16 - 1);
-        if (z % 16 == 15) rebuildChunk(x / 16, z / 16 + 1);
+        invalidateChunk(x / 16, z / 16);
+        if (x % 16 == 0)  invalidateChunk(x / 16 - 1, z / 16);
+        if (x % 16 == 15) invalidateChunk(x / 16 + 1, z / 16);
+        if (z % 16 == 0)  invalidateChunk(x / 16, z / 16 - 1);
+        if (z % 16 == 15) invalidateChunk(x / 16, z / 16 + 1);
     }
 
     public void addChunk(Chunk chunk) {
@@ -102,10 +102,20 @@ public class ChunkManager {
         chunks.put(pos, view);
         buildChunkMesh(view);
         addChunkToSceneGraph(view);
-        rebuildChunk(x-1,z);
-        rebuildChunk(x,  z-1);
-        rebuildChunk(x+1,z);
-        rebuildChunk(x,  z+1);
+        invalidateChunk(x-1,z);
+        invalidateChunk(x,  z-1);
+        invalidateChunk(x+1,z);
+        invalidateChunk(x,  z+1);
+        rebuildChunks();
+    }
+
+    public void rebuildChunks() {
+        for (ChunkView chunk : chunks.values()) {
+            if (!chunk.valid) {
+                buildChunkMesh(chunk);
+                chunk.mesh.updateBound();
+            }
+        }
     }
 
     public void showSelectBlock(int x, int y, int z) {
@@ -170,11 +180,10 @@ public class ChunkManager {
         return chunks.get(pos);
     }
 
-    private void rebuildChunk(int x, int z) {
+    private void invalidateChunk(int x, int z) {
         ChunkView chunk = getChunk(x,z);
         if (chunk != null) {
-            buildChunkMesh(chunk);
-            chunk.mesh.updateBound();
+            chunk.valid = false;
         }
     }
 
@@ -246,6 +255,7 @@ public class ChunkManager {
         }
 
         view.updateBuffers();
+        view.valid = true;
 
     }
 
@@ -310,6 +320,8 @@ public class ChunkManager {
 
         public Mesh mesh;
         public Geometry geo;
+
+        public boolean valid = false;
 
         public FloatBuffer vertices = BufferUtils.createFloatBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 3 floats
         public IntBuffer blockInfo = BufferUtils.createIntBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 1 int

@@ -25,6 +25,7 @@ import com.jme3.network.serializing.Serializer;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
@@ -398,6 +399,8 @@ public class Main extends SimpleApplication {
 
                 }
             }
+            chunkManager.rebuildChunks();
+
         }
     }
 
