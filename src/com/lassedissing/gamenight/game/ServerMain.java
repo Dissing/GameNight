@@ -19,6 +19,7 @@ import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
+import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
@@ -95,6 +96,7 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(PlayerNewEvent.class);
         Serializer.registerClass(PlayerSpawnedEvent.class);
         Serializer.registerClass(PlayerDiedEvent.class);
+        Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
 
         server.start();
@@ -175,7 +177,7 @@ public class ServerMain extends SimpleApplication {
         } else if (parts[0].equalsIgnoreCase("start")) {
 
             gameContainer.startGame();
-            
+
         } else if (parts[0].equalsIgnoreCase("wall")) {
 
             if (parts.length == 2) {

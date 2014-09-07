@@ -12,13 +12,12 @@ import com.lassedissing.gamenight.eventmanagning.EventHandler;
 import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
-import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
-import com.lassedissing.gamenight.events.player.PlayerStatEvent;
+import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
@@ -65,6 +64,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     public void playerConnected(int id) {
         players.put(id, new Player(id, 2, Vector3f.ZERO));
         EventManager.sendEvent(new PlayerNewEvent(id));
+        EventManager.sendEvent(new PlayerTeleportEvent(id,world.getSpectate(players.get(id).getTeam())));
     }
 
     public void playerDisconnected(int id) {
@@ -126,6 +126,21 @@ public class ServerGameContainer implements GameContainer, EventListener {
         }
     }
 
+    public void startGame() {
+        Log.INFO("Game started: BUILD MODE");
+        for (Player player : players.values()) {
+            spawnPlayer(player.getId());
+        }
+        delayedActionManager.add(new DelayedAction() {
+
+            @Override
+            public void execute() {
+                world.setWall(false);
+                Log.INFO("ATTACK MODE");
+            }
+        }, 10);
+    }
+
     @EventHandler
     public void onPlayerMovement(PlayerMovedEvent event) {
         players.get(event.playerId).setLocation(event.position);
@@ -133,6 +148,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @EventHandler
     public void onPlayerDeath(final PlayerDiedEvent event) {
+        EventManager.sendEvent(new PlayerTeleportEvent(event.playerId, world.getSpectate(players.get(event.playerId).getTeam())));
         delayedActionManager.add(new DelayedAction() {
 
             @Override

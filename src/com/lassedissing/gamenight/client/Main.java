@@ -38,6 +38,7 @@ import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
+import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.world.Chunk;
@@ -115,8 +116,6 @@ public class Main extends SimpleApplication {
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
         initCrosshair();
 
-        player.setEyeLocation(new Vector3f(16f,50f,16f));
-
         healthBar = new BitmapText(guiFont,false);
         healthBar.setSize(guiFont.getCharSet().getRenderedSize());
         healthBar.setColor(ColorRGBA.White);
@@ -169,6 +168,7 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(PlayerNewEvent.class);
         Serializer.registerClass(PlayerSpawnedEvent.class);
         Serializer.registerClass(PlayerDiedEvent.class);
+        Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
 
         client.addMessageListener(new ClientListener(this));
@@ -390,6 +390,14 @@ public class Main extends SimpleApplication {
                             player.setVisible(false);
                         }
 
+                    } else if (e instanceof PlayerTeleportEvent) {
+                        PlayerTeleportEvent event = (PlayerTeleportEvent) e;
+                        if (event.playerId != clientId) {
+                            PlayerView playerView = players.get(event.playerId);
+                            playerView.setPosition(event.position);
+                        } else {
+                            player.setEyeLocation(event.position);
+                        }
                     }
 
                 } else if (e instanceof BlockChangeEvent) {
