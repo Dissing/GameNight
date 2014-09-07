@@ -10,6 +10,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.lassedissing.gamenight.client.Main;
 
@@ -36,6 +37,10 @@ public class FlagView extends EntityView {
 
         spatial.setLocalTranslation(location);
         flagGeo.setLocalTranslation(0, 0.6f, 0);
+    }
+
+    public void hide(boolean enabled) {
+        spatial.setCullHint(enabled ? Spatial.CullHint.Always : Spatial.CullHint.Dynamic);
     }
 
 }

@@ -24,6 +24,7 @@ import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.client.views.FlagView;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
+import com.lassedissing.gamenight.events.FlagEvent;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
@@ -173,6 +174,7 @@ public class Main extends SimpleApplication {
         Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
+        Serializer.registerClass(FlagEvent.class);
         Serializer.registerClass(Flag.class);
         Serializer.registerClass(Bullet.class);
 
@@ -418,6 +420,15 @@ public class Main extends SimpleApplication {
 
                     BlockChangeEvent event = (BlockChangeEvent) e;
                     chunkManager.setBlockType(event.getBlockType(), event.getX(), event.getY(), event.getZ());
+
+                } else if (e instanceof FlagEvent) {
+
+                    FlagEvent event = (FlagEvent) e;
+                    if (event.isReset()) {
+                        ((FlagView)entities.get(event.getFlagId())).hide(false);
+                    } else {
+                        ((FlagView)entities.get(event.getFlagId())).hide(true);
+                    }
 
                 }
             }

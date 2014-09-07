@@ -13,6 +13,7 @@ import com.lassedissing.gamenight.eventmanagning.EventListener;
 import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
+import com.lassedissing.gamenight.events.FlagEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
@@ -131,8 +132,16 @@ public class ServerGameContainer implements GameContainer, EventListener {
         }
         for (Player player : players.values()) {
             for (Flag flag : flags.values()) {
-                if (player.getTeam() != flag.getTeam() && player.collideWithPoint(flag.getLocation())) {
-                    Log.DEBUG("Player %s picked up flag", player.getName());
+                if (!flag.isPickedUp() && player.collideWithPoint(flag.getLocation())) {
+                    if (player.getTeam() != flag.getTeam()) {
+                        Log.DEBUG("Player pickedup flag", player.getTeam());
+                        player.setHasFlag(flag,true);
+                        EventManager.sendEvent(new FlagEvent(player.getId(), flag.getId()));
+                    } else if (player.hasFlag()) {
+                        Log.DEBUG("Team %d scored a point", player.getTeam());
+                        player.setHasFlag(flag,false);
+                        EventManager.sendEvent(new FlagEvent(player.getPickedUpFlagTeam(), true));
+                    }
                 }
             }
         }
@@ -164,6 +173,9 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @EventHandler
     public void onPlayerDeath(final PlayerDiedEvent event) {
+        Player player = players.get(event.playerId);
+        EventManager.sendEvent(new FlagEvent(player.getPickedUpFlagTeam(), true));
+        player.setHasFlag(flags.get(player.getPickedUpFlagTeam()), false);
         EventManager.sendEvent(new PlayerTeleportEvent(event.playerId, world.getSpectate(players.get(event.playerId).getTeam())));
         delayedActionManager.add(new DelayedAction() {
 

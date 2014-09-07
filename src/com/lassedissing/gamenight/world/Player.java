@@ -20,6 +20,7 @@ public class Player {
     private float eyeOffset = 0.8f;
     private int health = 10;
     private int team;
+    private int hasFlag = -1;
 
 
     public Player(int id, String name, int team, Vector3f location) {
@@ -80,6 +81,20 @@ public class Player {
 
     public String getName() {
         return name;
+    }
+
+    public void setHasFlag(Flag flag, boolean pickedUp) {
+            flag.setIsPickedUp(pickedUp);
+            hasFlag = (pickedUp ? flag.getTeam() : -1);
+
+    }
+
+    public boolean hasFlag() {
+        return hasFlag != -1;
+    }
+
+    public int getPickedUpFlagTeam() {
+        return hasFlag;
     }
 
 }

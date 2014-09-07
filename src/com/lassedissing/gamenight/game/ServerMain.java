@@ -11,6 +11,7 @@ import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
+import com.lassedissing.gamenight.events.FlagEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
 import com.lassedissing.gamenight.events.player.PlayerStatEvent;
@@ -102,6 +103,7 @@ public class ServerMain extends SimpleApplication {
         Serializer.registerClass(PlayerDiedEvent.class);
         Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
+        Serializer.registerClass(FlagEvent.class);
         Serializer.registerClass(Flag.class);
         Serializer.registerClass(Bullet.class);
 

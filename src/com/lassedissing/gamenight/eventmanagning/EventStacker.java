@@ -29,6 +29,11 @@ public class EventStacker implements EventListener {
     }
 
     @EventHandler
+    public void onFlagEvent(FlagEvent event) {
+        events.add(event);
+    }
+
+    @EventHandler
     public void onBlockChange(BlockChangeEvent event) {
         events.add(event);
     }

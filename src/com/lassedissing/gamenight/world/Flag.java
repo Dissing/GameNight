@@ -22,6 +22,10 @@ public class Flag extends Entity {
         EventManager.sendEvent(new EntitySpawnedEvent(this));
     }
 
+    public void setIsPickedUp(boolean pickedUp) {
+        this.pickedUp = pickedUp;
+    }
+
     public boolean isPickedUp() {
         return pickedUp;
     }
