@@ -245,7 +245,7 @@ public class Main extends SimpleApplication {
                 Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
                 if (selectedBlock != null) {
                     chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
-                    if (inputProcessor.leftClick()) {
+                    if (inputProcessor.leftClick() && chunkManager.getId(selectedBlock) != 2) {
                         client.send(new BlockChangeMessage(0, selectedBlock));
                         inputProcessor.eatLeftClick();
                     }
