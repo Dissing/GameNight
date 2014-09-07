@@ -62,8 +62,11 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     }
 
+    private boolean alternateTeam;
+
     public void playerConnected(int id, String name) {
-        players.put(id, new Player(id, name, 2, Vector3f.ZERO));
+        players.put(id, new Player(id, name, (alternateTeam ? 1 : 2), Vector3f.ZERO));
+        alternateTeam = !alternateTeam;
         EventManager.sendEvent(new PlayerNewEvent(id));
         EventManager.sendEvent(new PlayerTeleportEvent(id,world.getSpectate(players.get(id).getTeam())));
     }
