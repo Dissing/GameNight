@@ -58,12 +58,14 @@ public class World implements Serializable {
                 getBlockAt(blockWidth-1, h, l).setType(2);
             }
         }
-        setWall(true,length/3*16-1,length/3*2*16);
+        setWall(true);
         team1Spawn = new Vector3f(blockWidth/2, 11, 5);
         team2Spawn = new Vector3f(blockWidth/2, 11, blockLength - 5);
     }
 
-    public void setWall(boolean enabled, int p1, int p2) {
+    public void setWall(boolean enabled) {
+        int p1 = blockLength/3-1;
+        int p2 = blockLength/3*2;
         for (int h = 0; h < blockHeight; h++) {
             for (int w = 1; w < blockWidth-1; w++) {
                 getBlockAt(w,h,p1).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));

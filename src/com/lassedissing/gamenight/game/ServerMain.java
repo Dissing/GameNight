@@ -172,16 +172,14 @@ public class ServerMain extends SimpleApplication {
                 Log.ERROR("Invalid amount of arguments: new map width length");
             }
 
-        } else if (parts[0].equalsIgnoreCase("spawn")) {
+        } else if (parts[0].equalsIgnoreCase("start")) {
 
-            if (parts.length == 2) {
-                gameContainer.spawnPlayer(Integer.parseInt(parts[1]));
-            }
-
+            gameContainer.startGame();
+            
         } else if (parts[0].equalsIgnoreCase("wall")) {
 
             if (parts.length == 2) {
-                gameContainer.getWorld().setWall(parts[1].equalsIgnoreCase("up"), 31, 64);
+                gameContainer.getWorld().setWall(parts[1].equalsIgnoreCase("up"));
             }
 
         } else if (parts[0].equalsIgnoreCase("hurt")) {
