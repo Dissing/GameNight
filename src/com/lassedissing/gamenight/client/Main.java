@@ -9,7 +9,6 @@ import com.lassedissing.gamenight.client.views.BulletView;
 import com.lassedissing.gamenight.client.views.EntityView;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
@@ -17,10 +16,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.network.*;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.NetworkRegistrar;
+import com.lassedissing.gamenight.client.gui.*;
 import com.lassedissing.gamenight.client.views.FlagView;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
@@ -49,7 +46,9 @@ import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -78,11 +77,12 @@ public class Main extends SimpleApplication {
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
 
-    private BitmapText healthBar;
+    private List<GuiElement> guiElements = new ArrayList<GuiElement>();
+    private StatBar statBar;
+    private WeaponViewElement weaponElement;
+    private BuildBar buildBar;
 
     private boolean isSpawned = false;
-
-    private Geometry weaponGeo;
 
     public static void main(String[] args) {
         if (args.length != 2) {
@@ -117,34 +117,18 @@ public class Main extends SimpleApplication {
 
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
-        initCrosshair();
 
-        healthBar = new BitmapText(guiFont,false);
-        healthBar.setSize(guiFont.getCharSet().getRenderedSize());
-        healthBar.setColor(ColorRGBA.White);
-        healthBar.setLocalTranslation(10, 700, 0);
-        healthBar.setText("Health: 10");
-        guiNode.attachChild(healthBar);
 
-        Camera weaponCam = cam.clone();
-        weaponCam.setLocation(new Vector3f(0, 0, 0));
-        weaponCam.lookAt(new Vector3f(0, 0, 1), Vector3f.UNIT_Y);
-        weaponCam.setLocation(new Vector3f(0, 0, 0));
-        ViewPort weaponView = renderManager.createMainView("weapon view", weaponCam);
-        weaponView.setClearFlags(false, true, false);
+        GuiContext guiContext = new GuiContext(guiNode,guiFont,assetManager,settings.getWidth(),settings.getHeight());
 
-        WeaponView ak47 = new WeaponView("AK47", assetManager);
+        statBar = new StatBar(guiContext, 10);
+        weaponElement = new WeaponViewElement(guiContext,cam, renderManager);
+        buildBar = new BuildBar(guiContext);
 
-        weaponGeo = new Geometry("Weapon",ak47.mesh);
-        weaponView.attachScene(weaponGeo);
-        weaponView.setEnabled(true);
+        guiElements.add(new Crosshair(guiContext));
+        guiElements.add(statBar);
+        guiElements.add(weaponElement);
 
-        weaponGeo.setLocalTranslation(-0.2f, -0.7f, 1f);
-        weaponGeo.rotate(-0.2f, -2.8f, 0);
-        weaponGeo.setMaterial(ak47.weaponMaterial);
-        weaponGeo.scale(0.03f);
-
-        weaponGeo.updateGeometricState();
     }
 
     private void initNetwork() {
@@ -163,20 +147,6 @@ public class Main extends SimpleApplication {
         client.start();
 
         client.send(new JoinMessage(name));
-    }
-
-    private void initCrosshair() {
-        BitmapText crosshair = new BitmapText(guiFont, false);
-        crosshair.setSize(guiFont.getCharSet().getRenderedSize() * 2);
-        crosshair.setText("+");
-        crosshair.setLocalTranslation(
-                settings.getWidth() / 2 - crosshair.getLineWidth()/2,
-                settings.getHeight() / 2 + crosshair.getLineHeight()/2, 0);
-        guiNode.attachChild(crosshair);
-    }
-
-    private void initInput() {
-
     }
 
     public void rotateCamera(float value, Vector3f axis) {
@@ -252,6 +222,10 @@ public class Main extends SimpleApplication {
             }
         }
 
+        for (GuiElement element : guiElements) {
+            element.tick(tpf);
+        }
+
         cam.setLocation(player.getEyeLocation());
 
 
@@ -318,7 +292,6 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleRender(RenderManager rm) {
-        weaponGeo.updateGeometricState();
         viewPort.setBackgroundColor(new ColorRGBA(0.4f, 0.6f, 0.9f, 1.0f));
     }
 
@@ -390,7 +363,7 @@ public class Main extends SimpleApplication {
 
                         PlayerStatEvent event = (PlayerStatEvent) e;
                         if (event.playerId == clientId) {
-                            healthBar.setText("Health: " + event.getHealth());
+                            statBar.setHealth(event.getHealth());
                         }
 
                     } else if (e instanceof PlayerNewEvent) {
