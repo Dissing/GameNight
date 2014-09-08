@@ -43,6 +43,7 @@ import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
+import com.lassedissing.gamenight.world.BlockInfo;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
@@ -242,27 +243,7 @@ public class Main extends SimpleApplication {
             }
 
             if (buildMode) {
-                Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
-                if (selectedBlock != null) {
-                    chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
-                    if (inputProcessor.leftClick() && chunkManager.getId(selectedBlock) != 2) {
-                        client.send(new BlockChangeMessage(0, selectedBlock));
-                        inputProcessor.eatLeftClick();
-                    }
-                    if (inputProcessor.rightClick()) {
-                        selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
-                        boolean blocked = false;
-                        blocked = player.isColliding(player.getLocation().add(0, 0.1f, 0), selectedBlock);
-                        for (PlayerView other : players.values()) {
-                            if (blocked) break;
-                            blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
-                        }
-                        if (!blocked && chunkManager.getId(selectedBlock) == 0 && selectedBlock.y < 30) {
-                            client.send(new BlockChangeMessage(1, selectedBlock));
-                            inputProcessor.eatRightClick();
-                        }
-                    }
-                }
+                tickBuildMode(tpf);
             } else {
                 if (inputProcessor.leftClick()) {
                     client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
@@ -274,6 +255,65 @@ public class Main extends SimpleApplication {
         cam.setLocation(player.getEyeLocation());
 
 
+    }
+
+    private float diggingTime;
+    private float totalBlockDiggingTime;
+    private Vector3f currentDiggingBlock = new Vector3f(-1, -1, -1);
+
+    private void dig(Vector3f selectedBlock, float tpf) {
+        if (selectedBlock.equals(currentDiggingBlock)) {
+            diggingTime += tpf;
+            if (diggingTime > totalBlockDiggingTime) {
+                client.send(new BlockChangeMessage(0, selectedBlock));
+            }
+        } else {
+            System.out.println("Did not equal");
+            resetDigging();
+            currentDiggingBlock.set(selectedBlock);
+            totalBlockDiggingTime = BlockInfo.getDuration(chunkManager.getId(selectedBlock),0.25f);
+        }
+    }
+
+    private void resetDigging() {
+        diggingTime = 0;
+    }
+
+    private void placeBlock() {
+        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
+        boolean blocked = false;
+        blocked = player.isColliding(player.getLocation().add(0, 0.1f, 0), selectedBlock);
+        for (PlayerView other : players.values()) {
+            if (blocked) break;
+            blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
+        }
+        if (!blocked && chunkManager.getId(selectedBlock) == 0 && selectedBlock.y < 30) {
+            client.send(new BlockChangeMessage(1, selectedBlock));
+            inputProcessor.eatRightClick();
+        }
+    }
+
+    private void tickBuildMode(float tpf) {
+
+        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
+
+        if (selectedBlock != null) {
+            chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
+
+
+            if (inputProcessor.leftClick()) {
+                dig(selectedBlock,tpf);
+            } else {
+                resetDigging();
+            }
+
+            if (inputProcessor.rightClick()) {
+                placeBlock();
+            }
+
+        } else {
+            resetDigging();
+        }
     }
 
     @Override
