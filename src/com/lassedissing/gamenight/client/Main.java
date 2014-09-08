@@ -257,7 +257,7 @@ public class Main extends SimpleApplication {
                             if (blocked) break;
                             blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
                         }
-                        if (!blocked) {
+                        if (!blocked && chunkManager.getId(selectedBlock) == 0) {
                             client.send(new BlockChangeMessage(1, selectedBlock));
                             inputProcessor.eatRightClick();
                         }
