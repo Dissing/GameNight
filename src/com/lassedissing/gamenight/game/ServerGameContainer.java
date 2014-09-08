@@ -175,7 +175,9 @@ public class ServerGameContainer implements GameContainer, EventListener {
     public void onPlayerDeath(final PlayerDiedEvent event) {
         Player player = players.get(event.playerId);
         EventManager.sendEvent(new FlagEvent(player.getPickedUpFlagTeam(), true));
-        player.setHasFlag(flags.get(player.getPickedUpFlagTeam()), false);
+        if (player.hasFlag()) {
+            player.setHasFlag(flags.get(player.getPickedUpFlagTeam()), false);
+        }
         EventManager.sendEvent(new PlayerTeleportEvent(event.playerId, world.getSpectate(players.get(event.playerId).getTeam())));
         delayedActionManager.add(new DelayedAction() {
 

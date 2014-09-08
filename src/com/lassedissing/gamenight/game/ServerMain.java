@@ -68,7 +68,7 @@ public class ServerMain extends SimpleApplication {
             stop();
             return;
         }
-        
+
         NetworkRegistrar.register();
 
         server.start();
@@ -177,9 +177,7 @@ public class ServerMain extends SimpleApplication {
         gameContainer.processMessages(messageQueue);
         gameContainer.tick(tpf);
 
-        for (UpdateMessage msg : eventStacker.bakeUpdateMessages()) {
-            server.broadcast(msg);
-        }
+        server.broadcast(eventStacker.bakeUpdateMessages());
 
     }
 
