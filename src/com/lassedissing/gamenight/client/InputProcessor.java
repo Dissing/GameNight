@@ -49,7 +49,9 @@ public class InputProcessor implements AnalogListener, ActionListener {
         INPUT_TAB,
         INPUT_CRAWL,
         INPUT_LEFT_CLICK,
-        INPUT_RIGHT_CLICK
+        INPUT_RIGHT_CLICK,
+        INPUT_SELECT_INC,
+        INPUT_SELECT_DEC
     }
 
     private static String[] keyMappings = new String[InputAction.values().length];
@@ -78,6 +80,8 @@ public class InputProcessor implements AnalogListener, ActionListener {
         inputManager.addMapping(INPUT_CAM_DOWN.name(), new MouseAxisTrigger(mouseInput.AXIS_Y, true), new KeyTrigger(KeyInput.KEY_DOWN));
         inputManager.addMapping(INPUT_LEFT_CLICK.name(), new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping(INPUT_RIGHT_CLICK.name(), new MouseButtonTrigger(mouseInput.BUTTON_RIGHT));
+        inputManager.addMapping(INPUT_SELECT_INC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,false));
+        inputManager.addMapping(INPUT_SELECT_DEC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,true));
 
 
         inputManager.addListener(this, keyMappings);
@@ -98,8 +102,7 @@ public class InputProcessor implements AnalogListener, ActionListener {
         } else if (name.equalsIgnoreCase(INPUT_JUMP.name())) {
             jumpAction = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_TAB.name()) && isPressed) {
-            main.chunkManager.hideSelectBlock();
-            main.buildMode = !main.buildMode;
+            main.switchMode();
         } else if (name.equalsIgnoreCase(INPUT_CRAWL.name())) {
             main.getPlayer().setCrawling(isPressed);
         } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK.name())) {
@@ -120,6 +123,10 @@ public class InputProcessor implements AnalogListener, ActionListener {
             main.rotateCamera(-value, main.getCamera().getLeft());
         } else if (name.equalsIgnoreCase(INPUT_CAM_DOWN.name())) {
             main.rotateCamera(value, main.getCamera().getLeft());
+        } else if (name.equalsIgnoreCase(INPUT_SELECT_INC.name())) {
+            main.wheelSelect(value);
+        } else if (name.equalsIgnoreCase(INPUT_SELECT_DEC.name())) {
+            main.wheelSelect(-value);
         }
     }
 

@@ -149,6 +149,12 @@ public class Main extends SimpleApplication {
         client.send(new JoinMessage(name));
     }
 
+    public void wheelSelect(float value) {
+        if (buildMode) {
+            buildBar.increaseSelectedSlot((int)value);
+        }
+    }
+
     public void rotateCamera(float value, Vector3f axis) {
 
         Matrix3f mat = new Matrix3f();
@@ -242,7 +248,6 @@ public class Main extends SimpleApplication {
                 client.send(new BlockChangeMessage(0, selectedBlock));
             }
         } else {
-            System.out.println("Did not equal");
             resetDigging();
             currentDiggingBlock.set(selectedBlock);
             totalBlockDiggingTime = BlockInfo.getDuration(chunkManager.getId(selectedBlock),0.25f);
@@ -261,8 +266,9 @@ public class Main extends SimpleApplication {
             if (blocked) break;
             blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
         }
-        if (!blocked && chunkManager.getId(selectedBlock) == 0 && selectedBlock.y < 30) {
-            client.send(new BlockChangeMessage(1, selectedBlock));
+        int type = buildBar.getSelectedSlot();
+        if (!blocked && chunkManager.getId(selectedBlock) == 0 && selectedBlock.y < 30 && type != 0) {
+            client.send(new BlockChangeMessage(type, selectedBlock));
             inputProcessor.eatRightClick();
         }
     }
@@ -426,6 +432,17 @@ public class Main extends SimpleApplication {
             }
             chunkManager.rebuildChunks();
 
+        }
+    }
+
+    void switchMode() {
+        if (buildMode) {
+            buildMode = false;
+            chunkManager.hideSelectBlock();
+            buildBar.hide(true);
+        } else {
+            buildMode = true;
+            buildBar.hide(false);
         }
     }
 

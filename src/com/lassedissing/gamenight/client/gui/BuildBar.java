@@ -22,9 +22,10 @@ import java.nio.FloatBuffer;
 
 public class BuildBar extends GuiElement {
 
-    private int quadSize = 64;
-    private int spacing = 3;
+    private final int quadSize = 64;
+    private final int spacing = 3;
     private int[] slots = new int[8];
+    private int currentSlot = 0;
     private Geometry[] quads = new Geometry[8];
     private Geometry selectBox;
 
@@ -71,6 +72,8 @@ public class BuildBar extends GuiElement {
         node.setLocalTranslation(context.getWidth()/2 - quadSize*slots.length/2, 50, 0);
         context.getNode().attachChild(node);
 
+        node.setCullHint(Spatial.CullHint.Always); //Start by hiding it as we do not start in buildMode
+
     }
 
     public FloatBuffer calcTexCoord(int id) {
@@ -88,8 +91,23 @@ public class BuildBar extends GuiElement {
         return;
     }
 
-    public void selectSlot(int slot) {
-        selectBox.setLocalTranslation(quadSize/2 + slot*quadSize+slot*spacing, quadSize/2, 0);
+    public void increaseSelectedSlot(int inc) {
+        currentSlot += inc;
+        if (currentSlot < 0) currentSlot = 0;
+        if (currentSlot >= slots.length) currentSlot = slots.length-1;
+        selectBox.setLocalTranslation(quadSize/2 + currentSlot*quadSize+currentSlot*spacing, quadSize/2, 0);
+    }
+
+    public int getSelectedSlot() {
+        return slots[currentSlot];
+    }
+
+    public void hide(boolean enable) {
+        if (enable) {
+            node.setCullHint(Spatial.CullHint.Always);
+        } else {
+            node.setCullHint(Spatial.CullHint.Never);
+        }
     }
 
 }
