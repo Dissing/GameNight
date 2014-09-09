@@ -8,6 +8,7 @@ package com.lassedissing.gamenight.client.gui;
 import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 
 
 public class StatBar extends GuiElement {
@@ -46,4 +47,8 @@ public class StatBar extends GuiElement {
         this.reloadAmmo = reloadAmmo;
     }
 
+    @Override
+    public void hide(boolean enable) {
+        node.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
+    }
 }

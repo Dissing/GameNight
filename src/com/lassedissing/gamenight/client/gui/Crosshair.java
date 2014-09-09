@@ -6,13 +6,16 @@
 package com.lassedissing.gamenight.client.gui;
 
 import com.jme3.font.BitmapText;
+import com.jme3.scene.Spatial;
 
 
 public class Crosshair extends GuiElement {
 
+    BitmapText crosshair;
+
     public Crosshair(GuiContext context) {
         super(context);
-        BitmapText crosshair = new BitmapText(context.getFont(), false);
+        crosshair = new BitmapText(context.getFont(), false);
         crosshair.setSize(context.getFont().getCharSet().getRenderedSize() * 2);
         crosshair.setText("+");
         crosshair.setLocalTranslation(
@@ -26,6 +29,9 @@ public class Crosshair extends GuiElement {
         return;
     }
 
-
+    @Override
+    public void hide(boolean enable) {
+        crosshair.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
+    }
 
 }

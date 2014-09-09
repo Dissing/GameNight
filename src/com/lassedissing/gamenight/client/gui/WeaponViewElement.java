@@ -5,12 +5,12 @@
 
 package com.lassedissing.gamenight.client.gui;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.lassedissing.gamenight.client.WeaponView;
 
 
@@ -45,6 +45,11 @@ public class WeaponViewElement extends GuiElement {
     @Override
     public void tick(float tpf) {
         //weaponGeo.updateGeometricState();
+    }
+
+    @Override
+    public void hide(boolean enable) {
+        weaponGeo.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
     }
 
 

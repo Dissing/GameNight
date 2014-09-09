@@ -82,6 +82,8 @@ public class Main extends SimpleApplication {
     private StatBar statBar;
     private WeaponViewElement weaponElement;
     private BuildBar buildBar;
+    private InfoBar infoBar;
+    private Crosshair crosshair;
 
     private boolean isSpawned = false;
 
@@ -119,17 +121,26 @@ public class Main extends SimpleApplication {
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
 
+        initHUD();
 
+
+    }
+
+    public void initHUD() {
         GuiContext guiContext = new GuiContext(guiNode,guiFont,assetManager,settings.getWidth(),settings.getHeight());
 
         statBar = new StatBar(guiContext, 10);
         weaponElement = new WeaponViewElement(guiContext,cam, renderManager);
         buildBar = new BuildBar(guiContext);
+        infoBar = new InfoBar(guiContext);
+        crosshair = new Crosshair(guiContext);
 
-        guiElements.add(new Crosshair(guiContext));
+        infoBar.setTime(100);
+
+        guiElements.add(crosshair);
         guiElements.add(statBar);
         guiElements.add(weaponElement);
-
+        guiElements.add(infoBar);
     }
 
     private void initNetwork() {

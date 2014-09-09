@@ -102,12 +102,9 @@ public class BuildBar extends GuiElement {
         return slots[currentSlot];
     }
 
+    @Override
     public void hide(boolean enable) {
-        if (enable) {
-            node.setCullHint(Spatial.CullHint.Always);
-        } else {
-            node.setCullHint(Spatial.CullHint.Never);
-        }
+        node.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
     }
 
 }

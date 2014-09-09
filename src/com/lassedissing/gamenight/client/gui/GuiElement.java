@@ -16,4 +16,6 @@ public abstract class GuiElement {
 
     public abstract void tick(float tpf);
 
+    public abstract void hide(boolean enable);
+
 }
