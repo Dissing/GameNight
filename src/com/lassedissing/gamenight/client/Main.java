@@ -22,6 +22,7 @@ import com.lassedissing.gamenight.client.views.FlagView;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.FlagEvent;
+import com.lassedissing.gamenight.events.InfoSyncEvent;
 import com.lassedissing.gamenight.events.player.PlayerEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
@@ -441,6 +442,12 @@ public class Main extends SimpleApplication {
                         ((FlagView)entities.get(event.getFlagId())).hide(true);
                     }
 
+                } else if (e instanceof InfoSyncEvent) {
+
+                    InfoSyncEvent event = (InfoSyncEvent) e;
+                    System.out.println(event.getTime());
+                    infoBar.enable(event.isTimeRunning());
+                    infoBar.setTime((int)event.getTime());
                 }
             }
             chunkManager.rebuildChunks();

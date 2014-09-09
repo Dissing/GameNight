@@ -8,6 +8,7 @@ package com.lassedissing.gamenight;
 import com.jme3.network.serializing.Serializer;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.FlagEvent;
+import com.lassedissing.gamenight.events.InfoSyncEvent;
 import com.lassedissing.gamenight.events.entity.EntityDiedEvent;
 import com.lassedissing.gamenight.events.entity.EntityMovedEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
@@ -51,9 +52,10 @@ public class NetworkRegistrar {
         Serializer.registerClass(PlayerTeleportEvent.class);
         Serializer.registerClass(BlockChangeEvent.class);
         Serializer.registerClass(FlagEvent.class);
+        Serializer.registerClass(InfoSyncEvent.class);
         Serializer.registerClass(Flag.class);
         Serializer.registerClass(Bullet.class);
-        
+
     }
 
 }

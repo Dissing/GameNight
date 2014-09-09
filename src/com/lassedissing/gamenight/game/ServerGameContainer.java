@@ -14,6 +14,7 @@ import com.lassedissing.gamenight.eventmanagning.EventManager;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.FlagEvent;
+import com.lassedissing.gamenight.events.InfoSyncEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerMovedEvent;
 import com.lassedissing.gamenight.events.player.PlayerNewEvent;
@@ -46,6 +47,8 @@ public class ServerGameContainer implements GameContainer, EventListener {
     private Map<Integer,Flag> flags = new HashMap<>();
 
     private int nextEntityId = 0;
+
+    private int buildTime = 60;
 
     public void init() {
 
@@ -148,6 +151,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     }
 
     public void startGame() {
+        EventManager.sendEvent(new InfoSyncEvent(true, buildTime));
         Log.INFO("Game started: BUILD MODE");
 
         flags.put(1,new Flag(nextEntityId++,1, world.getFlagLocation(1)));
@@ -163,7 +167,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
                 world.setWall(false);
                 Log.INFO("ATTACK MODE");
             }
-        }, 10);
+        }, buildTime);
     }
 
     @EventHandler

@@ -10,14 +10,17 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
+import org.lwjgl.LWJGLUtil;
+import org.lwjgl.Sys;
 
 
 public class InfoBar extends GuiElement {
 
     private Node node;
     private BitmapText timeLeft;
-    private int prevTime;
-    private float time;
+    private int time;
+    private long lastTime;
+    private int lastUpdate;
     private boolean enabled;
 
     public InfoBar(GuiContext context) {
@@ -26,7 +29,6 @@ public class InfoBar extends GuiElement {
         timeLeft.setSize(context.getFont().getCharSet().getRenderedSize()*2);
         timeLeft.setColor(ColorRGBA.White);
         timeLeft.setText(getPrettyTime(time));
-        prevTime = (int)time;
         node = new Node();
         node.attachChild(timeLeft);
         node.setLocalTranslation(context.getWidth()/2 - timeLeft.getLineWidth()/2, 700, 0);
@@ -40,10 +42,14 @@ public class InfoBar extends GuiElement {
 
     @Override
     public void tick(float tpf) {
+        long currentTime = (Sys.getTime()) / Sys.getTimerResolution();
         if (enabled) {
-            time -= tpf;
-            if (((int)time) > prevTime) {
+            int delta = (int) (currentTime - lastTime);
+            time -= delta;
+            lastTime = currentTime;
+            if (time < lastUpdate) {
                 timeLeft.setText(getPrettyTime(time));
+                lastUpdate = time;
             }
         }
     }
@@ -54,6 +60,8 @@ public class InfoBar extends GuiElement {
 
     public void enable(boolean enable) {
         enabled = enable;
+        lastTime = (Sys.getTime()) / Sys.getTimerResolution();
+        lastUpdate = time;
     }
 
     @Override

@@ -34,6 +34,11 @@ public class EventStacker implements EventListener {
     }
 
     @EventHandler
+    public void onInfoSyncEvent(InfoSyncEvent event) {
+        events.add(event);
+    }
+
+    @EventHandler
     public void onBlockChange(BlockChangeEvent event) {
         events.add(event);
     }
