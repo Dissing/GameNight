@@ -76,6 +76,7 @@ public class Main extends SimpleApplication {
 
     private PlayerController player = new PlayerController();
     private Vector3f walkDirection = new Vector3f();
+    private Vector3f prevDirection = new Vector3f();
 
     private List<GuiElement> guiElements = new ArrayList<GuiElement>();
     private StatBar statBar;
@@ -157,6 +158,7 @@ public class Main extends SimpleApplication {
 
     public void rotateCamera(float value, Vector3f axis) {
 
+        prevDirection.set(cam.getDirection());
         Matrix3f mat = new Matrix3f();
         mat.fromAngleNormalAxis(value, axis);
 
@@ -214,7 +216,7 @@ public class Main extends SimpleApplication {
 
             player.tick(cam,walkDirection,chunkManager,Math.min(tpf,0.03333f));
 
-            if (!player.hasMoved() && clientId != -1) {
+            if ((!player.hasMoved() || !prevDirection.equals(cam.getDirection())) && clientId != -1) {
                 client.send(new PlayerMovementMessage( new PlayerMovedEvent(clientId, player.getEyeLocation(), cam.getDirection()) ));
             }
 
@@ -250,7 +252,7 @@ public class Main extends SimpleApplication {
         } else {
             resetDigging();
             currentDiggingBlock.set(selectedBlock);
-            totalBlockDiggingTime = BlockInfo.getDuration(chunkManager.getId(selectedBlock),0.25f);
+            totalBlockDiggingTime = BlockInfo.getDuration(chunkManager.getId(selectedBlock),0.5f);
         }
     }
 

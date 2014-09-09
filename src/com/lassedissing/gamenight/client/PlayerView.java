@@ -82,7 +82,7 @@ public class PlayerView {
     }
 
     public void setRotation(Vector3f rot) {
-        node.lookAt(rot, Vector3f.UNIT_Y);
+        node.lookAt(rot.add(getPosition()), Vector3f.UNIT_Y);
     }
 
     public boolean isVisible() {
