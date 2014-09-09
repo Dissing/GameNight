@@ -7,21 +7,23 @@ package com.lassedissing.gamenight.client.gui;
 
 import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Node;
 
 
 public class StatBar extends GuiElement {
 
-     private BitmapText healthBar;
-     private int health;
-     private int loadedAmmo;
-     private int reloadAmmo;
+    private Node node;
+    private BitmapText healthBar;
+    private int health;
+    private int loadedAmmo;
+    private int reloadAmmo;
 
     public StatBar(GuiContext context, int initialHealth) {
         super(context);
         healthBar = new BitmapText(context.getFont(),false);
         healthBar.setSize(context.getFont().getCharSet().getRenderedSize());
         healthBar.setColor(ColorRGBA.White);
-        healthBar.setLocalTranslation(10, 700, 0);
+        healthBar.setLocalTranslation(1200, 30, 0);
         healthBar.setText("Health: " + initialHealth);
         context.getNode().attachChild(healthBar);
     }
@@ -33,6 +35,7 @@ public class StatBar extends GuiElement {
 
     public void setHealth(int health) {
         this.health = health;
+        healthBar.setText("Health: " + health);
     }
 
     public void setLoadedAmmo(int loadedAmmo) {
