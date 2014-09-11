@@ -34,17 +34,15 @@ import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
-import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
-import com.lassedissing.gamenight.messages.BlockChangeMessage;
 import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
-import com.lassedissing.gamenight.world.BlockInfo;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
+import com.lassedissing.gamenight.world.WeaponInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,8 +60,8 @@ public class Main extends SimpleApplication {
     ChunkManager chunkManager = new ChunkManager();
     InputProcessor inputProcessor = new InputProcessor(this);
 
-    private int clientId = -1;
-    private Map<Integer,PlayerView> players = new HashMap<>();
+    int clientId = -1;
+    Map<Integer,PlayerView> players = new HashMap<>();
 
     private Map<Integer,EntityView> entities = new HashMap<>();
 
@@ -75,16 +73,18 @@ public class Main extends SimpleApplication {
 
     public boolean buildMode = false;
 
-    private PlayerController player = new PlayerController();
+    PlayerController player = new PlayerController();
+    DiggingController digging = new DiggingController();
+    WeaponController weapon = new WeaponController();
+
     private Vector3f walkDirection = new Vector3f();
     private Vector3f prevDirection = new Vector3f();
 
     private List<GuiElement> guiElements = new ArrayList<GuiElement>();
-    private StatBar statBar;
-    private WeaponViewElement weaponElement;
-    private BuildBar buildBar;
-    private InfoBar infoBar;
-    private Crosshair crosshair;
+    StatBar statBar;
+    BuildBar buildBar;
+    InfoBar infoBar;
+    Crosshair crosshair;
 
     private boolean isSpawned = false;
 
@@ -131,16 +131,16 @@ public class Main extends SimpleApplication {
         GuiContext guiContext = new GuiContext(guiNode,guiFont,assetManager,settings.getWidth(),settings.getHeight());
 
         statBar = new StatBar(guiContext, 10);
-        weaponElement = new WeaponViewElement(guiContext,cam, renderManager);
         buildBar = new BuildBar(guiContext);
         infoBar = new InfoBar(guiContext);
         crosshair = new Crosshair(guiContext);
 
         infoBar.setTime(100);
+        weapon.setupElement(guiContext, cam, renderManager);
+        weapon.setWeapon(WeaponInfo.Type.AK47);
 
         guiElements.add(crosshair);
         guiElements.add(statBar);
-        guiElements.add(weaponElement);
         guiElements.add(infoBar);
     }
 
@@ -233,12 +233,9 @@ public class Main extends SimpleApplication {
             }
 
             if (buildMode) {
-                tickBuildMode(tpf);
+                digging.tick(this, tpf);
             } else {
-                if (inputProcessor.leftClick()) {
-                    client.send(new ActivateWeaponMessage(clientId, cam.getLocation(), cam.getDirection()));
-                    inputProcessor.eatLeftClick();
-                }
+                weapon.tick(this, tpf);
             }
         }
 
@@ -249,65 +246,6 @@ public class Main extends SimpleApplication {
         cam.setLocation(player.getEyeLocation());
 
 
-    }
-
-    private float diggingTime;
-    private float totalBlockDiggingTime;
-    private Vector3f currentDiggingBlock = new Vector3f(-1, -1, -1);
-
-    private void dig(Vector3f selectedBlock, float tpf) {
-        if (selectedBlock.equals(currentDiggingBlock)) {
-            diggingTime += tpf;
-            if (diggingTime > totalBlockDiggingTime) {
-                client.send(new BlockChangeMessage(0, selectedBlock));
-            }
-        } else {
-            resetDigging();
-            currentDiggingBlock.set(selectedBlock);
-            totalBlockDiggingTime = BlockInfo.getDuration(chunkManager.getId(selectedBlock),0.5f);
-        }
-    }
-
-    private void resetDigging() {
-        diggingTime = 0;
-    }
-
-    private void placeBlock() {
-        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, true);
-        boolean blocked = false;
-        blocked = player.isColliding(player.getLocation().add(0, 0.1f, 0), selectedBlock);
-        for (PlayerView other : players.values()) {
-            if (blocked) break;
-            blocked = player.isColliding(other.getPosition().add(0, 0.1f, 0), selectedBlock);
-        }
-        int type = buildBar.getSelectedSlot();
-        if (!blocked && chunkManager.getId(selectedBlock) == 0 && selectedBlock.y < 30 && type != 0) {
-            client.send(new BlockChangeMessage(type, selectedBlock));
-            inputProcessor.eatRightClick();
-        }
-    }
-
-    private void tickBuildMode(float tpf) {
-
-        Vector3f selectedBlock = chunkManager.getPickedBlock(cam.getLocation(), cam.getDirection(), 5f, false);
-
-        if (selectedBlock != null) {
-            chunkManager.showSelectBlock((int)selectedBlock.x, (int)selectedBlock.y, (int)selectedBlock.z);
-
-
-            if (inputProcessor.leftClick()) {
-                dig(selectedBlock,tpf);
-            } else {
-                resetDigging();
-            }
-
-            if (inputProcessor.rightClick()) {
-                placeBlock();
-            }
-
-        } else {
-            resetDigging();
-        }
     }
 
     @Override
@@ -460,9 +398,11 @@ public class Main extends SimpleApplication {
             buildMode = false;
             chunkManager.hideSelectBlock();
             buildBar.hide(true);
+            weapon.setWeapon(WeaponInfo.Type.AK47);
         } else {
             buildMode = true;
             buildBar.hide(false);
+            weapon.setWeapon(WeaponInfo.Type.Multitool);
         }
     }
 

@@ -10,13 +10,20 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.lassedissing.gamenight.client.WeaponView;
+import com.lassedissing.gamenight.world.WeaponInfo.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WeaponViewElement extends GuiElement {
 
     private Geometry weaponGeo;
+    private ViewPort weaponView;
+
+    private Map<Type, WeaponView> weaponMesh = new HashMap<>();
 
     public WeaponViewElement(GuiContext context, Camera cam, RenderManager renderManager) {
         super(context);
@@ -25,21 +32,21 @@ public class WeaponViewElement extends GuiElement {
         weaponCam.setLocation(new Vector3f(0, 0, 0));
         weaponCam.lookAt(new Vector3f(0, 0, 1), Vector3f.UNIT_Y);
         weaponCam.setLocation(new Vector3f(0, 0, 0));
-        ViewPort weaponView = renderManager.createMainView("weapon view", weaponCam);
+        weaponView = renderManager.createMainView("weapon view", weaponCam);
         weaponView.setClearFlags(false, true, false);
+        weaponView.setEnabled(false);
 
-        WeaponView ak47 = new WeaponView("AK47", context.getAssetManager());
+        for (Type type : Type.values()) {
+            weaponMesh.put(type, new WeaponView(type.toString(), context.getAssetManager()));
+        }
 
-        weaponGeo = new Geometry("Weapon",ak47.mesh);
+        weaponGeo = new Geometry("Weapon");
         weaponView.attachScene(weaponGeo);
-        weaponView.setEnabled(true);
 
         weaponGeo.setLocalTranslation(-0.2f, -0.7f, 1f);
         weaponGeo.rotate(-0.2f, -2.8f, 0);
-        weaponGeo.setMaterial(ak47.weaponMaterial);
         weaponGeo.scale(0.03f);
 
-        weaponGeo.updateGeometricState();
     }
 
     @Override
@@ -49,7 +56,16 @@ public class WeaponViewElement extends GuiElement {
 
     @Override
     public void hide(boolean enable) {
-        weaponGeo.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
+        weaponView.setEnabled(false);
+    }
+
+    public void setType(Type type) {
+        WeaponView view = weaponMesh.get(type);
+        weaponGeo.setMesh(view.mesh);
+        weaponGeo.setMaterial(view.weaponMaterial);
+        weaponGeo.updateGeometricState();
+        weaponView.setEnabled(true);
+
     }
 
 

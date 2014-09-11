@@ -22,7 +22,6 @@ public class WeaponView {
     public Material weaponMaterial;
 
     public Mesh mesh;
-    private Geometry geo;
     private FloatBuffer vertices = BufferUtils.createFloatBuffer(32*32*3*2*6*3);
     private FloatBuffer uv = BufferUtils.createFloatBuffer(32*32*3*2*6*2);;
     private float scalingFactor = (1f/32f);
