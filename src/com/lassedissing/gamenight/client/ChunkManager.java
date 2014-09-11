@@ -18,8 +18,10 @@ import com.jme3.scene.debug.WireBox;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 import com.lassedissing.gamenight.world.Chunk;
+import static com.lassedissing.gamenight.world.Chunk.CHUNK_SIZE;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +114,11 @@ public class ChunkManager {
     public void rebuildChunks() {
         for (ChunkView chunk : chunks.values()) {
             if (!chunk.valid) {
+                calcLight(chunk);
+            }
+        }
+        for (ChunkView chunk : chunks.values()) {
+            if (!chunk.valid) {
                 buildChunkMesh(chunk);
                 chunk.mesh.updateBound();
             }
@@ -187,7 +194,55 @@ public class ChunkManager {
         }
     }
 
+    private int getLightAt(int chunkX, int chunkZ, int x, int y, int z) {
+
+        if (y > 31 || y <= 0) {
+            return 15;
+        }
+
+        if (x == 16) {
+            ChunkView view = getChunk(chunkX + x/16, chunkZ);
+            return (view != null) ? view.getLightInChunkAt(0, y, z) : 15;
+        }
+        if (z == 16) {
+            ChunkView view = getChunk(chunkX, chunkZ + z/16);
+            return (view != null) ? view.getLightInChunkAt(x, y, 0) : 15;
+        }
+        if (x == -1) {
+            ChunkView view = getChunk(chunkX-1,chunkZ);
+            return (view != null) ? view.getLightInChunkAt(15, y, z) : 15;
+        }
+        if (z == -1) {
+            ChunkView view = getChunk(chunkX,chunkZ-1);
+            return (view != null) ? view.getLightInChunkAt(x, y, 15) : 15;
+        }
+        ChunkView view = getChunk(chunkX, chunkZ);
+        return (view != null) ? view.getLightInChunkAt(x, y, z) : 15;
+    }
+
+    private void calcLight(ChunkView view) {
+        for (int y = 31; y > 0; y--) {
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    if (view.chunk.getIdAt(x, y, z) == 0) {
+                        if (y == 31) {
+                            view.setLightAt(15, x, y, z);
+                        } else {
+                            view.setLightAt(Math.max(2,Math.max(
+                                getLightAt(view.chunkX,view.chunkZ,x, y+1, z),Math.max(
+                                    Math.max(getLightAt(view.chunkX,view.chunkZ,x+1, y, z)-1, getLightAt(view.chunkX,view.chunkZ,x-1, y, z)-1),
+                                    Math.max(getLightAt(view.chunkX,view.chunkZ,x, y, z+1)-1, getLightAt(view.chunkX,view.chunkZ,x, y, z-1)-1)))), x, y, z);
+                        }
+                    } else {
+                        view.setLightAt(0, x, y, z);
+                    }
+                }
+            }
+        }
+    }
+
     private void buildChunkMesh(ChunkView view) {
+        calcLight(view);
         view.vertices.clear();
         view.blockInfo.clear();
         Vector3f v[] = new Vector3f[8];
@@ -315,9 +370,15 @@ public class ChunkManager {
         public ChunkView(Chunk chunk) {
             this.chunk = chunk;
             mesh = new Mesh();
+            this.chunkX = chunk.getX();
+            this.chunkZ = chunk.getZ();
         }
 
+        public int chunkX;
+        public int chunkZ;
+
         public Chunk chunk;
+        public int[] lightArray = new int[Chunk.CHUNK_VOLUME];
 
         public Mesh mesh;
         public Geometry geo;
@@ -331,16 +392,15 @@ public class ChunkManager {
             vertices.put(v1.x);
             vertices.put(v1.y);
             vertices.put(v1.z);
+            blockInfo.put(calcBlockMask(blockType, yFace, getLightAt(chunkX,chunkZ,x,y,z)));
             vertices.put(v2.x);
             vertices.put(v2.y);
             vertices.put(v2.z);
+            blockInfo.put(calcBlockMask(blockType, yFace, getLightAt(chunkX,chunkZ,x,y,z)));
             vertices.put(v3.x);
             vertices.put(v3.y);
             vertices.put(v3.z);
-            for (int i = 0; i < 3; i++) {
-                blockInfo.put(calcBlockMask(blockType, yFace, 15));
-            }
-
+            blockInfo.put(calcBlockMask(blockType, yFace, getLightAt(chunkX,chunkZ,x,y,z)));
         }
 
         public void updateBuffers() {
@@ -351,6 +411,13 @@ public class ChunkManager {
             mesh.updateBound();
         }
 
+        public int getLightInChunkAt(int x, int y, int z) {
+            return lightArray[(x & 0xF)*Chunk.CHUNK_HEIGHT*CHUNK_SIZE+y*Chunk.CHUNK_SIZE+(z & 0xF)];
+        }
+
+        public void setLightAt(int value, int x, int y, int z) {
+            lightArray[(x & 0xF)*Chunk.CHUNK_HEIGHT*CHUNK_SIZE+y*Chunk.CHUNK_SIZE+(z & 0xF)] = value;
+        }
     }
 
 }
