@@ -216,38 +216,38 @@ public class ChunkManager {
 
                      //Front triangles
                      if (!isPopulated(view,x, y, z+1)) {
-                        view.addVertices(v[0],v[1],v[2],calcBlockMask(type, false));
-                        view.addVertices(v[0],v[2],v[3],calcBlockMask(type, false));
+                        view.addVertices(v[0],v[1],v[2],type, false,x,y,z+1);
+                        view.addVertices(v[0],v[2],v[3],type, false,x,y,z+1);
                      }
 
                      //Back triangles
                      if (!isPopulated(view,x, y, z-1)) {
-                        view.addVertices(v[6],v[5],v[4],calcBlockMask(type, false));
-                        view.addVertices(v[7],v[6],v[4],calcBlockMask(type, false));
+                        view.addVertices(v[6],v[5],v[4],type, false,x,y,z-1);
+                        view.addVertices(v[7],v[6],v[4],type, false,x,y,z-1);
                      }
 
                      //Left triangles
                      if (!isPopulated(view,x-1, y, z)) {
-                        view.addVertices(v[0],v[7],v[4],calcBlockMask(type, false));
-                        view.addVertices(v[0],v[3],v[7],calcBlockMask(type, false));
+                        view.addVertices(v[0],v[7],v[4],type, false,x-1,y,z);
+                        view.addVertices(v[0],v[3],v[7],type, false,x-1,y,z);
                      }
 
                      //Right triangles
                      if (!isPopulated(view,x+1, y, z)) {
-                        view.addVertices(v[1],v[5],v[6],calcBlockMask(type, false));
-                        view.addVertices(v[1],v[6],v[2],calcBlockMask(type, false));
+                        view.addVertices(v[1],v[5],v[6],type, false,x+1,y,z);
+                        view.addVertices(v[1],v[6],v[2],type, false,x+1,y,z);
                      }
 
                      //Top triangles
                      if (!isPopulated(view,x, y+1, z)) {
-                        view.addVertices(v[2],v[7],v[3],calcBlockMask(type, true));
-                        view.addVertices(v[2],v[6],v[7],calcBlockMask(type, true));
+                        view.addVertices(v[2],v[7],v[3],type, true,x,y+1,z);
+                        view.addVertices(v[2],v[6],v[7],type, true,x,y+1,z);
                      }
 
                      //Bottom triangles
                      if (!isPopulated(view,x, y-1, z)) {
-                        view.addVertices(v[4],v[1],v[0],calcBlockMask(type, true));
-                        view.addVertices(v[4],v[5],v[1],calcBlockMask(type, true));
+                        view.addVertices(v[4],v[1],v[0],type, true,x,y-1,z);
+                        view.addVertices(v[4],v[5],v[1],type, true,x,y-1,z);
                      }
 
                 }
@@ -300,11 +300,12 @@ public class ChunkManager {
         return res;
     }
 
-    private int calcBlockMask(int blockType, boolean yFace) {
+    private int calcBlockMask(int blockType, boolean yFace, int light) {
         int res = blockType;
         if (yFace) {
             res = res | UP_NORMAL_BITMASK;
         }
+        res = res | (light << 16);
 
         return res;
     }
@@ -326,7 +327,7 @@ public class ChunkManager {
         public FloatBuffer vertices = BufferUtils.createFloatBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 3 floats
         public IntBuffer blockInfo = BufferUtils.createIntBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 1 int
 
-        public void addVertices(Vector3f v1, Vector3f v2, Vector3f v3, int blockMask) {
+        public void addVertices(Vector3f v1, Vector3f v2, Vector3f v3, int blockType, boolean yFace, int x, int y, int z) {
             vertices.put(v1.x);
             vertices.put(v1.y);
             vertices.put(v1.z);
@@ -337,7 +338,7 @@ public class ChunkManager {
             vertices.put(v3.y);
             vertices.put(v3.z);
             for (int i = 0; i < 3; i++) {
-                blockInfo.put(blockMask);
+                blockInfo.put(calcBlockMask(blockType, yFace, 15));
             }
 
         }
