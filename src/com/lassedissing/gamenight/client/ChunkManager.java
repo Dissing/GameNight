@@ -86,11 +86,11 @@ public class ChunkManager {
             return;
         }
         view.chunk.setIdAt(type, x % 16, y, z % 16);
-        invalidateChunk(x / 16, z / 16);
-        if (x % 16 == 0)  invalidateChunk(x / 16 - 1, z / 16);
-        if (x % 16 == 15) invalidateChunk(x / 16 + 1, z / 16);
-        if (z % 16 == 0)  invalidateChunk(x / 16, z / 16 - 1);
-        if (z % 16 == 15) invalidateChunk(x / 16, z / 16 + 1);
+        invalidateChunk(x / 16, z / 16,true);
+        if (x % 16 == 0)  invalidateChunk(x / 16 - 1, z / 16,false);
+        if (x % 16 == 15) invalidateChunk(x / 16 + 1, z / 16,false);
+        if (z % 16 == 0)  invalidateChunk(x / 16, z / 16 - 1,false);
+        if (z % 16 == 15) invalidateChunk(x / 16, z / 16 + 1,false);
     }
 
     public void addChunk(Chunk chunk) {
@@ -104,14 +104,19 @@ public class ChunkManager {
         chunks.put(pos, view);
         buildChunkMesh(view);
         addChunkToSceneGraph(view);
-        invalidateChunk(x-1,z);
-        invalidateChunk(x,  z-1);
-        invalidateChunk(x+1,z);
-        invalidateChunk(x,  z+1);
+        invalidateChunk(x-1,z,false);
+        invalidateChunk(x,  z-1,false);
+        invalidateChunk(x+1,z,false);
+        invalidateChunk(x,  z+1,false);
         rebuildChunks();
     }
 
     public void rebuildChunks() {
+        for (ChunkView chunk : chunks.values()) {
+            if (chunk.priorityLight) {
+                calcLight(chunk);
+            }
+        }
         for (ChunkView chunk : chunks.values()) {
             if (!chunk.valid) {
                 calcLight(chunk);
@@ -187,10 +192,13 @@ public class ChunkManager {
         return chunks.get(pos);
     }
 
-    private void invalidateChunk(int x, int z) {
+    private void invalidateChunk(int x, int z, boolean priority) {
         ChunkView chunk = getChunk(x,z);
         if (chunk != null) {
             chunk.valid = false;
+            if (priority) {
+                chunk.priorityLight = true;
+            }
         }
     }
 
@@ -221,6 +229,7 @@ public class ChunkManager {
     }
 
     private void calcLight(ChunkView view) {
+
         for (int y = 31; y > 0; y--) {
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
@@ -384,6 +393,7 @@ public class ChunkManager {
         public Geometry geo;
 
         public boolean valid = false;
+        public boolean priorityLight = false;
 
         public FloatBuffer vertices = BufferUtils.createFloatBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 3 floats
         public IntBuffer blockInfo = BufferUtils.createIntBuffer(Chunk.CHUNK_VOLUME * 6 * 2 * 3); //Six faces each of 2 triangles of 3 vertices consisting of 1 int
@@ -417,6 +427,10 @@ public class ChunkManager {
 
         public void setLightAt(int value, int x, int y, int z) {
             lightArray[(x & 0xF)*Chunk.CHUNK_HEIGHT*CHUNK_SIZE+y*Chunk.CHUNK_SIZE+(z & 0xF)] = value;
+        }
+
+        public void resetLight() {
+            Arrays.fill(lightArray, 0);
         }
     }
 
