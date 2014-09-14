@@ -31,12 +31,17 @@ public class WeaponController {
         currentWeapon.tick(tpf);
         if (app.getInputProcessor().leftClick()) {
             currentWeapon.fireEvent(app);
+            app.getStatBar().updateWeapon(currentWeapon);
         }
     }
 
     public void setWeapon(Weapon.Type type) {
         weaponElement.setType(type);
         currentWeapon = weapons.get(type);
+    }
+
+    public Weapon getCurrentWeapon() {
+        return currentWeapon;
     }
 
     public void addWeapon(Weapon weapon) {

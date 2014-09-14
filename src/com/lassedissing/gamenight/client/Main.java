@@ -142,6 +142,9 @@ public class Main extends SimpleApplication {
         weapon.setupElement(guiContext, cam, renderManager);
         weapon.setWeapon(Weapon.Type.AK47);
 
+        statBar.setHealth(10);
+        statBar.updateWeapon(weapon.getCurrentWeapon());
+
         guiElements.add(crosshair);
         guiElements.add(statBar);
         guiElements.add(infoBar);

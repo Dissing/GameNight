@@ -9,24 +9,34 @@ import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.lassedissing.gamenight.world.weapons.RangedWeapon;
+import com.lassedissing.gamenight.world.weapons.Weapon;
 
 
 public class StatBar extends GuiElement {
 
     private Node node;
     private BitmapText healthBar;
+    private BitmapText roundsBar;
     private int health;
-    private int loadedAmmo;
-    private int reloadAmmo;
 
     public StatBar(GuiContext context, int initialHealth) {
         super(context);
         healthBar = new BitmapText(context.getFont(),false);
-        healthBar.setSize(context.getFont().getCharSet().getRenderedSize());
+        healthBar.setSize(context.getFont().getCharSet().getRenderedSize()*2);
         healthBar.setColor(ColorRGBA.White);
-        healthBar.setLocalTranslation(1200, 30, 0);
-        healthBar.setText("Health: " + initialHealth);
-        context.getNode().attachChild(healthBar);
+
+        roundsBar = new BitmapText(context.getFont(),false);
+        roundsBar.setSize(context.getFont().getCharSet().getRenderedSize()*2);
+        roundsBar.setColor(ColorRGBA.White);
+        roundsBar.setLocalTranslation(0, 30, 0);
+
+        node = new Node();
+        node.attachChild(healthBar);
+        node.attachChild(roundsBar);
+        node.setLocalTranslation(1050,60,0);
+
+        context.getNode().attachChild(node);
     }
 
     @Override
@@ -39,12 +49,11 @@ public class StatBar extends GuiElement {
         healthBar.setText("Health: " + health);
     }
 
-    public void setLoadedAmmo(int loadedAmmo) {
-        this.loadedAmmo = loadedAmmo;
-    }
-
-    public void setReloadAmmo(int reloadAmmo) {
-        this.reloadAmmo = reloadAmmo;
+    public void updateWeapon(Weapon weapon) {
+        if (weapon instanceof RangedWeapon) {
+            RangedWeapon ranged = (RangedWeapon) weapon;
+            roundsBar.setText("Ammo: " + ranged.getRoundsInMag() + "/" + ranged.getMaxRoundsInMag() + "-" + ranged.getMags());
+        }
     }
 
     @Override
