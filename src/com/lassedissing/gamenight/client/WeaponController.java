@@ -10,40 +10,37 @@ import com.jme3.renderer.RenderManager;
 import com.lassedissing.gamenight.client.gui.GuiContext;
 import com.lassedissing.gamenight.client.gui.WeaponViewElement;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
-import com.lassedissing.gamenight.world.WeaponInfo;
+import com.lassedissing.gamenight.world.weapons.Weapon;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WeaponController {
 
-    WeaponViewElement weaponElement;
+    private Map<Weapon.Type,Weapon> weapons = new HashMap<>();
+    private Weapon currentWeapon;
 
-    private float rateOfFireTime = 0.2f;
-    private boolean automatic = false;
+    private WeaponViewElement weaponElement;
 
-    private float weaponTimer = 0;
 
     public void setupElement(GuiContext guiContext, Camera cam, RenderManager renderManager) {
         weaponElement = new WeaponViewElement(guiContext,cam, renderManager);
     }
 
     public void tick(Main app, float tpf) {
-        if (weaponTimer > 0) {
-            weaponTimer -= tpf;
-        }
-        if (app.inputProcessor.leftClick() && weaponTimer <= 0) {
-            app.client.send(new ActivateWeaponMessage(app.clientId, app.getCamera().getLocation(), app.getCamera().getDirection()));
-            weaponTimer = rateOfFireTime;
-            if (!automatic) {
-                app.inputProcessor.eatLeftClick();
-            }
+        currentWeapon.tick(tpf);
+        if (app.getInputProcessor().leftClick()) {
+            currentWeapon.fireEvent(app);
         }
     }
 
-    public void setWeapon(WeaponInfo.Type type) {
+    public void setWeapon(Weapon.Type type) {
         weaponElement.setType(type);
-        automatic = WeaponInfo.isAutomatic(type);
-        rateOfFireTime = WeaponInfo.getRateOfFire(type);
+        currentWeapon = weapons.get(type);
+    }
 
+    public void addWeapon(Weapon weapon) {
+        weapons.put(weapon.getType(), weapon);
     }
 
 }

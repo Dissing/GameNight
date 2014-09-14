@@ -10,10 +10,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
 import com.lassedissing.gamenight.client.WeaponView;
-import com.lassedissing.gamenight.world.WeaponInfo.Type;
+import com.lassedissing.gamenight.world.weapons.Weapon.Type;
 import java.util.HashMap;
 import java.util.Map;
 

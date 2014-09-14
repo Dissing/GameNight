@@ -19,6 +19,7 @@ import com.jme3.network.*;
 import com.lassedissing.gamenight.NetworkRegistrar;
 import com.lassedissing.gamenight.client.gui.*;
 import com.lassedissing.gamenight.client.views.FlagView;
+import com.lassedissing.gamenight.world.weapons.Weapon;
 import com.lassedissing.gamenight.events.BlockChangeEvent;
 import com.lassedissing.gamenight.events.Event;
 import com.lassedissing.gamenight.events.FlagEvent;
@@ -42,7 +43,7 @@ import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
-import com.lassedissing.gamenight.world.WeaponInfo;
+import com.lassedissing.gamenight.world.weapons.AK47;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,13 +56,13 @@ import java.util.logging.Logger;
 
 public class Main extends SimpleApplication {
 
-    Client client;
+    private Client client;
 
-    ChunkManager chunkManager = new ChunkManager();
-    InputProcessor inputProcessor = new InputProcessor(this);
+    private ChunkManager chunkManager = new ChunkManager();
+    private InputProcessor inputProcessor = new InputProcessor(this);
 
-    int clientId = -1;
-    Map<Integer,PlayerView> players = new HashMap<>();
+    private int clientId = -1;
+    private Map<Integer,PlayerView> players = new HashMap<>();
 
     private Map<Integer,EntityView> entities = new HashMap<>();
 
@@ -73,18 +74,18 @@ public class Main extends SimpleApplication {
 
     public boolean buildMode = false;
 
-    PlayerController player = new PlayerController();
-    DiggingController digging = new DiggingController();
-    WeaponController weapon = new WeaponController();
+    private PlayerController player = new PlayerController();
+    private DiggingController digging = new DiggingController();
+    private WeaponController weapon = new WeaponController();
 
     private Vector3f walkDirection = new Vector3f();
     private Vector3f prevDirection = new Vector3f();
 
     private List<GuiElement> guiElements = new ArrayList<GuiElement>();
-    StatBar statBar;
-    BuildBar buildBar;
-    InfoBar infoBar;
-    Crosshair crosshair;
+    private StatBar statBar;
+    private BuildBar buildBar;
+    private InfoBar infoBar;
+    private Crosshair crosshair;
 
     private boolean isSpawned = false;
 
@@ -122,6 +123,8 @@ public class Main extends SimpleApplication {
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
 
+        weapon.addWeapon(new AK47());
+
         initHUD();
 
 
@@ -137,7 +140,7 @@ public class Main extends SimpleApplication {
 
         infoBar.setTime(100);
         weapon.setupElement(guiContext, cam, renderManager);
-        weapon.setWeapon(WeaponInfo.Type.AK47);
+        weapon.setWeapon(Weapon.Type.AK47);
 
         guiElements.add(crosshair);
         guiElements.add(statBar);
@@ -398,13 +401,63 @@ public class Main extends SimpleApplication {
             buildMode = false;
             chunkManager.hideSelectBlock();
             buildBar.hide(true);
-            weapon.setWeapon(WeaponInfo.Type.AK47);
+            weapon.setWeapon(Weapon.Type.AK47);
         } else {
             buildMode = true;
             buildBar.hide(false);
-            weapon.setWeapon(WeaponInfo.Type.Multitool);
+            //weapon.setWeapon(Weapon.Type.Multitool);
         }
     }
+
+    public int getClientId() {
+        return clientId;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public ChunkManager getChunkManager() {
+        return chunkManager;
+    }
+
+    public InputProcessor getInputProcessor() {
+        return inputProcessor;
+    }
+
+    public Map<Integer, PlayerView> getPlayers() {
+        return players;
+    }
+
+    public Map<Integer, EntityView> getEntities() {
+        return entities;
+    }
+
+    public DiggingController getDigging() {
+        return digging;
+    }
+
+    public WeaponController getWeapon() {
+        return weapon;
+    }
+
+    public StatBar getStatBar() {
+        return statBar;
+    }
+
+    public BuildBar getBuildBar() {
+        return buildBar;
+    }
+
+    public InfoBar getInfoBar() {
+        return infoBar;
+    }
+
+    public Crosshair getCrosshair() {
+        return crosshair;
+    }
+
+
 
     public class ClientListener implements MessageListener<Client> {
 
