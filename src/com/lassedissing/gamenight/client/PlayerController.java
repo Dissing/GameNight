@@ -68,10 +68,12 @@ public class PlayerController {
     }
 
     public boolean hasMoved() {
-        return !prevLocation.equals(location);
+        return prevLocation.subtract(location).lengthSquared() > 0.001f;
     }
 
     public void tick(Camera cam, Vector3f desiredDirection, ChunkManager manager, float tpf) {
+
+        prevLocation.set(location);
 
         //Step XZ
 
@@ -250,7 +252,6 @@ public class PlayerController {
 
 
         location.addLocal(velocityXZ.mult(tpf));
-        prevLocation.set(location);
     }
 
     public void setCrawling(boolean isCrawling) {

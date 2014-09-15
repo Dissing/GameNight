@@ -5,12 +5,15 @@
 
 package com.lassedissing.gamenight.client.gui;
 
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.client.WeaponView;
+import com.lassedissing.gamenight.world.weapons.Weapon;
 import com.lassedissing.gamenight.world.weapons.Weapon.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +25,10 @@ public class WeaponViewElement extends GuiElement {
     private ViewPort weaponView;
 
     private Map<Type, WeaponView> weaponMesh = new HashMap<>();
+
+    private boolean moving;
+    private float time;
+    private Quaternion defaultRotation;
 
     public WeaponViewElement(GuiContext context, Camera cam, RenderManager renderManager) {
         super(context);
@@ -41,15 +48,19 @@ public class WeaponViewElement extends GuiElement {
         weaponGeo = new Geometry("Weapon");
         weaponView.attachScene(weaponGeo);
 
-        weaponGeo.setLocalTranslation(-0.2f, -0.7f, 1f);
-        weaponGeo.rotate(-0.2f, -2.8f, 0);
-        weaponGeo.scale(0.03f);
 
     }
 
     @Override
     public void tick(float tpf) {
-        //weaponGeo.updateGeometricState();
+        if (moving) {
+            time += tpf;
+            weaponGeo.rotate((float)Math.sin(time*12)*0.008f, 0, 0);
+            weaponGeo.updateGeometricState();
+        } else {
+            weaponGeo.setLocalRotation(defaultRotation);
+            weaponGeo.updateGeometricState();
+        }
     }
 
     @Override
@@ -57,13 +68,23 @@ public class WeaponViewElement extends GuiElement {
         weaponView.setEnabled(false);
     }
 
-    public void setType(Type type) {
-        WeaponView view = weaponMesh.get(type);
+    public void setType(Weapon weapon) {
+        WeaponView view = weaponMesh.get(weapon.getType());
+
+        weaponGeo.setLocalTranslation(weapon.getTranslation());
+        weaponGeo.rotate(weapon.getRotationX(),weapon.getRotationY(),weapon.getRotationZ());
+        weaponGeo.scale(weapon.getScale());
+        defaultRotation = weaponGeo.getLocalRotation();
+
         weaponGeo.setMesh(view.mesh);
         weaponGeo.setMaterial(view.weaponMaterial);
         weaponGeo.updateGeometricState();
         weaponView.setEnabled(true);
 
+    }
+
+    public void setIsMoving(boolean hasMoved) {
+        moving = hasMoved;
     }
 
 

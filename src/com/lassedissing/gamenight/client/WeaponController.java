@@ -33,11 +33,13 @@ public class WeaponController {
             currentWeapon.fireEvent(app);
             app.getStatBar().updateWeapon(currentWeapon);
         }
+        weaponElement.setIsMoving(app.getPlayer().hasMoved());
+        weaponElement.tick(tpf);
     }
 
     public void setWeapon(Weapon.Type type) {
-        weaponElement.setType(type);
         currentWeapon = weapons.get(type);
+        weaponElement.setType(currentWeapon);
     }
 
     public Weapon getCurrentWeapon() {

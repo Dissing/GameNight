@@ -5,6 +5,7 @@
 
 package com.lassedissing.gamenight.world.weapons;
 
+import com.jme3.math.Vector3f;
 import com.lassedissing.gamenight.client.Main;
 
 
@@ -25,5 +26,15 @@ public interface Weapon {
     public void reloadEvent();
 
     public void tick(float tpf);
+
+    public Vector3f getTranslation();
+
+    public float getRotationX();
+
+    public float getRotationY();
+
+    public float getRotationZ();
+
+    public float getScale();
 
 }

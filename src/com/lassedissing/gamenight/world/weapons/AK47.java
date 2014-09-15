@@ -5,6 +5,8 @@
 
 package com.lassedissing.gamenight.world.weapons;
 
+import com.jme3.math.Vector3f;
+
 public class AK47 extends RangedWeapon {
 
 
@@ -45,5 +47,32 @@ public class AK47 extends RangedWeapon {
     public float getBulletSpeed() {
         return bulletSpeed;
     }
+
+    @Override
+    public Vector3f getTranslation() {
+        return new Vector3f(-0.2f, -0.7f, 1f);
+    }
+
+    @Override
+    public float getRotationX() {
+        return -0.5f;
+    }
+
+    @Override
+    public float getRotationY() {
+        return -2.8f;
+    }
+
+    @Override
+    public float getRotationZ() {
+        return 0f;
+    }
+
+    @Override
+    public float getScale() {
+        return 0.03f;
+    }
+
+
 
 }
