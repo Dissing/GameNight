@@ -37,7 +37,7 @@ public abstract class RangedWeapon implements Weapon {
         if (timer <= 0) {
             if (getMaxRoundsInMag() != -1) {
                 if (rounds > 0) {
-                    app.getClient().send(new ActivateWeaponMessage(app.getClientId(), app.getCamera().getLocation(), app.getCamera().getDirection()));
+                    app.getClient().send(new ActivateWeaponMessage(app.getClientId(), app.getCamera().getLocation(), app.getCamera().getDirection(),getBulletSpeed()));
                     rounds--;
                     timer = getRateOfFireTime();
                 } else {

@@ -15,11 +15,19 @@ public class ActivateWeaponMessage extends AbstractMessage {
     private int sourceId;
     private Vector3f location;
     private Vector3f direction;
+    private float speed;
 
     public ActivateWeaponMessage(int sourceId, Vector3f location, Vector3f direction) {
         this.sourceId = sourceId;
         this.location = location;
         this.direction = direction;
+    }
+
+    public ActivateWeaponMessage(int sourceId, Vector3f location, Vector3f direction, float speed) {
+        this.sourceId = sourceId;
+        this.location = location;
+        this.direction = direction;
+        this.speed = speed;
     }
 
     public int getSourceId() {
@@ -32,6 +40,10 @@ public class ActivateWeaponMessage extends AbstractMessage {
 
     public Vector3f getDirection() {
         return direction;
+    }
+
+    public float getSpeed() {
+        return speed;
     }
 
     /**

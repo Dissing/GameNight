@@ -203,7 +203,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
                 EventManager.sendEvent(new BlockChangeEvent(msg.getBlockType(), msg.getX(), msg.getY(), msg.getZ()));
             } else if (m instanceof ActivateWeaponMessage) {
                 ActivateWeaponMessage msg = (ActivateWeaponMessage) m;
-                Bullet newBullet = new Bullet(nextEntityId++,msg.getSourceId(),msg.getLocation(),msg.getDirection().normalize(),15f);
+                Bullet newBullet = new Bullet(nextEntityId++,msg.getSourceId(),msg.getLocation(),msg.getDirection().normalize(),msg.getSpeed());
                 bullets.add(newBullet);
                 EventManager.sendEvent(new EntitySpawnedEvent(newBullet));
             }

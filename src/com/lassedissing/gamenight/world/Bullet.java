@@ -25,6 +25,7 @@ public class Bullet extends Entity {
         velocity = direction.mult(speed);
         dying = false;
         this.ownerId = ownerId;
+        this.speed = speed;
     }
 
     public void tick(World world, float tpf) {
