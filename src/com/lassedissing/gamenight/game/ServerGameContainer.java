@@ -58,7 +58,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
         eventManager.registerListener(this);
 
         Log.INFO("Loading world..");
-        world = new World("Test");
+        world = new World("Test",2);
         world.generate(2, 6);
 
     }
@@ -70,7 +70,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     private boolean alternateTeam;
 
     public void playerConnected(int id, String name) {
-        players.put(id, new Player(id, name, (alternateTeam ? 1 : 2), Vector3f.ZERO));
+        players.put(id, new Player(id, name, (alternateTeam ? 0 : 1), Vector3f.ZERO));
         alternateTeam = !alternateTeam;
         EventManager.sendEvent(new PlayerNewEvent(id));
         EventManager.sendEvent(new PlayerTeleportEvent(id,world.getSpectate(players.get(id).getTeam())));
@@ -137,7 +137,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
             for (Flag flag : flags.values()) {
                 if (!flag.isPickedUp() && player.collideWithPoint(flag.getLocation())) {
                     if (player.getTeam() != flag.getTeam()) {
-                        Log.DEBUG("Player %s pickedup flag", player.getName());
+                        Log.DEBUG("Player %s pickedup team %d flag", player.getName(),flag.getTeam());
                         player.setHasFlag(flag,true);
                         EventManager.sendEvent(new FlagEvent(player.getId(), flag.getId()));
                     } else if (player.hasFlag()) {
@@ -154,8 +154,8 @@ public class ServerGameContainer implements GameContainer, EventListener {
         EventManager.sendEvent(new InfoSyncEvent(true, buildTime));
         Log.INFO("Game started: BUILD MODE");
 
+        flags.put(0,new Flag(nextEntityId++,0, world.getFlagLocation(0)));
         flags.put(1,new Flag(nextEntityId++,1, world.getFlagLocation(1)));
-        flags.put(2,new Flag(nextEntityId++,2, world.getFlagLocation(2)));
 
         for (Player player : players.values()) {
             spawnPlayer(player.getId());

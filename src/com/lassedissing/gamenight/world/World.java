@@ -27,15 +27,17 @@ public class World implements Serializable {
     private int blockLength;
     private int blockHeight;
 
-    private Vector3f team1Spawn;
-    private Vector3f team2Spawn;
-    private Vector3f team1Spectate;
-    private Vector3f team2Spectate;
-    private Vector3f team1FlagLocation;
-    private Vector3f team2FlagLocation;
+    private int teams;
+    private Vector3f[] spawnLocations;
+    private Vector3f[] spectateLocations;
+    private Vector3f[] flagLocations;
 
-    public World(String name) {
+    public World(String name, int teams) {
         this.name = name;
+        this.teams = teams;
+        flagLocations = new Vector3f[teams];
+        spawnLocations = new Vector3f[teams];
+        spectateLocations = new Vector3f[teams];
     }
 
     public void generate(int width, int length) {
@@ -63,12 +65,12 @@ public class World implements Serializable {
             }
         }
         setWall(true);
-        team1Spawn = new Vector3f(blockWidth/2, 11, 15);
-        team2Spawn = new Vector3f(blockWidth/2, 11, blockLength - 15);
-        team1Spectate = new Vector3f(team1Spawn).setY(50);
-        team2Spectate = new Vector3f(team2Spawn).setY(50);
-        team1FlagLocation = new Vector3f(blockWidth/2, 11, 5);
-        team2FlagLocation = new Vector3f(blockWidth/2, 11, blockLength - 5);
+        spawnLocations[0] = new Vector3f(blockWidth/2, 11, 15);
+        spawnLocations[1] = new Vector3f(blockWidth/2, 11, blockLength - 15);
+        spectateLocations[0] = new Vector3f(spawnLocations[0]).setY(50);
+        spectateLocations[1] = new Vector3f(spawnLocations[1]).setY(50);
+        makeFlagUnderlay(0,blockWidth/2, 11, 5);
+        makeFlagUnderlay(1,blockWidth/2, 11, blockLength - 5);
     }
 
     public void setWall(boolean enabled) {
@@ -78,6 +80,15 @@ public class World implements Serializable {
             for (int w = 1; w < blockWidth-1; w++) {
                 getBlockAt(w,h,p1).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
                 getBlockAt(w,h,p2).setType(enabled ? 2 : Chunk.getLayerAtHeight(h));
+            }
+        }
+    }
+
+    private void makeFlagUnderlay(int team, int x, int y, int z) {
+        flagLocations[team] = new Vector3f(x+0.5f, y, z+0.5f);
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                getBlockAt(x+i,y-2,z+j).setType(2);
             }
         }
     }
@@ -157,27 +168,18 @@ public class World implements Serializable {
     }
 
     public Vector3f getSpawn(int team) {
-        switch (team) {
-            case 1: return team1Spawn;
-            case 2: return team2Spawn;
-            default: throw new IllegalArgumentException("There is no team " + team);
-        }
+        if (team >= teams) throw new IllegalArgumentException("There is no team " + team);
+        return spawnLocations[team];
     }
 
     public Vector3f getSpectate(int team) {
-        switch (team) {
-            case 1: return team1Spectate;
-            case 2: return team2Spectate;
-            default: throw new IllegalArgumentException("There is no team " + team);
-        }
+        if (team >= teams) throw new IllegalArgumentException("There is no team " + team);
+        return spectateLocations[team];
     }
 
     public Vector3f getFlagLocation(int team) {
-        switch (team) {
-            case 1: return team1FlagLocation;
-            case 2: return team2FlagLocation;
-            default: throw new IllegalArgumentException("There is no team " + team);
-        }
+        if (team >= teams) throw new IllegalArgumentException("There is no team " + team);
+        return flagLocations[team];
     }
 
     public boolean save(String name) {

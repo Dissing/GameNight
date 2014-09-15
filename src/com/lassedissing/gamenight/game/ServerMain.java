@@ -133,7 +133,7 @@ public class ServerMain extends SimpleApplication {
         } else if (parts[0].equalsIgnoreCase("new")) {
 
             if (parts.length == 4) {
-                gameContainer.replaceWorld(new World(parts[1]));
+                gameContainer.replaceWorld(new World(parts[1],2));
                 gameContainer.getWorld().generate(Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
                 for (HostedConnection conn : server.getConnections()) {
                     sendWorldToConn(conn);
