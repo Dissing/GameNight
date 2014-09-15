@@ -20,12 +20,12 @@ public class FlagView extends EntityView {
     public FlagView(int id, int team, Vector3f location, Node parent, Main app) {
         super(id);
 
-        Geometry flagGeo = new Geometry("Flag" + id, new Box(0.4f, 0.2f,0.02f));
+        Geometry flagGeo = new Geometry("Flag" + id, new Box(0.3f, 0.2f,0.02f));
         Geometry poleGeo = new Geometry("FlagPole" + id, new Box(0.015f, 0.9f, 0.015f));
 
         Material flagMat = new Material(app.getAssetManager(),"Common/MatDefs/Misc/Unshaded.j3md");
         Material poleMat = flagMat.clone();
-        flagMat.setColor("Color", ColorRGBA.Blue);
+        flagMat.setColor("Color", (team == 0) ? ColorRGBA.Blue : ColorRGBA.Red);
         poleMat.setColor("Color", ColorRGBA.Brown);
         flagGeo.setMaterial(flagMat);
         poleGeo.setMaterial(poleMat);
@@ -36,7 +36,7 @@ public class FlagView extends EntityView {
         parent.attachChild(spatial);
 
         spatial.setLocalTranslation(location);
-        flagGeo.setLocalTranslation(0, 0.6f, 0);
+        flagGeo.setLocalTranslation(0.35f, 0.6f, 0);
     }
 
     public void hide(boolean enabled) {
