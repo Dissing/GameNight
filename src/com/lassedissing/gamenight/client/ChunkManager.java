@@ -248,6 +248,8 @@ public class ChunkManager {
                 }
             }
         }
+
+        view.priorityLight = false;
     }
 
     private void buildChunkMesh(ChunkView view) {
