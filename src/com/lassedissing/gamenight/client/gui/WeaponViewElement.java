@@ -53,8 +53,8 @@ public class WeaponViewElement extends GuiElement {
 
     @Override
     public void tick(float tpf) {
+        time += tpf;
         if (moving) {
-            time += tpf;
             weaponGeo.rotate((float)Math.sin(time*12)*0.008f, 0, 0);
             weaponGeo.updateGeometricState();
         } else {
@@ -70,6 +70,9 @@ public class WeaponViewElement extends GuiElement {
 
     public void setType(Weapon weapon) {
         WeaponView view = weaponMesh.get(weapon.getType());
+
+        weaponGeo.setLocalRotation(Quaternion.IDENTITY);
+        weaponGeo.setLocalScale(1.0f);
 
         weaponGeo.setLocalTranslation(weapon.getTranslation());
         weaponGeo.rotate(weapon.getRotationX(),weapon.getRotationY(),weapon.getRotationZ());
