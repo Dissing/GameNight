@@ -5,6 +5,7 @@
 
 package com.lassedissing.gamenight.events;
 
+import com.jme3.math.Vector3f;
 import com.jme3.network.serializing.Serializable;
 import com.lassedissing.gamenight.eventmanagning.EventClosure;
 import com.lassedissing.gamenight.world.Entity;
@@ -18,6 +19,8 @@ public class FlagEvent extends Event {
     private int flagId;
     private int playerId;
     private boolean reset;
+    private boolean isMove;
+    private Vector3f newLocation;
 
     public FlagEvent(int playerId, int flagId) {
         this.playerId = playerId;
@@ -26,6 +29,10 @@ public class FlagEvent extends Event {
 
     public FlagEvent(int flagId, boolean reset) {
         this.reset = reset;
+    }
+
+    public FlagEvent(int flagId, Vector3f newLocation) {
+        this.newLocation = newLocation;
     }
 
     public int getPlayerId() {
@@ -38,6 +45,14 @@ public class FlagEvent extends Event {
 
     public boolean isReset() {
         return reset;
+    }
+
+    public boolean isMove() {
+        return isMove;
+    }
+
+    public Vector3f getLocation() {
+        return newLocation;
     }
 
     /**

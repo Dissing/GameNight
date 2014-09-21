@@ -384,6 +384,8 @@ public class Main extends SimpleApplication {
                     FlagEvent event = (FlagEvent) e;
                     if (event.isReset()) {
                         ((FlagView)entities.get(event.getFlagId())).hide(false);
+                    } else if (event.isMove()) {
+                        ((FlagView)entities.get(event.getFlagId())).setLocation(event.getLocation());
                     } else {
                         ((FlagView)entities.get(event.getFlagId())).hide(true);
                     }

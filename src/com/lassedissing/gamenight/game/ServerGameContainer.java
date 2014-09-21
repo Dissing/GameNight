@@ -172,7 +172,11 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     @EventHandler
     public void onPlayerMovement(PlayerMovedEvent event) {
-        players.get(event.playerId).setLocation(event.position);
+        Player player = players.get(event.playerId);
+        player.setLocation(event.position);
+        if (player.hasFlag()) {
+            EventManager.sendEvent(new FlagEvent(flags.get(player.getPickedUpFlagTeam()).getId(), event.position));
+        }
     }
 
     @EventHandler
