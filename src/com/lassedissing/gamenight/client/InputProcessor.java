@@ -36,6 +36,7 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
 
     private boolean mouseTrapped = false;
     private boolean chatMode = false;
+    private boolean inventoryMode = false;
     private boolean esdf = true;
 
     private Main main;
@@ -61,6 +62,7 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         INPUT_SELECT_INC,
         INPUT_SELECT_DEC,
         INPUT_CHAT,
+        INPUT_INVENTORY
     }
 
     private static String[] keyMappings = new String[InputAction.values().length];
@@ -83,6 +85,7 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         inputManager.addMapping(INPUT_CHAT.name(), new KeyTrigger(ClientSettings.getKey("chat", KeyInput.KEY_T)));
         inputManager.addMapping(INPUT_JUMP.name(), new KeyTrigger(ClientSettings.getKey("jump", KeyInput.KEY_SPACE)));
         inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
+        inputManager.addMapping(INPUT_INVENTORY.name(), new KeyTrigger(ClientSettings.getKey("inventory", KeyInput.KEY_I)));
         inputManager.addMapping(INPUT_CRAWL.name(), new KeyTrigger(ClientSettings.getKey("crawl", KeyInput.KEY_LCONTROL)));
         inputManager.addMapping(INPUT_CAM_LEFT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping(INPUT_CAM_RIGHT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
@@ -114,6 +117,10 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
             jumpAction = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_TAB.name()) && isPressed) {
             main.switchMode();
+        } else if (name.equalsIgnoreCase(INPUT_INVENTORY.name()) && isPressed) {
+            inventoryMode = !inventoryMode;
+            mouseTrapped = inventoryMode;
+            main.getInventoryGui().hide(!inventoryMode);
         } else if (name.equalsIgnoreCase(INPUT_CRAWL.name())) {
             main.getPlayer().setCrawling(isPressed);
         } else if (name.equalsIgnoreCase(INPUT_LEFT_CLICK.name())) {
@@ -187,6 +194,14 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         return chatMode;
     }
 
+    public boolean isInInventoryMode() {
+        return inventoryMode;
+    }
+
+    public boolean isInGameMode() {
+        return !(chatMode || inventoryMode);
+    }
+
     @Override
     public void beginInput() {
     }
@@ -205,10 +220,16 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
 
     @Override
     public void onMouseMotionEvent(MouseMotionEvent evt) {
+        if (inventoryMode) {
+            main.getInventoryGui().mouseMove(evt.getX(), evt.getY());
+        }
     }
 
     @Override
     public void onMouseButtonEvent(MouseButtonEvent evt) {
+        if (inventoryMode) {
+            main.getInventoryGui().mouseClick(evt.getX(), evt.getY());
+        }
     }
 
     @Override
