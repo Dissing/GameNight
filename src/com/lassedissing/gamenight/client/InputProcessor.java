@@ -8,16 +8,23 @@ package com.lassedissing.gamenight.client;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.RawInputListener;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.event.JoyAxisEvent;
+import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.event.KeyInputEvent;
+import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.Vector3f;
 import static com.lassedissing.gamenight.client.InputProcessor.InputAction.*;
 
 
-public class InputProcessor implements AnalogListener, ActionListener {
+public class InputProcessor implements AnalogListener, ActionListener, RawInputListener {
 
     private boolean leftAction = false;
     private boolean rightAction = false;
@@ -28,6 +35,7 @@ public class InputProcessor implements AnalogListener, ActionListener {
     private boolean rightClick = false;
 
     private boolean mouseTrapped = false;
+    private boolean chatMode = false;
     private boolean esdf = true;
 
     private Main main;
@@ -51,7 +59,8 @@ public class InputProcessor implements AnalogListener, ActionListener {
         INPUT_LEFT_CLICK,
         INPUT_RIGHT_CLICK,
         INPUT_SELECT_INC,
-        INPUT_SELECT_DEC
+        INPUT_SELECT_DEC,
+        INPUT_CHAT,
     }
 
     private static String[] keyMappings = new String[InputAction.values().length];
@@ -71,6 +80,7 @@ public class InputProcessor implements AnalogListener, ActionListener {
         inputManager.addMapping(INPUT_STRAFE_RIGHT.name(), new KeyTrigger(ClientSettings.getKey("right", KeyInput.KEY_D)));
         inputManager.addMapping(INPUT_MOVE_FORWARD.name(), new KeyTrigger(ClientSettings.getKey("forward", KeyInput.KEY_W)));
         inputManager.addMapping(INPUT_MOVE_BACKWARD.name(), new KeyTrigger(ClientSettings.getKey("backward", KeyInput.KEY_S)));
+        inputManager.addMapping(INPUT_CHAT.name(), new KeyTrigger(ClientSettings.getKey("chat", KeyInput.KEY_T)));
         inputManager.addMapping(INPUT_JUMP.name(), new KeyTrigger(ClientSettings.getKey("jump", KeyInput.KEY_SPACE)));
         inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
         inputManager.addMapping(INPUT_CRAWL.name(), new KeyTrigger(ClientSettings.getKey("crawl", KeyInput.KEY_LCONTROL)));
@@ -85,6 +95,7 @@ public class InputProcessor implements AnalogListener, ActionListener {
 
 
         inputManager.addListener(this, keyMappings);
+        inputManager.addRawInputListener(this);
     }
 
     @Override
@@ -109,6 +120,8 @@ public class InputProcessor implements AnalogListener, ActionListener {
             leftClick = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_RIGHT_CLICK.name())) {
             rightClick = isPressed;
+        } else if (name.equalsIgnoreCase(INPUT_CHAT.name()) && isPressed) {
+            chatMode = !chatMode;
         }
     }
 
@@ -170,6 +183,49 @@ public class InputProcessor implements AnalogListener, ActionListener {
         rightClick = false;
     }
 
+    public boolean isInChatMode() {
+        return chatMode;
+    }
 
+    @Override
+    public void beginInput() {
+    }
+
+    @Override
+    public void endInput() {
+    }
+
+    @Override
+    public void onJoyAxisEvent(JoyAxisEvent evt) {
+    }
+
+    @Override
+    public void onJoyButtonEvent(JoyButtonEvent evt) {
+    }
+
+    @Override
+    public void onMouseMotionEvent(MouseMotionEvent evt) {
+    }
+
+    @Override
+    public void onMouseButtonEvent(MouseButtonEvent evt) {
+    }
+
+    @Override
+    public void onKeyEvent(KeyInputEvent event) {
+        if (chatMode) {
+            if (event.getKeyCode() == KeyInput.KEY_BACK) {
+                main.getChatBar().deleteChar();
+            } else if (event.getKeyCode() == KeyInput.KEY_RETURN) {
+                main.getChatBar().enterLine();
+            } else {
+                main.getChatBar().pushChar(event.getKeyChar());
+            }
+        }
+    }
+
+    @Override
+    public void onTouchEvent(TouchEvent evt) {
+    }
 
 }

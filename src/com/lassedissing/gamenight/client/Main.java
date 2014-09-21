@@ -86,6 +86,7 @@ public class Main extends SimpleApplication {
     private BuildBar buildBar;
     private InfoBar infoBar;
     private Crosshair crosshair;
+    private ChatBar chatBar;
 
     private boolean isSpawned = false;
 
@@ -137,6 +138,7 @@ public class Main extends SimpleApplication {
         buildBar = new BuildBar(guiContext);
         infoBar = new InfoBar(guiContext);
         crosshair = new Crosshair(guiContext);
+        chatBar = new ChatBar(guiContext);
 
         infoBar.setTime(100);
         weapon.setupElement(guiContext, cam, renderManager);
@@ -208,7 +210,7 @@ public class Main extends SimpleApplication {
 
         inputManager.setCursorVisible(inputProcessor.isMouseTrapped());
 
-        if (isSpawned) {
+        if (isSpawned && !inputProcessor.isInChatMode()) {
 
             walkDirection.zero();
 
@@ -460,6 +462,9 @@ public class Main extends SimpleApplication {
         return crosshair;
     }
 
+    public ChatBar getChatBar() {
+        return chatBar;
+    }
 
 
     public class ClientListener implements MessageListener<Client> {
