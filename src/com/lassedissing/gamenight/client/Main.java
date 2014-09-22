@@ -133,7 +133,7 @@ public class Main extends SimpleApplication {
     }
 
     public void initHUD() {
-        GuiContext guiContext = new GuiContext(guiNode,guiFont,assetManager,settings.getWidth(),settings.getHeight());
+        GuiContext guiContext = new GuiContext(this,guiNode,guiFont,settings.getWidth(),settings.getHeight());
 
         statBar = new StatBar(guiContext, 10);
         buildBar = new BuildBar(guiContext);
@@ -415,6 +415,12 @@ public class Main extends SimpleApplication {
             buildMode = true;
             buildBar.hide(false);
             //weapon.setWeapon(Weapon.Type.Multitool);
+        }
+    }
+
+    public void selectPressed(int index) {
+        if (inputProcessor.isInInventoryMode()) {
+            buildBar.setSlot(index, inventoryGui.getIdAtSelectedSlot());
         }
     }
 

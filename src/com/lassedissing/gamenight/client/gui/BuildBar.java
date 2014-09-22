@@ -26,7 +26,8 @@ public class BuildBar extends GuiElement {
     private final int spacing = 3;
     private int[] slots = new int[8];
     private int currentSlot = 0;
-    private Geometry[] quads = new Geometry[8];
+    private Geometry[] slotQuad = new Geometry[8];
+    private Mesh[] slotMesh = new Mesh[8];
     private Geometry selectBox;
 
     private Node node;
@@ -44,18 +45,14 @@ public class BuildBar extends GuiElement {
         tex.setMagFilter(Texture.MagFilter.Nearest);
         mat.setTexture("ColorMap", tex);
 
-        for (int i = 0; i < quads.length; i++) {
-            Mesh mesh = new Quad(quadSize, quadSize);
-            quads[i] = new Geometry("Slot " + i,mesh);
-            quads[i].setMaterial(mat);
-            quads[i].setLocalTranslation(quadSize*i+spacing*i, 0, 0);
-            quads[i].setMaterial(mat);
-            if (slots[i] != 0) {
-                mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, calcTexCoord(slots[i]));
-            } else {
-                quads[i].setCullHint(Spatial.CullHint.Always);
-            }
-            node.attachChild(quads[i]);
+        for (int i = 0; i < slotQuad.length; i++) {
+            slotMesh[i] = new Quad(quadSize, quadSize);
+            slotQuad[i] = new Geometry("Slot " + i, slotMesh[i]);
+            updateSlot(i);
+            slotQuad[i].setMaterial(mat);
+            slotQuad[i].setLocalTranslation(quadSize*i+spacing*i, 0, 0);
+            slotQuad[i].setMaterial(mat);
+            node.attachChild(slotQuad[i]);
         }
 
         Material selectMat = new Material(context.getAssetManager(),"Common/MatDefs/Misc/Unshaded.j3md");
@@ -76,7 +73,16 @@ public class BuildBar extends GuiElement {
 
     }
 
-    public FloatBuffer calcTexCoord(int id) {
+    private void updateSlot(int slot) {
+        if (slots[slot] != 0) {
+            slotMesh[slot].setBuffer(VertexBuffer.Type.TexCoord, 2, calcTexCoord(slots[slot]));
+            slotQuad[slot].setCullHint(Spatial.CullHint.Never);
+        } else {
+            slotQuad[slot].setCullHint(Spatial.CullHint.Always);
+        }
+    }
+
+    private FloatBuffer calcTexCoord(int id) {
         id--;
         return BufferUtils.createFloatBuffer(new float[]{
             (id % 32) / 32f,(id / 32) / 32f,
@@ -100,6 +106,15 @@ public class BuildBar extends GuiElement {
 
     public int getSelectedSlot() {
         return slots[currentSlot];
+    }
+
+    public void setSlot(int slot, int id) {
+        slots[slot] = id;
+        updateSlot(slot);
+    }
+
+    public void setSlot(int id) {
+        setSlot(currentSlot, id);
     }
 
     @Override

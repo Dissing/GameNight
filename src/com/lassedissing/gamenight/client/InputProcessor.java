@@ -62,7 +62,15 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         INPUT_SELECT_INC,
         INPUT_SELECT_DEC,
         INPUT_CHAT,
-        INPUT_INVENTORY
+        INPUT_INVENTORY,
+        INPUT_SELECT_1,
+        INPUT_SELECT_2,
+        INPUT_SELECT_3,
+        INPUT_SELECT_4,
+        INPUT_SELECT_5,
+        INPUT_SELECT_6,
+        INPUT_SELECT_7,
+        INPUT_SELECT_8,
     }
 
     private static String[] keyMappings = new String[InputAction.values().length];
@@ -87,6 +95,15 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
         inputManager.addMapping(INPUT_INVENTORY.name(), new KeyTrigger(ClientSettings.getKey("inventory", KeyInput.KEY_I)));
         inputManager.addMapping(INPUT_CRAWL.name(), new KeyTrigger(ClientSettings.getKey("crawl", KeyInput.KEY_LCONTROL)));
+        inputManager.addMapping(INPUT_INVENTORY.name(), new KeyTrigger(ClientSettings.getKey("inventory", KeyInput.KEY_I)));
+        inputManager.addMapping(INPUT_SELECT_1.name(), new KeyTrigger(ClientSettings.getKey("select1", KeyInput.KEY_1)));
+        inputManager.addMapping(INPUT_SELECT_2.name(), new KeyTrigger(ClientSettings.getKey("select2", KeyInput.KEY_2)));
+        inputManager.addMapping(INPUT_SELECT_3.name(), new KeyTrigger(ClientSettings.getKey("select3", KeyInput.KEY_3)));
+        inputManager.addMapping(INPUT_SELECT_4.name(), new KeyTrigger(ClientSettings.getKey("select4", KeyInput.KEY_4)));
+        inputManager.addMapping(INPUT_SELECT_5.name(), new KeyTrigger(ClientSettings.getKey("select5", KeyInput.KEY_5)));
+        inputManager.addMapping(INPUT_SELECT_6.name(), new KeyTrigger(ClientSettings.getKey("select6", KeyInput.KEY_6)));
+        inputManager.addMapping(INPUT_SELECT_7.name(), new KeyTrigger(ClientSettings.getKey("select7", KeyInput.KEY_7)));
+        inputManager.addMapping(INPUT_SELECT_8.name(), new KeyTrigger(ClientSettings.getKey("select8", KeyInput.KEY_8)));
         inputManager.addMapping(INPUT_CAM_LEFT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, true), new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping(INPUT_CAM_RIGHT.name(), new MouseAxisTrigger(mouseInput.AXIS_X, false), new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping(INPUT_CAM_UP.name(), new MouseAxisTrigger(mouseInput.AXIS_Y, false), new KeyTrigger(KeyInput.KEY_UP));
@@ -129,21 +146,27 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
             rightClick = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_CHAT.name()) && isPressed) {
             chatMode = !chatMode;
+        } else if (name.startsWith("INPUT_SELECT") && isPressed) {
+            main.selectPressed(Character.getNumericValue(name.charAt(name.length()-1))-1);
         }
     }
 
     @Override
     public void onAnalog(String name, float value, float tps) {
 
-        if (name.equalsIgnoreCase(INPUT_CAM_LEFT.name())) {
-            main.rotateCamera(value, Vector3f.UNIT_Y);
-        } else if (name.equalsIgnoreCase(INPUT_CAM_RIGHT.name())) {
-            main.rotateCamera(-value, Vector3f.UNIT_Y);
-        } else if (name.equalsIgnoreCase(INPUT_CAM_UP.name())) {
-            main.rotateCamera(-value, main.getCamera().getLeft());
-        } else if (name.equalsIgnoreCase(INPUT_CAM_DOWN.name())) {
-            main.rotateCamera(value, main.getCamera().getLeft());
-        } else if (name.equalsIgnoreCase(INPUT_SELECT_INC.name())) {
+        if (!inventoryMode) {
+            if (name.equalsIgnoreCase(INPUT_CAM_LEFT.name())) {
+                main.rotateCamera(value, Vector3f.UNIT_Y);
+            } else if (name.equalsIgnoreCase(INPUT_CAM_RIGHT.name())) {
+                main.rotateCamera(-value, Vector3f.UNIT_Y);
+            } else if (name.equalsIgnoreCase(INPUT_CAM_UP.name())) {
+                main.rotateCamera(-value, main.getCamera().getLeft());
+            } else if (name.equalsIgnoreCase(INPUT_CAM_DOWN.name())) {
+                main.rotateCamera(value, main.getCamera().getLeft());
+            }
+        }
+
+        if (name.equalsIgnoreCase(INPUT_SELECT_INC.name())) {
             main.wheelSelect(value);
         } else if (name.equalsIgnoreCase(INPUT_SELECT_DEC.name())) {
             main.wheelSelect(-value);

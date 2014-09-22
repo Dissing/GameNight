@@ -8,6 +8,7 @@ package com.lassedissing.gamenight.client.gui;
 import com.jme3.asset.AssetManager;
 import com.jme3.font.BitmapFont;
 import com.jme3.scene.Node;
+import com.lassedissing.gamenight.client.Main;
 
 
 public class GuiContext {
@@ -16,14 +17,14 @@ public class GuiContext {
     private BitmapFont font;
     private int width;
     private int height;
-    private AssetManager assetManager;
+    private Main main;
 
-    public GuiContext(Node node, BitmapFont font, AssetManager assetManager, int width, int height) {
+    public GuiContext(Main main, Node node, BitmapFont font, int width, int height) {
+        this.main = main;
         this.node = node;
         this.font = font;
         this.width = width;
         this.height = height;
-        this.assetManager = assetManager;
     }
 
     public Node getNode() {
@@ -43,8 +44,11 @@ public class GuiContext {
     }
 
     public AssetManager getAssetManager() {
-        return assetManager;
+        return main.getAssetManager();
     }
 
+    public Main getMain() {
+        return main;
+    }
 
 }

@@ -110,16 +110,25 @@ public class InventoryGui extends GuiElement {
         node.setCullHint(enable ? Spatial.CullHint.Always : Spatial.CullHint.Never);
     }
 
+    public int getIdAtSelectedSlot() {
+        return grid[currentSlot];
+    }
+
     public void mouseMove(int x, int y) {
         if (xOffset < x && size+xOffset > x && yOffset < y && size+yOffset > y) {
             int u = (x-xOffset)/(quadSize+spacing);
             int v = (y-yOffset)/(quadSize+spacing);
+            currentSlot = v*8+u;
             selectBox.setLocalTranslation(quadSize/2 + u*quadSize + u*spacing, quadSize/2+ v*quadSize + v*spacing, 0);
         }
     }
 
     public void mouseClick(int x, int y) {
-
+        if (xOffset < x && size+xOffset > x && yOffset < y && size+yOffset > y) {
+            int u = (x-xOffset)/(quadSize+spacing);
+            int v = (y-yOffset)/(quadSize+spacing);
+            context.getMain().getBuildBar().setSlot(grid[v*8+u]);
+        }
     }
 
     private void setupGrid() {
