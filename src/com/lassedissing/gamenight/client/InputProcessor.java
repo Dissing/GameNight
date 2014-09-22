@@ -95,7 +95,6 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         inputManager.addMapping(INPUT_TAB.name(), new KeyTrigger(ClientSettings.getKey("tab", KeyInput.KEY_TAB)));
         inputManager.addMapping(INPUT_INVENTORY.name(), new KeyTrigger(ClientSettings.getKey("inventory", KeyInput.KEY_I)));
         inputManager.addMapping(INPUT_CRAWL.name(), new KeyTrigger(ClientSettings.getKey("crawl", KeyInput.KEY_LCONTROL)));
-        inputManager.addMapping(INPUT_INVENTORY.name(), new KeyTrigger(ClientSettings.getKey("inventory", KeyInput.KEY_I)));
         inputManager.addMapping(INPUT_SELECT_1.name(), new KeyTrigger(ClientSettings.getKey("select1", KeyInput.KEY_1)));
         inputManager.addMapping(INPUT_SELECT_2.name(), new KeyTrigger(ClientSettings.getKey("select2", KeyInput.KEY_2)));
         inputManager.addMapping(INPUT_SELECT_3.name(), new KeyTrigger(ClientSettings.getKey("select3", KeyInput.KEY_3)));
