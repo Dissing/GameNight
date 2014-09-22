@@ -14,7 +14,8 @@ public interface Weapon {
     public enum Type {
         AK47,
         Sword,
-        Multitool
+        Multitool,
+        Shotgun
     }
 
     public Type getType();

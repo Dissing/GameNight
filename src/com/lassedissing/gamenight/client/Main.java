@@ -44,6 +44,7 @@ import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
 import com.lassedissing.gamenight.world.weapons.AK47;
+import com.lassedissing.gamenight.world.weapons.Shotgun;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,6 +127,7 @@ public class Main extends SimpleApplication {
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
 
         weapon.addWeapon(new AK47());
+        weapon.addWeapon(new Shotgun());
 
         initHUD();
 
@@ -421,6 +423,11 @@ public class Main extends SimpleApplication {
     public void selectPressed(int index) {
         if (inputProcessor.isInInventoryMode()) {
             buildBar.setSlot(index, inventoryGui.getIdAtSelectedSlot());
+        } else if (inputProcessor.isInGameMode()) {
+            switch (index) {
+                case 0: weapon.setWeapon(Weapon.Type.AK47);break;
+                case 1: weapon.setWeapon(Weapon.Type.Shotgun);break;
+            }
         }
     }
 

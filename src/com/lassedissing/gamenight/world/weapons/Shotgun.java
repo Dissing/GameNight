@@ -7,16 +7,16 @@ package com.lassedissing.gamenight.world.weapons;
 
 import com.jme3.math.Vector3f;
 
-public class AK47 extends RangedWeapon {
 
+public class Shotgun extends RangedWeapon {
 
-    private static int maxMags = 3;
+    private static int maxMags = 5;
 
-    private static int maxRounds = 30;
+    private static int maxRounds = 5;
 
     private static float reloadTime = 2.0f;
-    private static float rateOfFireTime = 0.1f;
-    private static float bulletSpeed = 60f;
+    private static float rateOfFireTime = 0.4f;
+    private static float bulletSpeed = 20f;
 
     @Override
     public int getMaxMags() {
@@ -35,7 +35,7 @@ public class AK47 extends RangedWeapon {
 
     @Override
     public Type getType() {
-        return Weapon.Type.AK47;
+        return Weapon.Type.Shotgun;
     }
 
     @Override
@@ -50,12 +50,12 @@ public class AK47 extends RangedWeapon {
 
     @Override
     public Vector3f getTranslation() {
-        return new Vector3f(-0.2f, -0.7f, 1f);
+        return new Vector3f(-0.2f, -0.7f, 0.8f);
     }
 
     @Override
     public float getRotationX() {
-        return -0.5f;
+        return -0.7f;
     }
 
     @Override
@@ -72,7 +72,5 @@ public class AK47 extends RangedWeapon {
     public float getScale() {
         return 0.03f;
     }
-
-
 
 }
