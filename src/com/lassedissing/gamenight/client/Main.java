@@ -44,6 +44,7 @@ import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
 import com.lassedissing.gamenight.world.weapons.AK47;
+import com.lassedissing.gamenight.world.weapons.Pistol;
 import com.lassedissing.gamenight.world.weapons.Shotgun;
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +91,8 @@ public class Main extends SimpleApplication {
     private ChatBar chatBar;
     private InventoryGui inventoryGui;
 
+    private Map<Weapon.Type, WeaponView> weaponMeshCache = new HashMap<>();
+
     private boolean isSpawned = false;
 
     public static void main(String[] args) {
@@ -128,6 +131,11 @@ public class Main extends SimpleApplication {
 
         weapon.addWeapon(new AK47());
         weapon.addWeapon(new Shotgun());
+        weapon.addWeapon(new Pistol());
+
+        for (Weapon.Type type : Weapon.Type.values()) {
+            weaponMeshCache.put(type, new WeaponView(type.toString(), assetManager));
+        }
 
         initHUD();
 
@@ -425,8 +433,9 @@ public class Main extends SimpleApplication {
             buildBar.setSlot(index, inventoryGui.getIdAtSelectedSlot());
         } else if (inputProcessor.isInGameMode()) {
             switch (index) {
-                case 0: weapon.setWeapon(Weapon.Type.AK47);break;
-                case 1: weapon.setWeapon(Weapon.Type.Shotgun);break;
+                case 0: weapon.setWeapon(Weapon.Type.Pistol);break;
+                case 1: weapon.setWeapon(Weapon.Type.AK47);break;
+                case 2: weapon.setWeapon(Weapon.Type.Shotgun);break;
             }
         }
     }
@@ -485,6 +494,10 @@ public class Main extends SimpleApplication {
 
     public InventoryGui getInventoryGui() {
         return inventoryGui;
+    }
+
+    public Map<Weapon.Type, WeaponView> getWeaponMeshCache() {
+        return weaponMeshCache;
     }
 
     public class ClientListener implements MessageListener<Client> {

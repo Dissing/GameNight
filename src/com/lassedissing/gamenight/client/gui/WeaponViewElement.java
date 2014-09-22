@@ -5,7 +5,6 @@
 
 package com.lassedissing.gamenight.client.gui;
 
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -14,17 +13,12 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.lassedissing.gamenight.client.WeaponView;
 import com.lassedissing.gamenight.world.weapons.Weapon;
-import com.lassedissing.gamenight.world.weapons.Weapon.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class WeaponViewElement extends GuiElement {
 
     private Geometry weaponGeo;
     private ViewPort weaponView;
-
-    private Map<Type, WeaponView> weaponMesh = new HashMap<>();
 
     private boolean moving;
     private float time;
@@ -40,10 +34,6 @@ public class WeaponViewElement extends GuiElement {
         weaponView = renderManager.createMainView("weapon view", weaponCam);
         weaponView.setClearFlags(false, true, false);
         weaponView.setEnabled(false);
-
-        for (Type type : Type.values()) {
-            weaponMesh.put(type, new WeaponView(type.toString(), context.getAssetManager()));
-        }
 
         weaponGeo = new Geometry("Weapon");
         weaponView.attachScene(weaponGeo);
@@ -69,7 +59,7 @@ public class WeaponViewElement extends GuiElement {
     }
 
     public void setType(Weapon weapon) {
-        WeaponView view = weaponMesh.get(weapon.getType());
+        WeaponView view = context.getMain().getWeaponMeshCache().get(weapon.getType());
 
         weaponGeo.setLocalRotation(Quaternion.IDENTITY);
         weaponGeo.setLocalScale(1.0f);

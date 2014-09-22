@@ -15,7 +15,8 @@ public interface Weapon {
         AK47,
         Sword,
         Multitool,
-        Shotgun
+        Shotgun,
+        Pistol
     }
 
     public Type getType();
