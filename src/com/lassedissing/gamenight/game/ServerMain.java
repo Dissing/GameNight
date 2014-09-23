@@ -8,6 +8,7 @@ import com.jme3.system.JmeContext;
 import com.lassedissing.gamenight.Log;
 import com.lassedissing.gamenight.NetworkRegistrar;
 import com.lassedissing.gamenight.eventmanagning.EventStacker;
+import com.lassedissing.gamenight.messages.ChatMessage;
 import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
@@ -159,6 +160,8 @@ public class ServerMain extends SimpleApplication {
                 gameContainer.getPlayer(Integer.parseInt(parts[1])).damage(Integer.parseInt(parts[2]));
             }
 
+        } else {
+            Log.DEBUG("Did not reconize command %s", parts[0]);
         }
     }
 
@@ -192,8 +195,16 @@ public class ServerMain extends SimpleApplication {
         @Override
         public void messageReceived(HostedConnection source, Message m) {
 
-            if (!(m instanceof JoinMessage)) {
+            if (!(m instanceof JoinMessage || m instanceof ChatMessage)) {
                 messageQueue.add(m);
+            } else if (m instanceof ChatMessage) {
+                ChatMessage msg = (ChatMessage) m;
+                if (msg.getMessage().charAt(0) == '/') {
+                    processConsoleInput(msg.getMessage().substring(1).trim());
+                } else {
+                    server.broadcast(new ChatMessage(msg.getPlayerId(),gameContainer.getPlayer(msg.getPlayerId()).getName()+": "+msg.getMessage()));
+                }
+
             } else {
                 String name = ((JoinMessage)m).getName();
                 Log.INFO("Player %s:%d connected from %s", name, source.getId(), source.getAddress());

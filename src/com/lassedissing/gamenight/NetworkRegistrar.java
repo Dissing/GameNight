@@ -20,6 +20,7 @@ import com.lassedissing.gamenight.events.player.PlayerStatEvent;
 import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
+import com.lassedissing.gamenight.messages.ChatMessage;
 import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
@@ -42,6 +43,7 @@ public class NetworkRegistrar {
         Serializer.registerClass(UpdateMessage.class);
         Serializer.registerClass(WelcomeMessage.class);
         Serializer.registerClass(JoinMessage.class);
+        Serializer.registerClass(ChatMessage.class);
         Serializer.registerClass(EntityMovedEvent.class);
         Serializer.registerClass(EntityDiedEvent.class);
         Serializer.registerClass(EntitySpawnedEvent.class);

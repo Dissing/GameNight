@@ -22,6 +22,7 @@ import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.messages.BlockChangeMessage;
+import com.lassedissing.gamenight.messages.ChatMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.world.Bullet;
 import com.lassedissing.gamenight.world.Flag;

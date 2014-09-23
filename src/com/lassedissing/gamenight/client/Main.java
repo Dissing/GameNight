@@ -35,6 +35,7 @@ import com.lassedissing.gamenight.events.entity.EntitySpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerDiedEvent;
 import com.lassedissing.gamenight.events.player.PlayerSpawnedEvent;
 import com.lassedissing.gamenight.events.player.PlayerTeleportEvent;
+import com.lassedissing.gamenight.messages.ChatMessage;
 import com.lassedissing.gamenight.messages.ChunkMessage;
 import com.lassedissing.gamenight.messages.JoinMessage;
 import com.lassedissing.gamenight.messages.UpdateMessage;
@@ -162,6 +163,9 @@ public class Main extends SimpleApplication {
         guiElements.add(crosshair);
         guiElements.add(statBar);
         guiElements.add(infoBar);
+
+        this.setDisplayStatView(false);
+        this.setDisplayFps(true);
     }
 
     private void initNetwork() {
@@ -293,6 +297,13 @@ public class Main extends SimpleApplication {
             System.out.println("Joined server and got id: " + clientId);
             for (PlayerNewEvent other : msg.otherPlayers) {
                 players.put(other.playerId, new PlayerView(other.playerId, rootNode, this));
+            }
+
+        } else if (m instanceof ChatMessage) {
+
+            ChatMessage msg = (ChatMessage) m;
+            for (String line : msg.getMessage().split("\n")) {
+                chatBar.pushLine(line);
             }
 
         } else if (m instanceof UpdateMessage) {
