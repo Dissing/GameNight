@@ -59,8 +59,8 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         INPUT_CRAWL,
         INPUT_LEFT_CLICK,
         INPUT_RIGHT_CLICK,
-        INPUT_SELECT_INC,
-        INPUT_SELECT_DEC,
+        INPUT_WHEEL_INC,
+        INPUT_WHEEL_DEC,
         INPUT_CHAT,
         INPUT_INVENTORY,
         INPUT_SELECT_1,
@@ -109,8 +109,8 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         inputManager.addMapping(INPUT_CAM_DOWN.name(), new MouseAxisTrigger(mouseInput.AXIS_Y, true), new KeyTrigger(KeyInput.KEY_DOWN));
         inputManager.addMapping(INPUT_LEFT_CLICK.name(), new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping(INPUT_RIGHT_CLICK.name(), new MouseButtonTrigger(mouseInput.BUTTON_RIGHT));
-        inputManager.addMapping(INPUT_SELECT_INC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,false));
-        inputManager.addMapping(INPUT_SELECT_DEC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,true));
+        inputManager.addMapping(INPUT_WHEEL_INC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,false));
+        inputManager.addMapping(INPUT_WHEEL_DEC.name(), new MouseAxisTrigger(MouseInput.AXIS_WHEEL,true));
 
 
         inputManager.addListener(this, keyMappings);
@@ -165,9 +165,9 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
             }
         }
 
-        if (name.equalsIgnoreCase(INPUT_SELECT_INC.name())) {
+        if (name.equalsIgnoreCase(INPUT_WHEEL_INC.name())) {
             main.wheelSelect(value);
-        } else if (name.equalsIgnoreCase(INPUT_SELECT_DEC.name())) {
+        } else if (name.equalsIgnoreCase(INPUT_WHEEL_DEC.name())) {
             main.wheelSelect(-value);
         }
     }
