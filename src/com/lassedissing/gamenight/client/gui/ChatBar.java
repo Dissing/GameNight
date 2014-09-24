@@ -67,15 +67,17 @@ public class ChatBar extends GuiElement {
 
     public void deleteChar() {
         if (lineBuffer.length()> 0) {
-            lineBuffer.deleteCharAt(lineBuffer.length()-1);
+            lineBuffer.deleteCharAt(lineBuffer.length());
             showLineBuffer();
         }
     }
 
     public void enterLine() {
-        context.getMain().getClient().send(new ChatMessage(context.getMain().getClientId(), lineBuffer.toString().trim()));
-        lineBuffer.delete(0, lineBuffer.length()-1);
-        showLineBuffer();
+        if (lineBuffer.length() > 0) {
+            context.getMain().getClient().send(new ChatMessage(context.getMain().getClientId(), lineBuffer.toString().trim()));
+            lineBuffer.delete(0, lineBuffer.length()-1);
+            showLineBuffer();
+        }
     }
 
     public void pushLine(String line) {

@@ -257,19 +257,19 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
     @Override
     public void onKeyEvent(KeyInputEvent event) {
         if (chatMode) {
-            if (event.getKeyCode() == KeyInput.KEY_BACK) {
+            if (event.getKeyCode() == KeyInput.KEY_BACK && event.isPressed()) {
                 main.getChatBar().deleteChar();
             } else if (event.getKeyCode() == KeyInput.KEY_RETURN && event.isReleased()) {
                 main.getChatBar().enterLine();
+                chatMode = false;
             } else if (event.getKeyCode() == KeyInput.KEY_ESCAPE) {
                 chatMode = false;
-                event.setConsumed();
             } else {
-                if (event.isPressed()) {
+                if (event.isPressed() && !Character.isWhitespace(event.getKeyChar())) {
                     main.getChatBar().pushChar(event.getKeyChar());
-                    event.setConsumed();
                 }
             }
+            event.setConsumed();
         }
     }
 
