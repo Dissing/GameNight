@@ -20,7 +20,7 @@ public class FlagEvent extends Event {
     private int playerId;
     private boolean reset;
     private boolean isMove;
-    private Vector3f newLocation;
+    private Vector3f newLocation = new Vector3f();
 
     public FlagEvent(int playerId, int flagId) {
         this.playerId = playerId;
@@ -32,7 +32,7 @@ public class FlagEvent extends Event {
     }
 
     public FlagEvent(int flagId, Vector3f newLocation) {
-        this.newLocation = newLocation;
+        this.newLocation.set(newLocation);
     }
 
     public int getPlayerId() {
