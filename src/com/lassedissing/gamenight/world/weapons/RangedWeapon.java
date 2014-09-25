@@ -24,11 +24,13 @@ public abstract class RangedWeapon implements Weapon {
 
     public abstract float getBulletSpeed();
 
+    public abstract boolean getDefaultMode();
+
 
     public RangedWeapon() {
         mags = getMaxMags();
         rounds = getMaxRoundsInMag();
-        isAutomatic = true;
+        isAutomatic = getDefaultMode();
     }
 
 

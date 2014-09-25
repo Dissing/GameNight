@@ -15,10 +15,12 @@ public class InfoSyncEvent extends Event {
 
     private boolean timeRunning;
     private float time;
+    private boolean buildPhase;
 
-    public InfoSyncEvent(boolean timeRunning, float time) {
+    public InfoSyncEvent(boolean timeRunning, float time, boolean buildPhase) {
         this.timeRunning = timeRunning;
         this.time = time;
+        this.buildPhase = buildPhase;
     }
 
     public boolean isTimeRunning() {
@@ -27,6 +29,10 @@ public class InfoSyncEvent extends Event {
 
     public float getTime() {
         return time;
+    }
+
+    public boolean isInBuildPhase() {
+        return buildPhase;
     }
 
     /**

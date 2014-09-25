@@ -42,6 +42,7 @@ import com.lassedissing.gamenight.messages.UpdateMessage;
 import com.lassedissing.gamenight.messages.PlayerMovementMessage;
 import com.lassedissing.gamenight.messages.WelcomeMessage;
 import com.lassedissing.gamenight.world.Bullet;
+import com.lassedissing.gamenight.world.ClassInfo;
 import com.lassedissing.gamenight.world.EntityType;
 import com.lassedissing.gamenight.world.Flag;
 import com.lassedissing.gamenight.world.weapons.AK47;
@@ -76,6 +77,8 @@ public class Main extends SimpleApplication {
     public static int ANISOTROPIC = 0;
 
     public boolean buildMode = false;
+    public boolean buildPhase = false;
+    private ClassInfo.Type classType = ClassInfo.Type.Heavy;
 
     private PlayerController player = new PlayerController();
     private DiggingController digging = new DiggingController();
@@ -130,15 +133,14 @@ public class Main extends SimpleApplication {
         cam.setFrustumNear(0.4f);
         cam.setFrustumPerspective(70f, 1.6f, 0.1f, 200f);
 
-        weapon.addWeapon(new AK47());
-        weapon.addWeapon(new Shotgun());
-        weapon.addWeapon(new Pistol());
-
         for (Weapon.Type type : Weapon.Type.values()) {
             weaponMeshCache.put(type, new WeaponView(type.toString(), assetManager));
         }
 
         initHUD();
+
+        setClass(ClassInfo.Type.Engineer);
+
 
 
     }
@@ -155,7 +157,6 @@ public class Main extends SimpleApplication {
 
         infoBar.setTime(100);
         weapon.setupElement(guiContext, cam, renderManager);
-        weapon.setWeapon(Weapon.Type.AK47);
 
         statBar.setHealth(10);
         statBar.updateWeapon(weapon.getCurrentWeapon());
@@ -184,6 +185,15 @@ public class Main extends SimpleApplication {
         client.start();
 
         client.send(new JoinMessage(name));
+    }
+
+    public void setClass(ClassInfo.Type type) {
+        System.out.println(type.name());
+        weapon.clearWeapons();
+        for (Weapon w : ClassInfo.getWeapons(type)) {
+            weapon.addWeapon(w);
+        }
+        weapon.setWeapon(ClassInfo.getDefault(type));
     }
 
     public void wheelSelect(float value) {
@@ -259,7 +269,7 @@ public class Main extends SimpleApplication {
             if (buildMode) {
                 digging.tick(this, tpf);
             } else {
-                weapon.tick(this, tpf);
+                weapon.tick(tpf);
             }
         }
 
@@ -366,6 +376,9 @@ public class Main extends SimpleApplication {
 
                         PlayerSpawnedEvent event = (PlayerSpawnedEvent) e;
                         if (event.playerId == clientId) {
+                            if (!buildMode) {
+                                setClass(classType);
+                            }
                             player.setEyeLocation(event.getLocation());
                             isSpawned = true;
                             System.out.println("Spawning");
@@ -419,6 +432,14 @@ public class Main extends SimpleApplication {
                     System.out.println(event.getTime());
                     infoBar.enable(event.isTimeRunning());
                     infoBar.setTime((int)event.getTime());
+                    if (event.isInBuildPhase() != buildPhase) {
+                        if (event.isInBuildPhase()) {
+                            setClass(ClassInfo.Type.Engineer);
+                        } else {
+                            setClass(classType);
+                        }
+                        buildPhase = event.isInBuildPhase();
+                    }
                 }
             }
             chunkManager.rebuildChunks();
@@ -431,7 +452,6 @@ public class Main extends SimpleApplication {
             buildMode = false;
             chunkManager.hideSelectBlock();
             buildBar.hide(true);
-            weapon.setWeapon(Weapon.Type.AK47);
         } else {
             buildMode = true;
             buildBar.hide(false);

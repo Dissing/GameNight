@@ -19,6 +19,11 @@ public class Shotgun extends RangedWeapon {
     private static float bulletSpeed = 20f;
 
     @Override
+    public boolean getDefaultMode() {
+        return false;
+    }
+
+    @Override
     public int getMaxMags() {
         return maxMags;
     }

@@ -8,6 +8,7 @@ package com.lassedissing.gamenight.client;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.lassedissing.gamenight.client.gui.GuiContext;
+import com.lassedissing.gamenight.client.gui.StatBar;
 import com.lassedissing.gamenight.client.gui.WeaponViewElement;
 import com.lassedissing.gamenight.messages.ActivateWeaponMessage;
 import com.lassedissing.gamenight.world.weapons.Weapon;
@@ -22,12 +23,15 @@ public class WeaponController {
 
     private WeaponViewElement weaponElement;
 
+    private Main app;
+
 
     public void setupElement(GuiContext guiContext, Camera cam, RenderManager renderManager) {
         weaponElement = new WeaponViewElement(guiContext,cam, renderManager);
+        app = guiContext.getMain();
     }
 
-    public void tick(Main app, float tpf) {
+    public void tick(float tpf) {
         currentWeapon.tick(tpf);
         if (app.getInputProcessor().leftClick()) {
             currentWeapon.fireEvent(app);
@@ -40,6 +44,7 @@ public class WeaponController {
     public void setWeapon(Weapon.Type type) {
         currentWeapon = weapons.get(type);
         weaponElement.setType(currentWeapon);
+        app.getStatBar().updateWeapon(currentWeapon);
     }
 
     public Weapon getCurrentWeapon() {
@@ -48,6 +53,10 @@ public class WeaponController {
 
     public void addWeapon(Weapon weapon) {
         weapons.put(weapon.getType(), weapon);
+    }
+
+    void clearWeapons() {
+        weapons.clear();
     }
 
 }

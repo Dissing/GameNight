@@ -49,7 +49,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
 
     private int nextEntityId = 0;
 
-    private int buildTime = 60;
+    private int buildTime = 30;
 
     public void init() {
 
@@ -152,7 +152,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
     }
 
     public void startGame() {
-        EventManager.sendEvent(new InfoSyncEvent(true, buildTime));
+        EventManager.sendEvent(new InfoSyncEvent(true, buildTime,true));
         Log.INFO("Game started: BUILD MODE");
 
         flags.put(0,new Flag(nextEntityId++,0, world.getFlagLocation(0)));
@@ -166,6 +166,7 @@ public class ServerGameContainer implements GameContainer, EventListener {
             @Override
             public void execute() {
                 world.setWall(false);
+                EventManager.sendEvent(new InfoSyncEvent(true, 900,false));
                 Log.INFO("ATTACK MODE");
             }
         }, buildTime);

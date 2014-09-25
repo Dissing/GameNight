@@ -19,6 +19,11 @@ public class AK47 extends RangedWeapon {
     private static float bulletSpeed = 60f;
 
     @Override
+    public boolean getDefaultMode() {
+        return true;
+    }
+
+    @Override
     public int getMaxMags() {
         return maxMags;
     }
