@@ -132,7 +132,6 @@ public class InputProcessor implements AnalogListener, ActionListener, RawInputL
         } else if (name.equalsIgnoreCase(INPUT_JUMP.name())) {
             jumpAction = isPressed;
         } else if (name.equalsIgnoreCase(INPUT_TAB.name()) && isPressed) {
-            main.switchMode();
         } else if (name.equalsIgnoreCase(INPUT_INVENTORY.name()) && isPressed) {
             inventoryMode = !inventoryMode;
             mouseTrapped = inventoryMode;

@@ -86,4 +86,8 @@ public abstract class RangedWeapon implements Weapon {
         return isAutomatic;
     }
 
+    @Override
+    public boolean canDig() {
+        return false;
+    }
 }

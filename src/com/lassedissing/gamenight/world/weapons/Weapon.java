@@ -39,4 +39,6 @@ public interface Weapon {
 
     public float getScale();
 
+    public boolean canDig();
+
 }

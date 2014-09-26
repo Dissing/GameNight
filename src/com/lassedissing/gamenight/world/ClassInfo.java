@@ -6,6 +6,7 @@
 package com.lassedissing.gamenight.world;
 
 import com.lassedissing.gamenight.world.weapons.AK47;
+import com.lassedissing.gamenight.world.weapons.Multitool;
 import com.lassedissing.gamenight.world.weapons.Pistol;
 import com.lassedissing.gamenight.world.weapons.Shotgun;
 import com.lassedissing.gamenight.world.weapons.Weapon;
@@ -26,7 +27,7 @@ public class ClassInfo {
             case Light: return new Weapon[]{new Pistol(), new AK47()};
             case Heavy: return new Weapon[]{new Pistol(), new Shotgun()};
             case Engineer: return new Weapon[]{new Pistol()};
-            case Support: return new Weapon[]{new Pistol()};
+            case Support: return new Weapon[]{new Multitool(), new Pistol()};
             default: throw new InvalidParameterException("Unknown class");
         }
     }
@@ -36,7 +37,7 @@ public class ClassInfo {
             case Light: return Weapon.Type.AK47;
             case Heavy: return Weapon.Type.Shotgun;
             case Engineer: return Weapon.Type.Pistol;
-            case Support: return Weapon.Type.Pistol;
+            case Support: return Weapon.Type.Multitool;
             default: throw new InvalidParameterException("Unknown class");
         }
     }

@@ -19,6 +19,8 @@ import java.util.Map;
 public class WeaponController {
 
     private Map<Weapon.Type,Weapon> weapons = new HashMap<>();
+    private Weapon.Type[] weaponIndices = new Weapon.Type[8];
+    private int nextIndex = 0;
     private Weapon currentWeapon;
 
     private WeaponViewElement weaponElement;
@@ -45,6 +47,15 @@ public class WeaponController {
         currentWeapon = weapons.get(type);
         weaponElement.setType(currentWeapon);
         app.getStatBar().updateWeapon(currentWeapon);
+        if (currentWeapon.canDig() != app.buildMode) {
+            app.switchMode();
+        }
+    }
+
+    public void setWeapon(int index) {
+        if (index < nextIndex) {
+            setWeapon(weaponIndices[index]);
+        }
     }
 
     public Weapon getCurrentWeapon() {
@@ -53,10 +64,13 @@ public class WeaponController {
 
     public void addWeapon(Weapon weapon) {
         weapons.put(weapon.getType(), weapon);
+        weaponIndices[nextIndex++] = weapon.getType();
     }
 
     void clearWeapons() {
         weapons.clear();
+        weaponIndices = new Weapon.Type[8];
+        nextIndex = 0;
     }
 
 }

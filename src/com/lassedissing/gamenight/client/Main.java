@@ -188,7 +188,6 @@ public class Main extends SimpleApplication {
     }
 
     public void setClass(ClassInfo.Type type) {
-        System.out.println(type.name());
         weapon.clearWeapons();
         for (Weapon w : ClassInfo.getWeapons(type)) {
             weapon.addWeapon(w);
@@ -268,9 +267,8 @@ public class Main extends SimpleApplication {
 
             if (buildMode) {
                 digging.tick(this, tpf);
-            } else {
-                weapon.tick(tpf);
             }
+            weapon.tick(tpf);
         }
 
         for (GuiElement element : guiElements) {
@@ -376,7 +374,7 @@ public class Main extends SimpleApplication {
 
                         PlayerSpawnedEvent event = (PlayerSpawnedEvent) e;
                         if (event.playerId == clientId) {
-                            if (!buildMode) {
+                            if (!buildPhase) {
                                 setClass(classType);
                             }
                             player.setEyeLocation(event.getLocation());
@@ -429,7 +427,6 @@ public class Main extends SimpleApplication {
                 } else if (e instanceof InfoSyncEvent) {
 
                     InfoSyncEvent event = (InfoSyncEvent) e;
-                    System.out.println(event.getTime());
                     infoBar.enable(event.isTimeRunning());
                     infoBar.setTime((int)event.getTime());
                     if (event.isInBuildPhase() != buildPhase) {
@@ -463,11 +460,7 @@ public class Main extends SimpleApplication {
         if (inputProcessor.isInInventoryMode()) {
             buildBar.setSlot(index, inventoryGui.getIdAtSelectedSlot());
         } else if (inputProcessor.isInGameMode()) {
-            switch (index) {
-                case 0: weapon.setWeapon(Weapon.Type.Pistol);break;
-                case 1: weapon.setWeapon(Weapon.Type.AK47);break;
-                case 2: weapon.setWeapon(Weapon.Type.Shotgun);break;
-            }
+            weapon.setWeapon(index);
         }
     }
 
