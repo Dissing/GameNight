@@ -78,7 +78,7 @@ public class Main extends SimpleApplication {
 
     public boolean buildMode = false;
     public boolean buildPhase = false;
-    private ClassInfo.Type classType = ClassInfo.Type.Heavy;
+    private ClassInfo.Type classType = ClassInfo.Type.Engineer;
 
     private PlayerController player = new PlayerController();
     private DiggingController digging = new DiggingController();

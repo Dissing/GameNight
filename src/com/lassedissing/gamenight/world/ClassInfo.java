@@ -26,8 +26,8 @@ public class ClassInfo {
         switch (type) {
             case Light: return new Weapon[]{new Pistol(), new AK47()};
             case Heavy: return new Weapon[]{new Pistol(), new Shotgun()};
-            case Engineer: return new Weapon[]{new Pistol()};
-            case Support: return new Weapon[]{new Multitool(), new Pistol()};
+            case Engineer: return new Weapon[]{new Multitool(), new Pistol()};
+            case Support: return new Weapon[]{new Pistol()};
             default: throw new InvalidParameterException("Unknown class");
         }
     }
