@@ -67,7 +67,7 @@ public class ChatBar extends GuiElement {
 
     public void deleteChar() {
         if (lineBuffer.length()> 0) {
-            lineBuffer.deleteCharAt(lineBuffer.length());
+            lineBuffer.deleteCharAt(lineBuffer.length()-1);
             showLineBuffer();
         }
     }
@@ -75,7 +75,7 @@ public class ChatBar extends GuiElement {
     public void enterLine() {
         if (lineBuffer.length() > 0) {
             context.getMain().getClient().send(new ChatMessage(context.getMain().getClientId(), lineBuffer.toString().trim()));
-            lineBuffer.delete(0, lineBuffer.length()-1);
+            lineBuffer.delete(0, lineBuffer.length());
             showLineBuffer();
         }
     }
