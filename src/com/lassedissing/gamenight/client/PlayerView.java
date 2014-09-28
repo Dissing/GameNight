@@ -12,12 +12,14 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.lassedissing.gamenight.world.weapons.Weapon;
 
 
 public class PlayerView {
 
     private int id;
-    private Node node = new Node();;
+    private Node node = new Node();
+    private Geometry weaponGeo;
     private boolean visible = false;
 
     public PlayerView(int id, Node parent, Main app) {
@@ -34,6 +36,9 @@ public class PlayerView {
         Geometry arm2Geo = new Geometry("Player" + id + "arm2", armBox);
         Geometry leg1Geo = new Geometry("Player" + id + "leg1", legBox);
         Geometry leg2Geo = new Geometry("Player" + id + "leg2", legBox);
+        WeaponView weaponView = app.getWeaponMeshCache().get(Weapon.Type.AK47);
+        weaponGeo = new Geometry("Player" + id + "weapon", weaponView.mesh);
+        weaponGeo.setMaterial(weaponView.weaponMaterial);
 
         Material headMat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         Material torsoMat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -69,6 +74,11 @@ public class PlayerView {
         leg2Geo.setLocalTranslation(0.15f, legBox.yExtent, 0);
         leg2Geo.setMaterial(legMat);
 
+        node.attachChild(weaponGeo);
+        weaponGeo.setLocalTranslation(0.3f, 0.8f, 0);
+        weaponGeo.rotate(0, 3.14f, 0);
+        weaponGeo.scale(0.03f);
+
 
         parent.attachChild(node);
     }
@@ -82,7 +92,13 @@ public class PlayerView {
     }
 
     public void setRotation(Vector3f rot) {
-        node.lookAt(rot.add(getPosition()), Vector3f.UNIT_Y);
+        Vector3f nodeRot = new Vector3f(rot);
+        nodeRot.setX(0);
+        Vector3f weaponRot = new Vector3f(rot);
+        weaponRot.setY(0);
+        node.lookAt(nodeRot.add(getPosition()), Vector3f.UNIT_Y);
+        weaponGeo.lookAt(weaponRot.add(getPosition()), Vector3f.UNIT_Y);
+
     }
 
     public boolean isVisible() {
